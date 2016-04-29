@@ -699,29 +699,40 @@ void setup()
 			
 			
 			
-			delay(4500); //showing the splash screen
+			delay(4000); //showing the splash screen
 			
 			// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
 			//Config_RetrieveSettings();
-	
+			
 			/*if (quick_guide) {
-				genie.WriteStr(3,VERSION_STRING);						
-				delay(2500);
-				Serial.println("Welcome by first time to SIGMA");
-				
-				Config_StoreSettings(); //Store changes			
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_WELCOME,0);
-				surfing_utilities=true;				
-				
+			genie.WriteStr(3,VERSION_STRING);
+			delay(2500);
+			Serial.println("Welcome by first time to SIGMA");
+			
+			Config_StoreSettings(); //Store changes
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_WELCOME,0);
+			surfing_utilities=true;
+			
 			} else {*/
+			int i =0;
+			while ( i<100){
+				if (millis() >= waitPeriod){
+					
+					genie.WriteObject(GENIE_OBJ_VIDEO,0,i);
+					i+=5;
+					waitPeriod = 120+millis();	//Every 5s
+				}
 				
 				
 				
-				genie.WriteStr(STRING_VERSION,VERSION_STRING);
-				
-				while(led < 256){
-					if (millis() >= waitPeriod)
-					{
+			}
+			
+			
+			genie.WriteStr(STRING_VERSION,VERSION_STRING);
+			
+			while(led < 256){
+				if (millis() >= waitPeriod)
+				{
 						analogWrite(RED,led);
 						analogWrite(GREEN,led);
 						analogWrite(BLUE,led);
