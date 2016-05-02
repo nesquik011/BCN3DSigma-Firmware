@@ -223,6 +223,7 @@ Rapduch
 //===========================================================================
 #ifdef SDSUPPORT
 	CardReader card;
+	Listfiles listsd;
 #endif
 
 
@@ -957,7 +958,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 						}
 						buffer[count]='\0';
 						char* buffer2 = strcat(buffer,"...\0");
-						genie.WriteStr(STRING_NAME_FILE,buffer2);//Printing form
+						genie.WriteStr(stringfilename[1],buffer2);//Printing form
 					}
 					else {
 						for (int i = 0; i<String(card.longFilename).length(); i++)	{
@@ -975,7 +976,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 							Serial.print(i);
 						}
 						//buffer[count]='\0';
-						genie.WriteStr(STRING_NAME_FILE,buffer);//Printing form
+						genie.WriteStr(stringfilename[1],buffer);//Printing form
 						//Is a file
 						//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 					}

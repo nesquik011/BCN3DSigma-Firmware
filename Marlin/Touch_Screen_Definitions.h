@@ -20,7 +20,14 @@
 /////////////////////////////////////////////////////
 
 #define FORM_SDFILES								2
-	#define STRING_NAME_FILE				1
+	#define STRING_NAME_FILE0				23
+	#define STRING_NAME_FILE1				1
+	#define STRING_NAME_FILE2				8
+	#define STRING_NAME_FILE3				12
+	#define STRING_NAME_FILE_DUR0			24
+	#define STRING_NAME_FILE_DUR1			7
+	#define STRING_NAME_FILE_DUR2			25
+	#define STRING_NAME_FILE_DUR3			26
 	#define BUTTON_SD_SELECTED				15
 	#define BUTTON_SD_LEFT					14
 	#define BUTTON_SD_RIGHT					5	

@@ -4,7 +4,7 @@
 * Created: 12/12/2014 12:48:04
 * Author: Jordi Calduch (Dryrain)
 */
-
+#include "SD_ListFiles.h"
 #ifdef SIGMA_TOUCH_SCREEN
 
 #ifndef LCD_HANDLER_H_
@@ -17,6 +17,8 @@
 #include "Configuration.h"
 #include "stepper.h"
 #include "temperature.h"
+
+
 //#include "ultralcd.h"
 void insertmetod();
 extern bool cancel_heatup;
@@ -41,7 +43,8 @@ int custom_insert_temp = 210;
 int custom_remove_temp = 210;
 int custom_print_temp = 210;
 int custom_bed_temp = 40;
-
+ unsigned int stringfilename[4] = {STRING_NAME_FILE0, STRING_NAME_FILE1, STRING_NAME_FILE2, STRING_NAME_FILE3};
+ unsigned int stringfiledur[4] = {STRING_NAME_FILE_DUR0, STRING_NAME_FILE_DUR1, STRING_NAME_FILE_DUR2, STRING_NAME_FILE_DUR3};
 
 
 int redo_source;
@@ -384,7 +387,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				//*****SD Gcode Selection*****
 				#pragma region SD Gcode Selector
-				else if (Event.reportObject.index == BUTTON_SD_SELECTED ||  Event.reportObject.index == STRING_NAME_FILE)
+				else if (Event.reportObject.index == BUTTON_SD_SELECTED ||  Event.reportObject.index == stringfiledur[1])
 				{
 					if(card.cardOK)
 					{						
@@ -448,12 +451,17 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 						}
 						Serial.println(card.longFilename);
+						
 						int line = 23;
 						int count = 63;
 						char buffer[count+3];
 						int x = 0;
 						memset( buffer, '\0', sizeof(char)*count );
 						
+						listsd.get_lineduration();
+						//Serial.println(listsd.comandline);
+						
+						sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
 						if (String(card.longFilename).length() > count){
 							for (int i = 0; i<count ; i++)
 							{
@@ -472,7 +480,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							}
 							buffer[count]='\0';
 							char* buffer2 = strcat(buffer,"...\0");
-							genie.WriteStr(STRING_NAME_FILE,buffer2);//Printing form
+							genie.WriteStr(stringfilename[1],buffer2);//Printing form
+							genie.WriteStr(stringfiledur[1],listsd.comandline2);//Printing form
+							
 						}
 						else {
 							for (int i = 0; i<=String(card.longFilename).length() ; i++)	{
@@ -490,7 +500,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								x++;
 							}
 							buffer[count]='\0';
-							genie.WriteStr(STRING_NAME_FILE,buffer);//Printing form
+							genie.WriteStr(stringfilename[1],buffer);//Printing form
+							genie.WriteStr(stringfiledur[1],listsd.comandline2);//Printing form
 							//Is a file
 							//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 							
@@ -498,6 +509,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						//Keep in mind to control the length of the string displayed!
 						//genie.WriteStr(2,card.longFilename);
+						
+						
 						Serial.print("Image n: ");
 						Serial.println(filepointer);
 					}
@@ -2775,6 +2788,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							int x = 0;
 							memset( buffer, '\0', sizeof(char)*count );
 							
+							listsd.get_lineduration();
+							sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
+							//Serial.println(listsd.comandline);
+							
 							if (String(card.longFilename).length() > count){
 								for (int i = 0; i<count ; i++)
 								{
@@ -2793,7 +2810,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								}
 								buffer[count]='\0';
 								char* buffer2 = strcat(buffer,"...\0");
-								genie.WriteStr(STRING_NAME_FILE,buffer2);//Printing form
+								genie.WriteStr(stringfilename[1],buffer2);//Printing form
+								genie.WriteStr(stringfiledur[1],listsd.comandline2);//Printing form
 							}
 							else {
 								for (int i = 0; i<String(card.longFilename).length(); i++)	{
@@ -2811,7 +2829,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 									Serial.print(i);
 								}
 								//buffer[count]='\0';
-								genie.WriteStr(STRING_NAME_FILE,buffer);//Printing form
+								genie.WriteStr(stringfilename[1],buffer);//Printing form
+								genie.WriteStr(stringfiledur[1],listsd.comandline2);//Printing form
 								//Is a file
 								//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
 							}
@@ -2819,7 +2838,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 					}
 					else{
-						genie.WriteStr(STRING_NAME_FILE,"                  Insert SD Card");//Printing form
+						genie.WriteStr(stringfilename[1],"                  Insert SD Card");//Printing form
 						screen_sdcard = true;
 					}
 				}
