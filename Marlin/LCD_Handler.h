@@ -442,78 +442,132 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							}
 						}
 						
-						card.getfilename(filepointer);
+						int vecto = 0;
+						int jint = 0;
+						
+						
+						
+						uint16_t fileCnt = card.getnrfilenames();
+						//Declare filepointer
+						card.getWorkDirName();
+						//Text index starts at 0
+						//for(jint = 0; jint < 4; jint++){//
+						if(fileCnt > 3){
+							if(filepointer==0){
+								vecto = fileCnt - 1;
+							}
+							else{
+								vecto = filepointer -1;
+							}
+							card.getfilename(vecto);
+							Serial.println(card.longFilename);
+							if (card.filenameIsDir)
+							{
+								//Is a folder
+								//genie.WriteStr(1,card.longFilename);
+								//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
+								}else{
+								
+								listsd.get_lineduration();
+								sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
+								//Serial.println(listsd.comandline);
+								setfilenames(jint);
+								
+							}
+							}else{
+							genie.WriteStr(stringfilename[jint],"----------------");//Printing form
+							genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+						}
+						jint++;
+						
+						
+						vecto = filepointer + jint -1;
+						card.getfilename(vecto);
+						Serial.println(card.longFilename);
 						if (card.filenameIsDir)
 						{
 							//Is a folder
+							//genie.WriteStr(1,card.longFilename);
 							//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
 							}else{
-							//Is a file
-							//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+							
+							listsd.get_lineduration();
+							sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
+							//Serial.println(listsd.comandline);
+							setfilenames(jint);
+							
 						}
-						Serial.println(card.longFilename);
 						
-						int line = 23;
-						int count = 63;
-						char buffer[count+3];
-						int x = 0;
-						memset( buffer, '\0', sizeof(char)*count );
+						jint++;
 						
-						listsd.get_lineduration();
-						//Serial.println(listsd.comandline);
-						
-						sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
-						if (String(card.longFilename).length() > count){
-							for (int i = 0; i<count ; i++)
+						if(fileCnt > 1){
+							if(filepointer == (fileCnt - 1)){
+								vecto = 0;
+							}
+							else
 							{
-								if (card.longFilename[i] == '.') i = count +10;
-								else if(i == 0) buffer[i]=card.longFilename[x];
-								else if (i%line == 0){
-									buffer[i] = '\n';
-									i++;
-									buffer[i]=card.longFilename[x];
-								}
-								else {
-									buffer[i]=card.longFilename[x];
-								}
-								Serial.print(i);
-								x++;
+								vecto = filepointer + jint -1;
 							}
-							buffer[count]='\0';
-							char* buffer2 = strcat(buffer,"...\0");
-							genie.WriteStr(stringfilename[1],buffer2);//Printing form
-							genie.WriteStr(stringfiledur[1],listsd.comandline2);//Printing form
-							
+							card.getfilename(vecto);
+							Serial.println(card.longFilename);
+							if (card.filenameIsDir)
+							{
+								//Is a folder
+								//genie.WriteStr(1,card.longFilename);
+								//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
+								}else{
+								
+								listsd.get_lineduration();
+								sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
+								//Serial.println(listsd.comandline);
+								setfilenames(jint);
+								
+							}
 						}
-						else {
-							for (int i = 0; i<=String(card.longFilename).length() ; i++)	{
-								if (card.longFilename[i] == '.') i = count +10;
-								else if(i == 0) buffer[i]=card.longFilename[x];
-								else if (i%line == 0){
-									buffer[i] = '\n';
-									i++;
-									buffer[i]=card.longFilename[x];
-								}
-								else {
-									buffer[i]=card.longFilename[x];
-								}
-								Serial.print(i);
-								x++;
-							}
-							buffer[count]='\0';
-							genie.WriteStr(stringfilename[1],buffer);//Printing form
-							genie.WriteStr(stringfiledur[1],listsd.comandline2);//Printing form
-							//Is a file
-							//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,0);
+						else{
+							genie.WriteStr(stringfilename[jint],"----------------");//Printing form
+							genie.WriteStr(stringfiledur[jint],"-----");//Printing form
 							
 						}
 						
-						//Keep in mind to control the length of the string displayed!
-						//genie.WriteStr(2,card.longFilename);
+						jint++;
+						
+						if(fileCnt > 2){
+							if(filepointer == (fileCnt - 2)){
+								vecto = 0;
+							}
+							else if(filepointer == (fileCnt - 1)){
+								vecto = 1;
+							}
+							else
+							{
+								vecto = filepointer + jint -1;
+							}
+							card.getfilename(vecto);
+							Serial.println(card.longFilename);
+							if (card.filenameIsDir)
+							{
+								//Is a folder
+								//genie.WriteStr(1,card.longFilename);
+								//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
+								}else{
+								
+								listsd.get_lineduration();
+								sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
+								//Serial.println(listsd.comandline);
+								setfilenames(jint);
+								
+							}
+						}
+						else{
+							genie.WriteStr(stringfilename[jint],"----------------");//Printing form
+							genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+							
+						}
 						
 						
-						Serial.print("Image n: ");
-						Serial.println(filepointer);
+						//	}//
+						
 					}
 				}
 				#pragma endregion SD Gcode Selector
@@ -2777,7 +2831,31 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						card.getWorkDirName();
 						//Text index starts at 0
 						//for(jint = 0; jint < 4; jint++){//
-						vecto = filepointer + jint;
+						if(fileCnt > 3){
+							vecto = fileCnt - 1;
+							card.getfilename(vecto);
+							Serial.println(card.longFilename);
+							if (card.filenameIsDir)
+							{
+								//Is a folder
+								//genie.WriteStr(1,card.longFilename);
+								//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
+								}else{
+								
+								listsd.get_lineduration();
+								sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
+								//Serial.println(listsd.comandline);
+								setfilenames(jint);
+								
+							}
+						}else{
+							genie.WriteStr(stringfilename[jint],"----------------");//Printing form
+							genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+						}
+						jint++;
+						
+						
+						vecto = filepointer + jint -1;
 						card.getfilename(vecto);
 						Serial.println(card.longFilename);
 						if (card.filenameIsDir)
@@ -2793,40 +2871,58 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							setfilenames(jint);
 							
 						}
+						
 						jint++;
 						
-						vecto = filepointer + jint;
-						card.getfilename(vecto);
-						Serial.println(card.longFilename);
-						if (card.filenameIsDir)
-						{
-							//Is a folder
-							//genie.WriteStr(1,card.longFilename);
-							//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
-							}else{
+						if(fileCnt > 1){
 							
-							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
-							//Serial.println(listsd.comandline);
-							setfilenames(jint);
+							vecto = filepointer + jint -1;
+							card.getfilename(vecto);
+							Serial.println(card.longFilename);
+							if (card.filenameIsDir)
+							{
+								//Is a folder
+								//genie.WriteStr(1,card.longFilename);
+								//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
+								}else{
+								
+								listsd.get_lineduration();
+								sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
+								//Serial.println(listsd.comandline);
+								setfilenames(jint);
+								
+							}
+						}
+						else{
+							genie.WriteStr(stringfilename[jint],"----------------");//Printing form
+							genie.WriteStr(stringfiledur[jint],"-----");//Printing form
 							
 						}
+						
 						jint++;
 						
-						vecto = filepointer + jint;
-						card.getfilename(vecto);
-						Serial.println(card.longFilename);
-						if (card.filenameIsDir)
-						{
-							//Is a folder
-							//genie.WriteStr(1,card.longFilename);
-							//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
-							}else{
+						if(fileCnt > 2){
 							
-							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
-							//Serial.println(listsd.comandline);
-							setfilenames(jint);
+							vecto = filepointer + jint-1;
+							card.getfilename(vecto);
+							Serial.println(card.longFilename);
+							if (card.filenameIsDir)
+							{
+								//Is a folder
+								//genie.WriteStr(1,card.longFilename);
+								//genie.WriteObject(GENIE_OBJ_USERIMAGES,0,1);
+								}else{
+								
+								listsd.get_lineduration();
+								sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
+								//Serial.println(listsd.comandline);
+								setfilenames(jint);
+								
+							}
+						}
+						else{
+							genie.WriteStr(stringfilename[jint],"----------------");//Printing form
+							genie.WriteStr(stringfiledur[jint],"-----");//Printing form
 							
 						}
 						
