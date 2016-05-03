@@ -15,8 +15,9 @@
 
 Listfiles::Listfiles(){
 	 dias=-1, horas=-1, minutos=-1;
+	filmetros1 = 0 ,filmetros1=0;
  comandline[50];
- comandline2[13];
+ comandline2[18];
 
 }
 
@@ -32,7 +33,7 @@ void Listfiles::get_lineduration(void){
 	int posi = 0;
 	int linecomepoint=0;
 	while(linecomepoint < 3){
-		memset(comandline, '\0', sizeof(char)*65 );
+		memset(comandline, '\0', sizeof(comandline) );
 		while(comandline[0]!=';'){
 			serial_char='\0';
 			posi = 0;
@@ -48,9 +49,25 @@ void Listfiles::get_lineduration(void){
 		}
 		linecomepoint++;
 	}
-	card.closefile();
 	extract_data();
-	Serial.println(comandline);
+	memset(comandline, '\0', sizeof(comandline) );
+	posi = 0;
+	serial_char='\0';
+	
+	while(serial_char != '\n' && posi < 49){
+		
+		int16_t n=card.get();
+		serial_char = (char)n;
+		comandline[posi]=serial_char;
+		
+		
+		posi++;
+	}
+	extract_data1();
+	card.closefile();
+	memset(comandline, '\0', sizeof(comandline) );
+		
+	//Serial.println(comandline);
 	
 	
 }
@@ -68,6 +85,14 @@ void Listfiles::extract_data(void){
 	if(minutos ==0){
 		minutos = 1;
 	}
+	
+}
+void Listfiles::extract_data1(void){
+	//Serial.println(comandline);
+	sscanf(comandline, ";Filament used: %d.%d ", &filmetros1, &filmetros2);
+	
+	//Serial.println(filmetros1);
+	
 }
 	
 int Listfiles::get_hours(){
@@ -84,4 +109,14 @@ int Listfiles::get_minutes(){
 	int mins = 0;
 	mins = minutos;
 	return mins;
+}
+int Listfiles::get_filmetros1(){
+	int metr = 0;
+	metr = filmetros1;
+	return metr;
+}
+int Listfiles::get_filmetros2(){
+	int metr = 0;
+	metr = filmetros2;
+	return metr;
 }

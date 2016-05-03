@@ -35,6 +35,7 @@ bool flag_resume = false;
 bool flag_full_calib = false;
 bool flag_bed_calib_done = false;
 bool screen_sdcard = false;
+bool updownsdfilesflag = true;
 int  print_setting_tool = 2;
 float offset_x_calib = 0;
 float offset_y_calib = 0;
@@ -388,8 +389,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				//*****SD Gcode Selection*****
 				#pragma region SD Gcode Selector
-				else if (Event.reportObject.index == BUTTON_SD_SELECTED ||  Event.reportObject.index == stringfiledur[1])
+				else if ((Event.reportObject.index == BUTTON_SD_SELECTED ||  Event.reportObject.index == stringfiledur[1]) && updownsdfilesflag)
 				{
+					
 					if(card.cardOK)
 					{						
 						dobloking = true;
@@ -420,8 +422,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				
 				
-				else if (Event.reportObject.index == BUTTON_SD_LEFT || Event.reportObject.index == BUTTON_SD_RIGHT) //TODO: control if SD is out
+				else if ((Event.reportObject.index == BUTTON_SD_LEFT || Event.reportObject.index == BUTTON_SD_RIGHT )&& updownsdfilesflag) //TODO: control if SD is out
 				{
+					updownsdfilesflag= false;
 					if (card.cardOK){
 						if (Event.reportObject.index == BUTTON_SD_LEFT) //LEFT button pressed
 						{
@@ -469,7 +472,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								}else{
 								
 								listsd.get_lineduration();
-								sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
+								sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
 								//Serial.println(listsd.comandline);
 								setfilenames(jint);
 								
@@ -492,7 +495,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							}else{
 							
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
+							sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
 							//Serial.println(listsd.comandline);
 							setfilenames(jint);
 							
@@ -518,7 +521,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								}else{
 								
 								listsd.get_lineduration();
-								sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
+								sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
 								//Serial.println(listsd.comandline);
 								setfilenames(jint);
 								
@@ -553,7 +556,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								}else{
 								
 								listsd.get_lineduration();
-								sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
+								sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
 								//Serial.println(listsd.comandline);
 								setfilenames(jint);
 								
@@ -569,6 +572,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						//	}//
 						
 					}
+					memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
+					updownsdfilesflag= true;
 				}
 				#pragma endregion SD Gcode Selector
 
@@ -2818,6 +2823,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				if (Event.reportObject.index == FORM_SDFILES)
 				{
 					//wake_RELAY();
+					updownsdfilesflag= false;
 					Serial.println("Form 2!");
 					////Check sdcardFiles
 					filepointer = 0;
@@ -2843,7 +2849,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								}else{
 								
 								listsd.get_lineduration();
-								sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
+								sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
 								//Serial.println(listsd.comandline);
 								setfilenames(jint);
 								
@@ -2866,7 +2872,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							}else{
 							
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
+							sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
 							//Serial.println(listsd.comandline);
 							setfilenames(jint);
 							
@@ -2887,7 +2893,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								}else{
 								
 								listsd.get_lineduration();
-								sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
+								sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
 								//Serial.println(listsd.comandline);
 								setfilenames(jint);
 								
@@ -2914,7 +2920,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								}else{
 								
 								listsd.get_lineduration();
-								sprintf(listsd.comandline2, "%dh %dm",listsd.get_hours(), listsd.get_minutes());
+								sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
 								//Serial.println(listsd.comandline);
 								setfilenames(jint);
 								
@@ -2934,6 +2940,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteStr(stringfilename[1],"                  Insert SD Card");//Printing form
 						screen_sdcard = true;
 					}
+					memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
+					updownsdfilesflag = true;
 				}
 				else if (Event.reportObject.index == FORM_PRINTING)
 				{
