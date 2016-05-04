@@ -422,10 +422,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				
 				
-				else if ((Event.reportObject.index == BUTTON_SD_LEFT || Event.reportObject.index == BUTTON_SD_RIGHT )&& updownsdfilesflag) //TODO: control if SD is out
+				else if ((Event.reportObject.index == BUTTON_SD_LEFT || Event.reportObject.index == BUTTON_SD_RIGHT || Event.reportObject.index == BUTTON_SD_LEFTx3 )&& updownsdfilesflag) //TODO: control if SD is out
 				{
 					updownsdfilesflag= false;
 					if (card.cardOK){
+						uint16_t fileCnt = card.getnrfilenames();
+						
 						if (Event.reportObject.index == BUTTON_SD_LEFT) //LEFT button pressed
 						{
 							if (filepointer == 0)
@@ -444,13 +446,39 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								filepointer++;
 							}
 						}
+						else if (Event.reportObject.index == BUTTON_SD_LEFTx3) //LEFT button pressed
+						{
+							if(fileCnt > 4){
+								if (filepointer == 0)
+								{
+									filepointer=card.getnrfilenames()-3; //Last SD file
+								}
+								else if(filepointer == 1){
+									filepointer=card.getnrfilenames()-2; //Last SD file
+								}
+								else if(filepointer == 2){
+									filepointer=card.getnrfilenames()-1; //Last SD file
+								}
+								else{
+									filepointer-=3;
+								}
+							}
+							else{
+								if (filepointer == 0)
+								{
+									filepointer=card.getnrfilenames()-1; //Last SD file
+									}else{
+									filepointer--;
+								}
+							}
+						}
 						
 						int vecto = 0;
 						int jint = 0;
 						
 						
 						
-						uint16_t fileCnt = card.getnrfilenames();
+						
 						//Declare filepointer
 						card.getWorkDirName();
 						//Text index starts at 0

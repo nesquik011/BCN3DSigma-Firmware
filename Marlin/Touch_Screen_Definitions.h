@@ -29,6 +29,7 @@
 	#define STRING_NAME_FILE_DUR2			25
 	#define STRING_NAME_FILE_DUR3			26
 	#define BUTTON_SD_SELECTED				15
+	#define BUTTON_SD_LEFTx3				37
 	#define BUTTON_SD_LEFT					14
 	#define BUTTON_SD_RIGHT					5	
 #define FORM_REDO_X_CAB							3
