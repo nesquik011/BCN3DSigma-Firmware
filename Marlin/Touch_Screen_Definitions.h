@@ -31,8 +31,11 @@
 	#define BUTTON_SD_SELECTED				15
 	#define BUTTON_SD_LEFTx3				37
 	#define BUTTON_SD_LEFT					14
-	#define BUTTON_SD_RIGHT					5	
-#define FORM_REDO_X_CAB							3
+	#define BUTTON_SD_RIGHT					5
+#define FORM_SDFILE_CONFIRMATION			15
+	#define BUTTON_SDCONFIRMATION_YES		38
+	#define BUTTON_SDCONFIRMATION_NO		39
+#define FORM_REDO_X_CAB						3
 	#define BUTTON_REDO_LEFT_CAB			27
 	#define BUTTON_REDO_RIGHT_CAB			28
 	#define BUTTON_REDO_X_CAB				29

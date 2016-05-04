@@ -394,6 +394,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					if(card.cardOK)
 					{						
+						genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);					
+					}
+				}
+				else if (Event.reportObject.index == BUTTON_SDCONFIRMATION_YES)
+				{
+					
+					if(card.cardOK)
+					{
 						dobloking = true;
 						setTargetBed(0);
 						setTargetHotend0(0);
@@ -417,10 +425,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							enquecommand_P(PSTR("M24")); // It also sends you to PRINTING screen
 							
 							screen_status="Ready...";//Write the selected SD file to all strings
-						}						
+						}
 					}
 				}
-				
 				
 				else if ((Event.reportObject.index == BUTTON_SD_LEFT || Event.reportObject.index == BUTTON_SD_RIGHT || Event.reportObject.index == BUTTON_SD_LEFTx3 )&& updownsdfilesflag) //TODO: control if SD is out
 				{
@@ -2970,6 +2977,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
 					updownsdfilesflag = true;
+				}
+				else if(Event.reportObject.index == FORM_SDFILE_CONFIRMATION){
+					
 				}
 				else if (Event.reportObject.index == FORM_PRINTING)
 				{

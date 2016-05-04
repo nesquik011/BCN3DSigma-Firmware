@@ -4279,6 +4279,7 @@ void process_commands()
 						#ifdef SIGMA_TOUCH_SCREEN
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
 						//char buffer[13];
+						memset(namefilegcode, '\0', sizeof(namefilegcode) );
 						if (String(card.longFilename).length()>12){
 							for (int i = 0; i<12 ; i++)
 							{
