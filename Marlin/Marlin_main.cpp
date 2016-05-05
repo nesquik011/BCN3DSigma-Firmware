@@ -910,8 +910,8 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	static uint32_t waitPeriod = millis();
 	static uint32_t waitPeriod_p = millis();
 	static uint32_t waitPeriod_pbackhome = millis(); //Processing back home
+	static int8_t processing_state = 0;
 	static int count5s = 0;
-	int value = 5;
 	//if(card.sdprinting && is_on_printing_screen)
 	
 	if(screen_sdcard && !card.cardOK){
@@ -1029,7 +1029,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			
 			if (target_temperature[0] < HEATER_0_MAXTEMP)
 			{
-				target_temperature[0]+=value;
+				target_temperature[0]+=5;
 				sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
 				genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
 				
@@ -1041,7 +1041,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			char buffer[256];
 			if (target_temperature[1]<HEATER_1_MAXTEMP)
 			{
-				target_temperature[1]+=value;
+				target_temperature[1]+=5;
 				sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
 				genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
 				
@@ -1053,7 +1053,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			char buffer[256];
 			if (target_temperature_bed < BED_MAXTEMP)//MaxTemp
 			{
-				target_temperature_bed+=value;
+				target_temperature_bed+=5;
 				sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
 				genie.WriteStr(STRING_PS_BED_TEMP,buffer);
 				
@@ -1065,7 +1065,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			char buffer[256];
 			if (feedmultiply<200)
 			{
-				feedmultiply+=value;
+				feedmultiply+=5;
 				sprintf(buffer, "%3d %%",feedmultiply);
 				genie.WriteStr(STRING_PS_SPEED,buffer);
 				
@@ -1077,7 +1077,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			char buffer[256];
 			if (target_temperature[0] > HEATER_0_MINTEMP)
 			{
-				target_temperature[0]-=value;
+				target_temperature[0]-=5;
 				sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
 				genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
 				
@@ -1089,7 +1089,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			char buffer[256];
 			if (target_temperature[1]>HEATER_1_MINTEMP)
 			{
-				target_temperature[1]-=value;
+				target_temperature[1]-=5;
 				sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
 				genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
 				
@@ -1101,7 +1101,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			char buffer[256];
 			if (target_temperature_bed> BED_MINTEMP)//Mintemp
 			{
-				target_temperature_bed-=value;
+				target_temperature_bed-=5;
 				sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
 				genie.WriteStr(STRING_PS_BED_TEMP,buffer);
 				
@@ -1113,7 +1113,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			char buffer[256];
 			if (feedmultiply>50)
 			{
-				feedmultiply-=value;
+				feedmultiply-=5;
 				sprintf(buffer, "%3d %%",feedmultiply);
 				genie.WriteStr(STRING_PS_SPEED,buffer);
 				
@@ -1328,7 +1328,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	}	
 	if (processing){
 		if (millis() >= waitPeriod_p){
-			static int8_t processing_state = 0;
+			
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
 			
 			if(processing_state<5){
@@ -1342,13 +1342,12 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	}
 	if (processing_adjusting){
 		if (millis() >= waitPeriod_p){
-			static int8_t processing_adjusting = 0;
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ADJUSTING_TEMPERATURES,processing_adjusting);
-			if(processing_adjusting<9){
-				processing_adjusting++;
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ADJUSTING_TEMPERATURES,processing_state);
+			if(processing_state<9){
+				processing_state++;
 			}
 			else{
-				processing_adjusting=0;
+				processing_state=0;
 			}
 			waitPeriod_p=90+millis();
 		}
