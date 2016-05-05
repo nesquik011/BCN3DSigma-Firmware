@@ -1350,7 +1350,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			else{
 				processing_adjusting=0;
 			}
-			waitPeriod_p=180+millis();
+			waitPeriod_p=90+millis();
 		}
 	}
 	if(filament_accept_ok && !home_made){

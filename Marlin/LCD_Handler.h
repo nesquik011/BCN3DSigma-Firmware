@@ -1002,7 +1002,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						else if (filament_mode == 'R') genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
 						else genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);*/
 						processing_adjusting = true;
-						delay(3500);
+						//delay(3500);
 						/*if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
 						else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);*/
 						is_changing_filament=true; //We are changing filament	
@@ -1253,7 +1253,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					if (which_extruder==0) setTargetHotend(max(insert_temp_l,old_insert_temp_l),which_extruder);
 					else setTargetHotend(max(insert_temp_r,old_insert_temp_r),which_extruder);
-					delay(3500);
+					//delay(3500);
 					is_changing_filament=true;
 					
 					if (which_extruder == 0) changeTool(0);
@@ -2259,9 +2259,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						manage_heater();
 					}
-					delay(6000);
+					//delay(6000);
 					
-					processing_adjusting = false;
+					//processing_adjusting = false;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 					home_axis_from_code(true,true,true);	
 					right_test_print_code(); 
