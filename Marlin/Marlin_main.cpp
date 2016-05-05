@@ -994,7 +994,8 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	
 	if(print_setting_refresh){
 				
-				char buffer[256];
+				char buffer[25];
+				memset(buffer, '\0', sizeof(buffer) );
 				SERIAL_PROTOCOLPGM("PRINT SETTINGS \n");
 				//char buffer[256];
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTTING_SETTINGS_DEF,0);
@@ -1025,8 +1026,8 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	if(card.sdprinting && !card.sdispaused || !card.sdprinting && card.sdispaused )
 	{
 		if(screen_change_nozz1up){
-			char buffer[256];
-			
+			char buffer[25];
+			memset(buffer, '\0', sizeof(buffer) );
 			if (target_temperature[0] < HEATER_0_MAXTEMP)
 			{
 				target_temperature[0]+=5;
@@ -1038,7 +1039,8 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			screen_change_nozz1up = false;
 		}
 		if(screen_change_nozz2up){
-			char buffer[256];
+			char buffer[25];
+			memset(buffer, '\0', sizeof(buffer) );
 			if (target_temperature[1]<HEATER_1_MAXTEMP)
 			{
 				target_temperature[1]+=5;
@@ -1050,7 +1052,8 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			screen_change_nozz2up = false;
 		}
 		if(screen_change_bedup){
-			char buffer[256];
+			char buffer[25];
+			memset(buffer, '\0', sizeof(buffer) );
 			if (target_temperature_bed < BED_MAXTEMP)//MaxTemp
 			{
 				target_temperature_bed+=5;
@@ -1062,7 +1065,8 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			screen_change_bedup = false;
 		}
 		if(screen_change_speedup){
-			char buffer[256];
+			char buffer[25];
+			memset(buffer, '\0', sizeof(buffer) );
 			if (feedmultiply<200)
 			{
 				feedmultiply+=5;
@@ -1074,7 +1078,8 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		}
 		
 		if(screen_change_nozz1down){
-			char buffer[256];
+			char buffer[25];
+			memset(buffer, '\0', sizeof(buffer) );
 			if (target_temperature[0] > HEATER_0_MINTEMP)
 			{
 				target_temperature[0]-=5;
@@ -1086,7 +1091,8 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			screen_change_nozz1down = false;
 		}
 		if(screen_change_nozz2down){
-			char buffer[256];
+			char buffer[25];
+			memset(buffer, '\0', sizeof(buffer) );
 			if (target_temperature[1]>HEATER_1_MINTEMP)
 			{
 				target_temperature[1]-=5;
@@ -1098,7 +1104,8 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			screen_change_nozz2down = false;
 		}
 		if(screen_change_beddown){
-			char buffer[256];
+			char buffer[25];
+			memset(buffer, '\0', sizeof(buffer) );
 			if (target_temperature_bed> BED_MINTEMP)//Mintemp
 			{
 				target_temperature_bed-=5;
@@ -1110,7 +1117,8 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			screen_change_beddown = false;
 		}
 		if(screen_change_speeddown){
-			char buffer[256];
+			char buffer[25];
+			memset(buffer, '\0', sizeof(buffer) );
 			if (feedmultiply>50)
 			{
 				feedmultiply-=5;
@@ -1191,7 +1199,8 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
 				//Rapduch
 				//Edit for final TouchScreen
-				char buffer7[256]="";
+				char buffer7[25];
+				memset(buffer7, '\0', sizeof(buffer7) );
 				sprintf(buffer7, "%3d %cC",tHotend,0x00B0);
 				//Serial.println(buffer);
 				genie.WriteStr(STRING_PRINTING_NOZZ1,buffer7);
@@ -1250,8 +1259,8 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			int tHotend=int(degHotend(0));
 			int tHotend1=int(degHotend(1));
 			int tBed=int(degBed() + 0.5);
-			char buffer[256];
-			
+			char buffer[25];
+			memset(buffer, '\0', sizeof(buffer) );
 			//Rapduch
 			//Edit for final TouchScreen
 			
