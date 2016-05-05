@@ -988,9 +988,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						processing = false;
 						
-						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
+						//genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
-						genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);				
+						//genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);				
 						/****************************************************/
 					
 						//ATTENTION : Order here is important
@@ -998,9 +998,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						//Serial.println("REMOVING");		
 						//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
-						if (filament_mode == 'I') genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
+						/*if (filament_mode == 'I') genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
 						else if (filament_mode == 'R') genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
-						else genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
+						else genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);*/
+						processing_adjusting = true;
 						delay(3500);
 						/*if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
 						else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);*/
@@ -1244,11 +1245,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if(Event.reportObject.index == BUTTON_MOVE_INSERT){					
 					
 					//ATTENTION : Order here is important
-					genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
+					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);					
 					//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
 					//genie.WriteStr(STRING_ADVISE_FILAMENT,"Insert the filament until you feel it stops, \n then while you keep inserting around \n 10 mm of filament, press the clip");
-					genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
+					processing_adjusting = true;
 					
 					if (which_extruder==0) setTargetHotend(max(insert_temp_l,old_insert_temp_l),which_extruder);
 					else setTargetHotend(max(insert_temp_r,old_insert_temp_r),which_extruder);
@@ -2200,7 +2201,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Config_StoreSettings(); //Store changes		
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
-					
+					processing_adjusting = true;
 					current_position[Z_AXIS] += 2;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],homing_feedrate[Z_AXIS]/60,active_extruder);
 					st_synchronize();
@@ -2210,7 +2211,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-10) || degBed()<(target_temperature_bed)-10){ //Waiting to heat the extruder
 						manage_heater();
 					}				
-					
+					processing_adjusting = false;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 					delay(6000);
 					home_axis_from_code(true,true,true);						
@@ -2247,7 +2248,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					st_synchronize();						
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
-					
+					processing_adjusting = true;
 					current_position[Z_AXIS] += 2;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],homing_feedrate[Z_AXIS]/60,active_extruder);
 					st_synchronize();
@@ -2260,7 +2261,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					delay(6000);
 					
-					
+					processing_adjusting = false;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 					home_axis_from_code(true,true,true);	
 					right_test_print_code(); 

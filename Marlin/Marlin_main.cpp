@@ -325,6 +325,7 @@ float zprobe_zoffset;
 
 //bools to control which kind of process are actually running
 bool processing = false;
+bool processing_adjusting = false;
 bool heatting = false;
 bool back_home = false;
 char namefilegcode[24];
@@ -1318,6 +1319,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 					genie.WriteStr(STRING_FILAMENT,"Press GO to Purge Filament"); 
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
 				}
+				processing_adjusting = false;
 				is_changing_filament=false; //Reset changing filament control
 			}
 			#endif //Extruders > 1
@@ -1326,10 +1328,28 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	}	
 	if (processing){
 		if (millis() >= waitPeriod_p){
-			static int processing_state = 0;
-			genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PROCESSING,processing_state);
-			if (processing_state == 0) processing_state = (processing_state+1)%3;
-			else processing_state = (processing_state+1)%3;
+			static int8_t processing_state = 0;
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
+			
+			if(processing_state<5){
+				processing_state++;
+			}
+			else{
+				processing_state=0;
+			}
+			waitPeriod_p=180+millis();
+		}
+	}
+	if (processing_adjusting){
+		if (millis() >= waitPeriod_p){
+			static int8_t processing_adjusting = 0;
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ADJUSTING_TEMPERATURES,processing_adjusting);
+			if(processing_adjusting<9){
+				processing_adjusting++;
+			}
+			else{
+				processing_adjusting=0;
+			}
 			waitPeriod_p=180+millis();
 		}
 	}
@@ -1348,10 +1368,16 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			if(home_made == false){
 				
 				if (millis() >= waitPeriod_pbackhome){
-					static int processing_state = 0;
-					genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_PROCESSING,processing_state);
-					if (processing_state == 0) processing_state = (processing_state+1)%3;
-					else processing_state = (processing_state+1)%3;
+					static int8_t processing_state = 0;
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
+					
+					if(processing_state<5){
+						processing_state++;
+					}
+					else{
+						processing_state=0;
+					}
+					waitPeriod_p=180+millis();
 					waitPeriod_pbackhome=180+millis();
 				}
 				
