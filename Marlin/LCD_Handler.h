@@ -45,8 +45,8 @@ int custom_insert_temp = 210;
 int custom_remove_temp = 210;
 int custom_print_temp = 210;
 int custom_bed_temp = 40;
- unsigned int stringfilename[4] = {STRING_NAME_FILE0, STRING_NAME_FILE1, STRING_NAME_FILE2, STRING_NAME_FILE3};
- unsigned int stringfiledur[4] = {STRING_NAME_FILE_DUR0, STRING_NAME_FILE_DUR1, STRING_NAME_FILE_DUR2, STRING_NAME_FILE_DUR3};
+ unsigned int stringfilename[5] = {STRING_NAME_FILE0, STRING_NAME_FILE1, STRING_NAME_FILE2, STRING_NAME_FILE3, STRING_NAME_FILE4};
+ unsigned int stringfiledur[5] = {STRING_NAME_FILE_DUR0, STRING_NAME_FILE_DUR1, STRING_NAME_FILE_DUR2, STRING_NAME_FILE_DUR3, STRING_NAME_FILE_DUR4};
 
 
 int redo_source;
@@ -393,8 +393,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					
 					if(card.cardOK)
-					{						
-						genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);					
+					{
+						card.getfilename(filepointer);
+						Serial.println(card.longFilename);
+						if (!card.filenameIsDir){
+							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
+							listsd.get_lineduration();
+							sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
+							setfilenames(4);
+							
+						}
 					}
 				}
 				else if (Event.reportObject.index == BUTTON_SDCONFIRMATION_YES)
@@ -2979,6 +2987,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					updownsdfilesflag = true;
 				}
 				else if(Event.reportObject.index == FORM_SDFILE_CONFIRMATION){
+					
+					
+					
 					
 				}
 				else if (Event.reportObject.index == FORM_PRINTING)
