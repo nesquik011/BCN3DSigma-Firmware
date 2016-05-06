@@ -42,7 +42,14 @@
 	#define BUTTON_REDO_RIGHT_CAB			28
 	#define BUTTON_REDO_X_CAB				29
 #define FORM_UTILITIES								4	
-#define FORM_MAIN_SCREEN							5	
+#define FORM_MAIN_SCREEN							5
+	#define BUTTON_Z_SET					3
+#define FORM_ZSET					11
+	#define BUTTON_Z_TOP					46
+	#define BUTTON_Z_BOT					54
+	#define BUTTON_Z_SETUP					44
+	#define BUTTON_Z_SETDOWN				42
+
 #define FORM_FILAMENT								6
 	#define	BUTTON_FILAMENT_BACK			0
 	#define	BUTTON_PURGE					159
@@ -81,7 +88,7 @@
 	#define STRING_PRINTING_BED				9
 	#define BUTTON_PRINT_SETTINGS			16
 	#define BUTTON_PAUSE_RESUME				18
- 
+
 #define FORM_CLEAN_BED								10
 	#define	BUTTON_CLEAN_BED				71
 #define FORM_WAITING_ROOM							8

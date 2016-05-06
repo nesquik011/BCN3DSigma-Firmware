@@ -619,6 +619,41 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					updownsdfilesflag= true;
 				}
 				#pragma endregion SD Gcode Selector
+				
+				#pragma region Zset
+				else if (Event.reportObject.index == BUTTON_Z_SET ){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					processing = true;
+					
+					home_axis_from_code(true,true, true);
+					st_synchronize();
+					
+					
+					processing = false;
+					
+					genie.WriteObject(GENIE_OBJ_FORM, FORM_ZSET, 0);
+					
+				}
+				else if(Event.reportObject.index == BUTTON_Z_TOP ){
+					if(current_position[Z_AXIS]!=Z_MIN_POS){
+						
+						current_position[Z_AXIS]=Z_MIN_POS;
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
+						
+					}
+					
+				}
+				else if(Event.reportObject.index == BUTTON_Z_BOT ){
+					if(current_position[Z_AXIS]!=Z_MAX_POS-15){
+						
+					current_position[Z_AXIS]=Z_MAX_POS-15;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
+					
+					}
+					
+				}
+				
+				#pragma endregion Zset
 
 				#pragma region PURGE
 				//****************PURGE BUTTONS******
