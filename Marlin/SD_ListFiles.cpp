@@ -15,7 +15,8 @@
 
 Listfiles::Listfiles(){
 	 dias=-1, horas=-1, minutos=-1;
-	filmetros1 = 0 ,filmetros1=0;
+	filmetros1 = 0 ,filmetros2=0;
+	filgramos1 = 0 ,filgramos2=0;
  comandline[50];
  comandline2[18];
 
@@ -89,7 +90,7 @@ void Listfiles::extract_data(void){
 }
 void Listfiles::extract_data1(void){
 	//Serial.println(comandline);
-	sscanf(comandline, ";Filament used: %d.%d ", &filmetros1, &filmetros2);
+	sscanf(comandline, ";Filament used: %d.%dm %d.%dg", &filmetros1, &filmetros2, &filgramos1, &filgramos2);
 	
 	//Serial.println(filmetros1);
 	
@@ -119,4 +120,14 @@ int Listfiles::get_filmetros2(){
 	int metr = 0;
 	metr = filmetros2;
 	return metr;
+}
+int Listfiles::get_filgramos1(){
+	int gram = 0;
+	gram = filgramos1;
+	return gram;
+}
+int Listfiles::get_filgramos2(){
+	int gram = 0;
+	gram = filgramos2;
+	return gram;
 }

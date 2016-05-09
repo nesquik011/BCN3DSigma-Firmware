@@ -399,7 +399,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (!card.filenameIsDir){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
+							sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 							setfilenames(4);
 							
 						}
@@ -407,6 +407,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							char Workdir[256];
 							memset(Workdir, '\0', sizeof(Workdir));
 							strcat(Workdir,card.getWorkDirName());
+							card.getfilename(filepointer);
+							Serial.println(card.filename);
+							
 							strcat(Workdir,card.filename);
 							//strcat(path,"/");
 							card.chdir(Workdir);
@@ -421,6 +424,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							card.getWorkDirName();
 							//Text index starts at 0
 							//for(jint = 0; jint < 4; jint++){//
+								
+								
+								
 							if(fileCnt > 3){
 								vecto = fileCnt - 1;
 								card.getfilename(vecto);
@@ -428,10 +434,24 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								if (card.filenameIsDir)
 								{
 									genie.WriteStr(stringfilename[jint],card.filename);//Printing form
+									
+									char Workdir[256];
+									memset(Workdir, '\0', sizeof(Workdir));
+									strcat(Workdir,card.getWorkDirName());
+									card.getfilename(vecto);
+									strcat(Workdir,card.filename);
+									//strcat(path,"/");
+									card.chdir(Workdir);
+									uint16_t NUMitems = card.getnrfilenames();
+									card.updir();
+									card.getWorkDirName();
+									memset(Workdir, '\0', sizeof(Workdir));
+									sprintf(Workdir, "%d items",NUMitems);
+									genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 									}else{
 									
 									listsd.get_lineduration();
-									sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
+									sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 									//Serial.println(listsd.comandline);
 									setfilenames(jint);
 									
@@ -451,10 +471,24 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							if (card.filenameIsDir)
 							{
 								genie.WriteStr(stringfilename[jint],card.filename);//Printing form
+								
+								char Workdir[256];
+								memset(Workdir, '\0', sizeof(Workdir));
+								strcat(Workdir,card.getWorkDirName());
+								card.getfilename(vecto);
+								strcat(Workdir,card.filename);
+								//strcat(path,"/");
+								card.chdir(Workdir);
+								uint16_t NUMitems = card.getnrfilenames();
+								card.updir();
+								card.getWorkDirName();
+								memset(Workdir, '\0', sizeof(Workdir));
+								sprintf(Workdir, "%d items",NUMitems);
+								genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 								}else{
 								
 								listsd.get_lineduration();
-								sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
+								sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 								//Serial.println(listsd.comandline);
 								setfilenames(jint);
 								
@@ -470,10 +504,24 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								if (card.filenameIsDir)
 								{
 									genie.WriteStr(stringfilename[jint],card.filename);//Printing form
+									
+									char Workdir[256];
+									memset(Workdir, '\0', sizeof(Workdir));
+									strcat(Workdir,card.getWorkDirName());
+									card.getfilename(vecto);
+									strcat(Workdir,card.filename);
+									//strcat(path,"/");
+									card.chdir(Workdir);
+									uint16_t NUMitems = card.getnrfilenames();
+									card.updir();
+									card.getWorkDirName();
+									memset(Workdir, '\0', sizeof(Workdir));
+									sprintf(Workdir, "%d items",NUMitems);
+									genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 									}else{
 									
 									listsd.get_lineduration();
-									sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
+									sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 									//Serial.println(listsd.comandline);
 									setfilenames(jint);
 									
@@ -495,10 +543,24 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								if (card.filenameIsDir)
 								{
 									genie.WriteStr(stringfilename[jint],card.filename);//Printing form
+									
+									char Workdir[256];
+									memset(Workdir, '\0', sizeof(Workdir));
+									strcat(Workdir,card.getWorkDirName());
+									card.getfilename(vecto);
+									strcat(Workdir,card.filename);
+									//strcat(path,"/");
+									card.chdir(Workdir);
+									uint16_t NUMitems = card.getnrfilenames();
+									card.updir();
+									card.getWorkDirName();
+									memset(Workdir, '\0', sizeof(Workdir));
+									sprintf(Workdir, "%d items",NUMitems);
+									genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 									}else{
 									
 									listsd.get_lineduration();
-									sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
+									sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 									//Serial.println(listsd.comandline);
 									
 								}
@@ -621,11 +683,24 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							{
 																	
 								genie.WriteStr(stringfilename[jint],card.filename);//Printing form
-
+								
+								char Workdir[256];
+								memset(Workdir, '\0', sizeof(Workdir));
+								strcat(Workdir,card.getWorkDirName());
+								card.getfilename(vecto);
+								strcat(Workdir,card.filename);
+								//strcat(path,"/");
+								card.chdir(Workdir);
+								uint16_t NUMitems = card.getnrfilenames();
+								card.updir();
+								card.getWorkDirName();
+								memset(Workdir, '\0', sizeof(Workdir));
+								sprintf(Workdir, "%d items",NUMitems);
+								genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 								}else{
 								
 								listsd.get_lineduration();
-								sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
+								sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 								//Serial.println(listsd.comandline);
 								setfilenames(jint);
 								
@@ -643,10 +718,24 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (card.filenameIsDir)
 						{
 							genie.WriteStr(stringfilename[jint],card.filename);//Printing form
+							
+							char Workdir[256];
+							memset(Workdir, '\0', sizeof(Workdir));
+							strcat(Workdir,card.getWorkDirName());
+							card.getfilename(vecto);
+							strcat(Workdir,card.filename);
+							//strcat(path,"/");
+							card.chdir(Workdir);
+							uint16_t NUMitems = card.getnrfilenames();
+							card.updir();
+							card.getWorkDirName();
+							memset(Workdir, '\0', sizeof(Workdir));
+							sprintf(Workdir, "%d items",NUMitems);
+							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 							}else{
 							
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
+							sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 							//Serial.println(listsd.comandline);
 							setfilenames(jint);
 							
@@ -667,10 +756,24 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							if (card.filenameIsDir)
 							{
 								genie.WriteStr(stringfilename[jint],card.filename);//Printing form
+								
+								char Workdir[256];
+								memset(Workdir, '\0', sizeof(Workdir));
+								strcat(Workdir,card.getWorkDirName());
+								card.getfilename(vecto);
+								strcat(Workdir,card.filename);
+								//strcat(path,"/");
+								card.chdir(Workdir);
+								uint16_t NUMitems = card.getnrfilenames();
+								card.updir();
+								card.getWorkDirName();
+								memset(Workdir, '\0', sizeof(Workdir));
+								sprintf(Workdir, "%d items",NUMitems);
+								genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 								}else{
 								
 								listsd.get_lineduration();
-								sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
+								sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 								//Serial.println(listsd.comandline);
 								setfilenames(jint);
 								
@@ -701,10 +804,24 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							if (card.filenameIsDir)
 							{
 								genie.WriteStr(stringfilename[jint],card.filename);//Printing form
+								
+								char Workdir[256];
+								memset(Workdir, '\0', sizeof(Workdir));
+								strcat(Workdir,card.getWorkDirName());
+								card.getfilename(vecto);
+								strcat(Workdir,card.filename);
+								//strcat(path,"/");
+								card.chdir(Workdir);
+								uint16_t NUMitems = card.getnrfilenames();
+								card.updir();
+								card.getWorkDirName();
+								memset(Workdir, '\0', sizeof(Workdir));
+								sprintf(Workdir, "%d items",NUMitems);
+								genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 								}else{
 								
 								listsd.get_lineduration();
-								sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
+								sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 								//Serial.println(listsd.comandline);
 								setfilenames(jint);
 								
@@ -3029,10 +3146,25 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							if (card.filenameIsDir)
 							{
 								genie.WriteStr(stringfilename[jint],card.filename);//Printing form
+								
+								char Workdir[256];
+								memset(Workdir, '\0', sizeof(Workdir));
+								strcat(Workdir,card.getWorkDirName());
+								card.getfilename(vecto);
+								strcat(Workdir,card.filename);
+								//strcat(path,"/");
+								card.chdir(Workdir);
+								uint16_t NUMitems = card.getnrfilenames();
+								card.updir();
+								card.getWorkDirName();
+								memset(Workdir, '\0', sizeof(Workdir));
+								sprintf(Workdir, "%d items",NUMitems);
+								genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+								
 								}else{
 								
 								listsd.get_lineduration();
-								sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
+								sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 								//Serial.println(listsd.comandline);
 								setfilenames(jint);
 								
@@ -3051,10 +3183,24 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (card.filenameIsDir)
 						{
 							genie.WriteStr(stringfilename[jint],card.filename);//Printing form
+							
+							char Workdir[256];
+							memset(Workdir, '\0', sizeof(Workdir));
+							strcat(Workdir,card.getWorkDirName());
+							card.getfilename(vecto);
+							strcat(Workdir,card.filename);
+							//strcat(path,"/");
+							card.chdir(Workdir);
+							uint16_t NUMitems = card.getnrfilenames();
+							card.updir();
+							card.getWorkDirName();
+							memset(Workdir, '\0', sizeof(Workdir));
+							sprintf(Workdir, "%d items",NUMitems);
+							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 							}else{
 							
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
+							sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 							//Serial.println(listsd.comandline);
 							setfilenames(jint);
 							
@@ -3072,10 +3218,24 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							if (card.filenameIsDir)
 							{
 								genie.WriteStr(stringfilename[jint],card.filename);//Printing form
+								
+								char Workdir[256];
+								memset(Workdir, '\0', sizeof(Workdir));
+								strcat(Workdir,card.getWorkDirName());
+								card.getfilename(vecto);
+								strcat(Workdir,card.filename);
+								//strcat(path,"/");
+								card.chdir(Workdir);
+								uint16_t NUMitems = card.getnrfilenames();
+								card.updir();
+								card.getWorkDirName();
+								memset(Workdir, '\0', sizeof(Workdir));
+								sprintf(Workdir, "%d items",NUMitems);
+								genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 								}else{
 								
 								listsd.get_lineduration();
-								sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
+								sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 								//Serial.println(listsd.comandline);
 								setfilenames(jint);
 								
@@ -3097,10 +3257,24 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							if (card.filenameIsDir)
 							{
 								genie.WriteStr(stringfilename[jint],card.filename);//Printing form
+								
+								char Workdir[256];
+								memset(Workdir, '\0', sizeof(Workdir));
+								strcat(Workdir,card.getWorkDirName());
+								card.getfilename(vecto);
+								strcat(Workdir,card.filename);
+								//strcat(path,"/");
+								card.chdir(Workdir);
+								uint16_t NUMitems = card.getnrfilenames();
+								card.updir();
+								card.getWorkDirName();
+								memset(Workdir, '\0', sizeof(Workdir));
+								sprintf(Workdir, "%d items",NUMitems);
+								genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
 								}else{
 								
 								listsd.get_lineduration();
-								sprintf(listsd.comandline2, "%dh %dm & %d.%dm",listsd.get_hours(), listsd.get_minutes(),listsd.get_filmetros1(),listsd.get_filmetros2());
+								sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 								//Serial.println(listsd.comandline);
 								setfilenames(jint);
 								

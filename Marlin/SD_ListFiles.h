@@ -26,6 +26,8 @@ class Listfiles
 	int get_minutes(void);
 	int get_filmetros1(void);
 	int get_filmetros2(void);
+	int get_filgramos1(void);
+	int get_filgramos2(void);
 	public:
 	char comandline[50];
 	char comandline2[25];
@@ -33,6 +35,7 @@ class Listfiles
 	private:
 	int dias, horas, minutos;
 	int filmetros1, filmetros2;
+	int filgramos1, filgramos2;
 	void extract_data(void);
 	void extract_data1(void);
 };
