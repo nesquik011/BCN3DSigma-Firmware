@@ -28,6 +28,8 @@ class Listfiles
 	int get_filmetros2(void);
 	int get_filgramos1(void);
 	int get_filgramos2(void);
+	int get_hoursremaning(void);
+	int get_minutesremanig(void);
 	public:
 	char comandline[50];
 	char comandline2[25];
