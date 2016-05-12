@@ -9,7 +9,6 @@
 */
 
 #define __AVR_ATmega2560__
-#define _VMDEBUG 1
 #define ARDUINO 168
 #define ARDUINO_MAIN
 #define F_CPU 16000000L
@@ -20,6 +19,71 @@
 #define ARDUINO_ARCH_AVR
 extern "C" void __cxa_pure_virtual() {;}
 
+void serial_echopair_P(const char *s_P, float v);
+void serial_echopair_P(const char *s_P, double v);
+void serial_echopair_P(const char *s_P, unsigned long v);
+void enquecommand(const char *cmd);
+void enquecommand_P(const char *cmd);
+void setup_killpin();
+void setup_photpin();
+void setup_powerhold();
+void suicide();
+void servo_init();
+//
+//
+int getBuflen ();
+inline void ListFilesDownfunc();
+inline void ListFilesUpfunc();
+inline void ListFilesDownx3func();
+inline void ListFileListINITSD();
+void touchscreen_update();
+void get_command();
+float code_value();
+long code_value_long();
+bool code_seen(char code);
+float x_home_pos(int extruder);
+static int x_home_dir(int extruder);
+static void axis_is_at_home(int axis);
+static void set_bed_level_equation_lsq(double *plane_equation_coefficients);
+static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3);
+int sentit (float dz);
+float voltes (float dz);
+int aprox (float voltes);
+static void run_z_probe();
+static void do_blocking_move_to(float x, float y, float z);
+static void do_blocking_move_relative(float offset_x, float offset_y, float offset_z);
+static void setup_for_endstop_move();
+static void clean_up_after_endstop_move();
+static void engage_z_probe();
+static void retract_z_probe();
+static float probe_pt(float x, float y, float z_before);
+static void homeaxis(int axis);
+void homeFromMain();
+void refresh_cmd_timeout(void);
+void process_commands();
+void process_commands();
+void changeToolSigma(int tool);
+void changeTool(int ntool);
+void FlushSerialRequestResend();
+void ClearToSend();
+void get_coordinates();
+void clamp_to_software_endstops(float target[3]);
+void recalc_delta_settings(float radius, float diagonal_rod);
+void calculate_delta(float cartesian[3]);
+void prepare_move();
+void prepare_arc_move(char isclockwise);
+void controllerFan();
+void calculate_SCARA_forward_Transform(float f_scara[3]);
+void calculate_delta(float cartesian[3]);
+void handle_status_leds(void);
+void manage_inactivity();
+void kill();
+void Stop();
+bool IsStopped();
+void setPwmFrequency(uint8_t pin, int val);
+void left_test_print_code();
+void right_test_print_code();
+void home_axis_from_code(bool x_c, bool y_c, bool z_c);
 
 #include "C:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\mega\pins_arduino.h" 
 #include "C:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\arduino.h"
@@ -38,7 +102,6 @@ extern "C" void __cxa_pure_virtual() {;}
 #include <..\Marlin\LiquidCrystalRus.h>
 #include <..\Marlin\Marlin.h>
 #include <..\Marlin\Marlin.ino>
-#include <..\Marlin\Marlin_main.cpp>
 #include <..\Marlin\SD_ListFiles.cpp>
 #include <..\Marlin\SD_ListFiles.h>
 #include <..\Marlin\Sd2Card.cpp>
