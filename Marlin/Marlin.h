@@ -274,6 +274,7 @@ void touchscreen_update();
 extern uint16_t filepointer;
 extern String screen_status;
 extern bool surfing_utilities;
+extern bool surfing_temps;
 extern bool is_on_printing_screen;
 extern uint8_t which_extruder;
 extern char filament_mode;

@@ -90,6 +90,8 @@ void Listfiles::extract_data(void){
 }
 void Listfiles::extract_data1(void){
 	//Serial.println(comandline);
+	filgramos1 = 0;
+	filgramos2 = 0;
 	sscanf(comandline, ";Filament used: %d.%dm %d.%dg", &filmetros1, &filmetros2, &filgramos1, &filgramos2);
 	
 	//Serial.println(filmetros1);

@@ -32,6 +32,7 @@
 	#define BUTTON_SD_LEFTx3				37
 	#define BUTTON_SD_LEFT					14
 	#define BUTTON_SD_RIGHT					5
+	#define BUTTON_FOLDER_BACK				55
 #define FORM_SDFILE_CONFIRMATION			15
 	#define STRING_NAME_FILE4				27
 	#define STRING_NAME_FILE_DUR4			28

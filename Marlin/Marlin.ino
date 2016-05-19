@@ -230,7 +230,9 @@ Rapduch
 
 //Rapduch
 #ifdef SIGMA_TOUCH_SCREEN
+	
 	bool surfing_utilities = false;
+	bool surfing_temps = false;
 	bool is_on_printing_screen = false;
 	uint16_t filepointer = 0;
 	String screen_status = "Printing...";
@@ -937,8 +939,10 @@ inline void ListFilesDownfunc(){
 				
 				char Workdir[256];
 				memset(Workdir, '\0', sizeof(Workdir));
+				strcat(Workdir,"/");
 				strcat(Workdir,card.getWorkDirName());
 				card.getfilename(vecto);
+				strcat(Workdir,"/");
 				strcat(Workdir,card.filename);
 				//strcat(path,"/");
 				card.chdir(Workdir);
@@ -973,7 +977,9 @@ inline void ListFilesDownfunc(){
 			
 			char Workdir[256];
 			memset(Workdir, '\0', sizeof(Workdir));
+			strcat(Workdir,"/");
 			strcat(Workdir,card.getWorkDirName());
+			strcat(Workdir,"/");
 			card.getfilename(vecto);
 			strcat(Workdir,card.filename);
 			//strcat(path,"/");
@@ -1011,7 +1017,9 @@ inline void ListFilesDownfunc(){
 				
 				char Workdir[256];
 				memset(Workdir, '\0', sizeof(Workdir));
+				strcat(Workdir,"/");
 				strcat(Workdir,card.getWorkDirName());
+				strcat(Workdir,"/");
 				card.getfilename(vecto);
 				strcat(Workdir,card.filename);
 				//strcat(path,"/");
@@ -1059,7 +1067,9 @@ inline void ListFilesDownfunc(){
 				
 				char Workdir[256];
 				memset(Workdir, '\0', sizeof(Workdir));
+				strcat(Workdir,"/");
 				strcat(Workdir,card.getWorkDirName());
+				strcat(Workdir,"/");
 				card.getfilename(vecto);
 				strcat(Workdir,card.filename);
 				//strcat(path,"/");
@@ -1129,7 +1139,9 @@ inline void ListFilesUpfunc(){
 				
 				char Workdir[256];
 				memset(Workdir, '\0', sizeof(Workdir));
+				strcat(Workdir,"/");
 				strcat(Workdir,card.getWorkDirName());
+				strcat(Workdir,"/");
 				card.getfilename(vecto);
 				strcat(Workdir,card.filename);
 				//strcat(path,"/");
@@ -1165,7 +1177,9 @@ inline void ListFilesUpfunc(){
 			
 			char Workdir[256];
 			memset(Workdir, '\0', sizeof(Workdir));
+			strcat(Workdir,"/");
 			strcat(Workdir,card.getWorkDirName());
+			strcat(Workdir,"/");
 			card.getfilename(vecto);
 			strcat(Workdir,card.filename);
 			//strcat(path,"/");
@@ -1203,7 +1217,9 @@ inline void ListFilesUpfunc(){
 				
 				char Workdir[256];
 				memset(Workdir, '\0', sizeof(Workdir));
+				strcat(Workdir,"/");
 				strcat(Workdir,card.getWorkDirName());
+				strcat(Workdir,"/");
 				card.getfilename(vecto);
 				strcat(Workdir,card.filename);
 				//strcat(path,"/");
@@ -1251,7 +1267,9 @@ inline void ListFilesUpfunc(){
 				
 				char Workdir[256];
 				memset(Workdir, '\0', sizeof(Workdir));
+				strcat(Workdir,"/");
 				strcat(Workdir,card.getWorkDirName());
+				strcat(Workdir,"/");
 				card.getfilename(vecto);
 				strcat(Workdir,card.filename);
 				//strcat(path,"/");
@@ -1338,7 +1356,9 @@ inline void ListFilesDownx3func(){
 				
 				char Workdir[256];
 				memset(Workdir, '\0', sizeof(Workdir));
+				strcat(Workdir,"/");
 				strcat(Workdir,card.getWorkDirName());
+				strcat(Workdir,"/");
 				card.getfilename(vecto);
 				strcat(Workdir,card.filename);
 				//strcat(path,"/");
@@ -1374,7 +1394,9 @@ inline void ListFilesDownx3func(){
 			
 			char Workdir[256];
 			memset(Workdir, '\0', sizeof(Workdir));
+			strcat(Workdir,"/");
 			strcat(Workdir,card.getWorkDirName());
+			strcat(Workdir,"/");
 			card.getfilename(vecto);
 			strcat(Workdir,card.filename);
 			//strcat(path,"/");
@@ -1412,7 +1434,9 @@ inline void ListFilesDownx3func(){
 				
 				char Workdir[256];
 				memset(Workdir, '\0', sizeof(Workdir));
+				strcat(Workdir,"/");
 				strcat(Workdir,card.getWorkDirName());
+				strcat(Workdir,"/");
 				card.getfilename(vecto);
 				strcat(Workdir,card.filename);
 				//strcat(path,"/");
@@ -1460,7 +1484,9 @@ inline void ListFilesDownx3func(){
 				
 				char Workdir[256];
 				memset(Workdir, '\0', sizeof(Workdir));
+				strcat(Workdir,"/");
 				strcat(Workdir,card.getWorkDirName());
+				strcat(Workdir,"/");
 				card.getfilename(vecto);
 				strcat(Workdir,card.filename);
 				//strcat(path,"/");
@@ -1518,7 +1544,9 @@ inline void ListFileListINITSD(){
 				
 				char Workdir[256];
 				memset(Workdir, '\0', sizeof(Workdir));
+				strcat(Workdir,"/");
 				strcat(Workdir,card.getWorkDirName());
+				strcat(Workdir,"/");
 				card.getfilename(vecto);
 				strcat(Workdir,card.filename);
 				//strcat(path,"/");
@@ -1557,7 +1585,9 @@ inline void ListFileListINITSD(){
 			
 			char Workdir[256];
 			memset(Workdir, '\0', sizeof(Workdir));
+			strcat(Workdir,"/");
 			strcat(Workdir,card.getWorkDirName());
+			strcat(Workdir,"/");
 			card.getfilename(vecto);
 			strcat(Workdir,card.filename);
 			//strcat(path,"/");
@@ -1592,7 +1622,9 @@ inline void ListFileListINITSD(){
 				
 				char Workdir[256];
 				memset(Workdir, '\0', sizeof(Workdir));
+				strcat(Workdir,"/");
 				strcat(Workdir,card.getWorkDirName());
+				strcat(Workdir,"/");
 				card.getfilename(vecto);
 				strcat(Workdir,card.filename);
 				//strcat(path,"/");
@@ -1631,7 +1663,9 @@ inline void ListFileListINITSD(){
 				
 				char Workdir[256];
 				memset(Workdir, '\0', sizeof(Workdir));
+				strcat(Workdir,"/");
 				strcat(Workdir,card.getWorkDirName());
+				strcat(Workdir,"/");
 				card.getfilename(vecto);
 				strcat(Workdir,card.filename);
 				//strcat(path,"/");
@@ -1670,7 +1704,172 @@ inline void ListFileListINITSD(){
 
 }		
 		
-
+inline void ListFileListENTERBACKFORLDERSD(){
+	filepointer = 0;
+	int vecto = 0;
+	int jint = 0;
+	
+	uint16_t fileCnt = card.getnrfilenames();
+	//Declare filepointer
+	card.getWorkDirName();
+	//Text index starts at 0
+	//for(jint = 0; jint < 4; jint++){//
+	
+	
+	
+	if(fileCnt > 3){
+		vecto = fileCnt - 1;
+		card.getfilename(vecto);
+		Serial.println(card.longFilename);
+		if (card.filenameIsDir)
+		{
+			setfoldernames(jint);
+			
+			char Workdir[256];
+			memset(Workdir, '\0', sizeof(Workdir));
+			strcat(Workdir,"/");
+			strcat(Workdir,card.getWorkDirName());
+			strcat(Workdir,"/");
+			card.getfilename(vecto);
+			strcat(Workdir,card.filename);
+			//strcat(path,"/");
+			card.chdir(Workdir);
+			uint16_t NUMitems = card.getnrfilenames();
+			card.updir();
+			card.getWorkDirName();
+			memset(Workdir, '\0', sizeof(Workdir));
+			sprintf(Workdir, "%d items",NUMitems);
+			genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+			}else{
+			
+			listsd.get_lineduration();
+			sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+			//Serial.println(listsd.comandline);
+			setfilenames(jint);
+			
+		}
+		
+	}
+	else{
+		genie.WriteStr(stringfilename[jint],"----------------");//Printing form
+		genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+	}
+	jint++;
+	
+	
+	vecto = filepointer + jint -1;
+	card.getfilename(vecto);
+	Serial.println(card.longFilename);
+	if (card.filenameIsDir)
+	{
+		genie.WriteObject(GENIE_OBJ_USERBUTTON,15,1);
+		setfoldernames(jint);
+		
+		char Workdir[256];
+		memset(Workdir, '\0', sizeof(Workdir));
+		strcat(Workdir,"/");
+		strcat(Workdir,card.getWorkDirName());
+		strcat(Workdir,"/");
+		card.getfilename(vecto);
+		strcat(Workdir,card.filename);
+		//strcat(path,"/");
+		card.chdir(Workdir);
+		uint16_t NUMitems = card.getnrfilenames();
+		card.updir();
+		card.getWorkDirName();
+		memset(Workdir, '\0', sizeof(Workdir));
+		sprintf(Workdir, "%d items",NUMitems);
+		genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+		}else{
+		genie.WriteObject(GENIE_OBJ_USERBUTTON,15,0);
+		listsd.get_lineduration();
+		sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+		//Serial.println(listsd.comandline);
+		setfilenames(jint);
+		
+	}
+	
+	jint++;
+	
+	if(fileCnt > 1){
+		
+		vecto = filepointer + jint -1;
+		card.getfilename(vecto);
+		Serial.println(card.longFilename);
+		if (card.filenameIsDir)
+		{
+			setfoldernames(jint);
+			
+			char Workdir[256];
+			memset(Workdir, '\0', sizeof(Workdir));
+			strcat(Workdir,"/");
+			strcat(Workdir,card.getWorkDirName());
+			strcat(Workdir,"/");
+			card.getfilename(vecto);
+			strcat(Workdir,card.filename);
+			//strcat(path,"/");
+			card.chdir(Workdir);
+			uint16_t NUMitems = card.getnrfilenames();
+			card.updir();
+			card.getWorkDirName();
+			memset(Workdir, '\0', sizeof(Workdir));
+			sprintf(Workdir, "%d items",NUMitems);
+			genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+			}else{
+			
+			listsd.get_lineduration();
+			sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+			//Serial.println(listsd.comandline);
+			setfilenames(jint);
+			
+		}
+	}
+	else{
+		genie.WriteStr(stringfilename[jint],"----------------");//Printing form
+		genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+		
+	}
+	
+	jint++;
+	
+	if(fileCnt > 2){
+		
+		vecto = filepointer + jint-1;
+		card.getfilename(vecto);
+		Serial.println(card.longFilename);
+		if (card.filenameIsDir)
+		{
+			setfoldernames(jint);
+			
+			char Workdir[256];
+			memset(Workdir, '\0', sizeof(Workdir));
+			strcat(Workdir,"/");
+			strcat(Workdir,card.getWorkDirName());
+			strcat(Workdir,"/");
+			card.getfilename(vecto);
+			strcat(Workdir,card.filename);
+			//strcat(path,"/");
+			card.chdir(Workdir);
+			uint16_t NUMitems = card.getnrfilenames();
+			card.updir();
+			card.getWorkDirName();
+			memset(Workdir, '\0', sizeof(Workdir));
+			sprintf(Workdir, "%d items",NUMitems);
+			genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+			}else{
+			
+			listsd.get_lineduration();
+			sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+			//Serial.println(listsd.comandline);
+			
+		}
+	}
+	else{
+		genie.WriteStr(stringfilename[jint],"----------------");//Printing form
+		genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+		
+	}
+}
 
 #ifdef SIGMA_TOUCH_SCREEN
 //Rapduch
@@ -1701,6 +1900,10 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	if(ListFilesINITflag){
 		ListFileListINITSD();
 		ListFilesINITflag = false;
+	}
+	if(ListFileListENTERBACKFORLDERSDflag){
+		ListFileListENTERBACKFORLDERSD();
+		ListFileListENTERBACKFORLDERSDflag = false;
 	}
 	if(screen_sdcard && !card.cardOK){
 		
@@ -1978,9 +2181,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			}
 		}
 	}
-	
-	else if (surfing_utilities)
-	{
+	else if (surfing_temps){
 		if (millis() >= waitPeriod)
 		{
 			int tHotend=int(degHotend(0));
@@ -2002,6 +2203,21 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			sprintf(buffer, "%2d %cC",tBed,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_BED,buffer);
+			
+			waitPeriod=1000+millis(); // Every Second
+		}
+	}
+	
+	else if (surfing_utilities)
+	{
+		if (millis() >= waitPeriod)
+		{
+			int tHotend=int(degHotend(0));
+			int tHotend1=int(degHotend(1));
+			char buffer[25];
+			memset(buffer, '\0', sizeof(buffer) );
+			//Rapduch
+			//Edit for final TouchScreen
 			
 			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, current_position[X_AXIS]);
 			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
