@@ -1897,28 +1897,28 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	if(z_adjust_10up){
 		
 		current_position[Z_AXIS]-=10;
-		plan_discard_current_block();
+		quickStop();
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
 		
 		z_adjust_10up = false;
 	}
 	if(z_adjust_50up){
 		current_position[Z_AXIS]-=50;
-		plan_discard_current_block();
+		quickStop();
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
 		
 		z_adjust_50up= false;
 	}
 	if(z_adjust_10down){
 		current_position[Z_AXIS]+=10;
-		plan_discard_current_block();
+		quickStop();
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
 		
 		z_adjust_10down = false;
 	}
 	if(z_adjust_50down){
 		current_position[Z_AXIS]+=50;
-		plan_discard_current_block();
+		quickStop();
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
 		
 		z_adjust_50down = false;
