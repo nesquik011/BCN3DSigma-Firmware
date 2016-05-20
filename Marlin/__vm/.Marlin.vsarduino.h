@@ -37,6 +37,7 @@ inline void ListFilesUpfunc();
 inline void ListFilesDownx3func();
 inline void ListFileListINITSD();
 inline void ListFileListENTERBACKFORLDERSD();
+inline void surfing_utilitiescode();
 void touchscreen_update();
 void get_command();
 float code_value();

@@ -39,8 +39,8 @@ public:
   
 
   void ls();
-  void chdir(const char * relpath);
-  void updir();
+  int chdir(const char * relpath);
+  int updir();
   void setroot();
 
 
@@ -50,7 +50,6 @@ public:
   FORCE_INLINE void setIndex(long index) {sdpos = index;file.seekSet(index);};
   FORCE_INLINE uint8_t percentDone(){if(!isFileOpen()) return 0; if(filesize) return sdpos/((filesize+99)/100); else return 0;};
   FORCE_INLINE char* getWorkDirName(){workDir.getFilename(filename);return filename;};
-
 public:
   bool saving;
   bool logging;

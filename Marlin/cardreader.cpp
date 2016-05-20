@@ -581,19 +581,29 @@ uint16_t CardReader::getnrfilenames()
   return nrFiles;
 }
 
-void CardReader::chdir(const char * relpath)
+int CardReader::chdir(const char * relpath)
 {
   SdFile newfile;
   SdFile *parent=&root;
+  //char Workdir[256];
+  //memset(Workdir, '\0', sizeof(Workdir));
+  //strcat(Workdir,"/");
+  
   
   if(workDir.isOpen())
     parent=&workDir;
-  
+	
+  /*for (int d = workDirDepth-1; 0 != d; d--){
+	strcat(Workdir,getworkDirParentsName(d));
+	strcat(Workdir,"/");
+   }
+   strcat(Workdir, relpath);*/
   if(!newfile.open(*parent,relpath, O_READ))
   {
    SERIAL_ECHO_START;
    SERIAL_ECHOPGM(MSG_SD_CANT_ENTER_SUBDIR);
    SERIAL_ECHOLN(relpath);
+   return -1;
   }
   else
   {
@@ -606,7 +616,7 @@ void CardReader::chdir(const char * relpath)
   }
 }
 
-void CardReader::updir()
+int CardReader::updir()
 {
   if(workDirDepth > 0)
   {
@@ -615,6 +625,12 @@ void CardReader::updir()
     int d;
     for (int d = 0; d < workDirDepth; d++)
       workDirParents[d] = workDirParents[d+1];
+	  
+	  
+	return 0;
+  }
+  else{
+	  return -1;
   }
 }
 

@@ -42,6 +42,10 @@ bool ListFilesUp = false;
 bool ListFilesDownx3 = false;
 bool ListFilesINITflag = false;
 bool ListFileListENTERBACKFORLDERSDflag = false;
+bool z_adjust_50up = false;
+bool z_adjust_10up = false;
+bool z_adjust_50down = false;
+bool z_adjust_10down = false;
 int  print_setting_tool = 2;
 float offset_x_calib = 0;
 float offset_y_calib = 0;
@@ -410,28 +414,21 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 						}
 						else{
-							char Workdir[256];
-							memset(Workdir, '\0', sizeof(Workdir));
-							strcat(Workdir,"/");
-							strcat(Workdir,card.getWorkDirName());
-							strcat(Workdir,"/");
-							card.getfilename(filepointer);
-							Serial.println(card.filename);
-							
-							strcat(Workdir,card.filename);
-							//strcat(path,"/");
-							card.chdir(Workdir);
-							Serial.println(Workdir);
-							ListFileListENTERBACKFORLDERSDflag = true;
-							
+							if (card.chdir(card.filename)!=-1){
+								Serial.println(card.filename);
+								ListFileListENTERBACKFORLDERSDflag = true;
+							}
+								
 							
 						}
 					}
 				}
 				else if (Event.reportObject.index == BUTTON_FOLDER_BACK)
 				{
-					card.updir();
-					ListFileListENTERBACKFORLDERSDflag = true;
+					
+					if (card.updir()==0) ListFileListENTERBACKFORLDERSDflag = true;
+					
+					
 				}
 				else if (Event.reportObject.index == BUTTON_SDCONFIRMATION_YES)
 				{
@@ -487,7 +484,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma endregion SD Gcode Selector
 				
 				#pragma region Zset
-				else if (Event.reportObject.index == BUTTON_Z_SET ){
+				/*else if (Event.reportObject.index == BUTTON_Z_SET ){
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					processing = true;
 					
@@ -499,23 +496,53 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_ZSET, 0);
 					
-				}
+				}*/
 				else if(Event.reportObject.index == BUTTON_Z_TOP ){
-					if(current_position[Z_AXIS]!=Z_MIN_POS){
+					//if(current_position[Z_AXIS]!=Z_MIN_POS){
 						
-						current_position[Z_AXIS]=Z_MIN_POS;
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
-						
-					}
+						z_adjust_50up = true;
+						z_adjust_50down = false;
+						z_adjust_10down = false;
+						z_adjust_10up = false;
+					//}
 					
 				}
 				else if(Event.reportObject.index == BUTTON_Z_BOT ){
-					if(current_position[Z_AXIS]!=Z_MAX_POS-15){
+					//if(current_position[Z_AXIS]!=Z_MAX_POS-15){
 						
-					current_position[Z_AXIS]=Z_MAX_POS-15;
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
+					z_adjust_50up = false;
+					z_adjust_50down = true;
+					z_adjust_10down = false;
+					z_adjust_10up = false;
+					//}
 					
-					}
+				}
+				else if(Event.reportObject.index == BUTTON_Z_DOWN){
+					//if(current_position[Z_AXIS]!=Z_MIN_POS){
+					
+					z_adjust_50up = false;
+					z_adjust_50down = false;
+					z_adjust_10down = true;
+					z_adjust_10up = false;
+					//}
+					
+				}
+				else if(Event.reportObject.index == BUTTON_Z_UP ){
+					//if(current_position[Z_AXIS]!=Z_MAX_POS-15){
+					z_adjust_50up = false;
+					z_adjust_50down = false;
+					z_adjust_10down = false;
+					z_adjust_10up = true;
+					
+					//}
+					
+				}
+				else if(Event.reportObject.index == BUTTON_Z_STOP ){
+					quickStop();
+					
+				}
+				else if(Event.reportObject.index == BUTTON_Z_BACK ){
+					genie.WriteObject(GENIE_OBJ_FORM, FORM_UTILITIES, 0);
 					
 				}
 				

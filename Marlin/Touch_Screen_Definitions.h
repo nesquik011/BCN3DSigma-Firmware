@@ -28,6 +28,7 @@
 	#define STRING_NAME_FILE_DUR1			7
 	#define STRING_NAME_FILE_DUR2			25
 	#define STRING_NAME_FILE_DUR3			26
+	#define STRING_FOLDER_NAME				6
 	#define BUTTON_SD_SELECTED				15
 	#define BUTTON_SD_LEFTx3				37
 	#define BUTTON_SD_LEFT					14
@@ -45,11 +46,13 @@
 #define FORM_UTILITIES								4	
 #define FORM_MAIN_SCREEN							5
 	#define BUTTON_Z_SET					3
-#define FORM_ZSET					11
-	#define BUTTON_Z_TOP					46
-	#define BUTTON_Z_BOT					54
-	#define BUTTON_Z_SETUP					44
-	#define BUTTON_Z_SETDOWN				42
+#define FORM_ZSET							11
+	#define BUTTON_Z_TOP					40
+	#define BUTTON_Z_BOT					46
+	#define BUTTON_Z_STOP					44
+	#define BUTTON_Z_UP						42
+	#define BUTTON_Z_DOWN					45
+	#define BUTTON_Z_BACK					3
 
 #define FORM_FILAMENT								6
 	#define	BUTTON_FILAMENT_BACK			0

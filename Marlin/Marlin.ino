@@ -719,11 +719,11 @@ void setup()
 			
 			} else {*/
 			int i =0;
-			while ( i<100){
+			while ( i<70){
 				if (millis() >= waitPeriod){
 					
 					genie.WriteObject(GENIE_OBJ_VIDEO,0,i);
-					i+=5;
+					i+=4;
 					waitPeriod = 120+millis();	//Every 5s
 				}
 				
@@ -737,14 +737,14 @@ void setup()
 			while(led < 256){
 				if (millis() >= waitPeriod)
 				{
-						analogWrite(RED,led);
-						analogWrite(GREEN,led);
-						analogWrite(BLUE,led);
-						
-						waitPeriod=10+millis();	//Every 5s
-						led++;
-					}
+					analogWrite(RED,led);
+					analogWrite(GREEN,led);
+					analogWrite(BLUE,led);
+					
+					waitPeriod=10+millis();	//Every 5s
+					led++;
 				}
+			}
 			
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
@@ -915,7 +915,7 @@ inline void ListFilesDownfunc(){
 		
 		int vecto = 0;
 		int jint = 0;
-		
+		char Workdir[20];
 		
 		
 		
@@ -934,24 +934,18 @@ inline void ListFilesDownfunc(){
 			Serial.println(card.longFilename);
 			if (card.filenameIsDir)
 			{
-				
 				setfoldernames(jint);
-				
-				char Workdir[256];
-				memset(Workdir, '\0', sizeof(Workdir));
-				strcat(Workdir,"/");
-				strcat(Workdir,card.getWorkDirName());
-				card.getfilename(vecto);
-				strcat(Workdir,"/");
-				strcat(Workdir,card.filename);
-				//strcat(path,"/");
-				card.chdir(Workdir);
-				uint16_t NUMitems = card.getnrfilenames();
-				card.updir();
-				card.getWorkDirName();
-				memset(Workdir, '\0', sizeof(Workdir));
-				sprintf(Workdir, "%d items",NUMitems);
-				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				if(card.chdir(card.filename)!= -1){
+					uint16_t NUMitems = card.getnrfilenames();
+					card.updir();
+					card.getWorkDirName();
+					memset(Workdir, '\0', sizeof(Workdir));
+					sprintf(Workdir, "%d items",NUMitems);
+					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				}
+				else{
+					genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+				}
 				}else{
 				
 				listsd.get_lineduration();
@@ -975,21 +969,18 @@ inline void ListFilesDownfunc(){
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,15,1);
 			setfoldernames(jint);
 			
-			char Workdir[256];
-			memset(Workdir, '\0', sizeof(Workdir));
-			strcat(Workdir,"/");
-			strcat(Workdir,card.getWorkDirName());
-			strcat(Workdir,"/");
-			card.getfilename(vecto);
-			strcat(Workdir,card.filename);
-			//strcat(path,"/");
-			card.chdir(Workdir);
-			uint16_t NUMitems = card.getnrfilenames();
-			card.updir();
-			card.getWorkDirName();
-			memset(Workdir, '\0', sizeof(Workdir));
-			sprintf(Workdir, "%d items",NUMitems);
-			genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+			
+			if(card.chdir(card.filename)!= -1){
+				uint16_t NUMitems = card.getnrfilenames();
+				card.updir();
+				card.getWorkDirName();
+				memset(Workdir, '\0', sizeof(Workdir));
+				sprintf(Workdir, "%d items",NUMitems);
+				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+			}
+			else{
+				genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+			}
 			}else{
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,15,0);
 			listsd.get_lineduration();
@@ -1014,22 +1005,17 @@ inline void ListFilesDownfunc(){
 			if (card.filenameIsDir)
 			{
 				setfoldernames(jint);
-				
-				char Workdir[256];
-				memset(Workdir, '\0', sizeof(Workdir));
-				strcat(Workdir,"/");
-				strcat(Workdir,card.getWorkDirName());
-				strcat(Workdir,"/");
-				card.getfilename(vecto);
-				strcat(Workdir,card.filename);
-				//strcat(path,"/");
-				card.chdir(Workdir);
-				uint16_t NUMitems = card.getnrfilenames();
-				card.updir();
-				card.getWorkDirName();
-				memset(Workdir, '\0', sizeof(Workdir));
-				sprintf(Workdir, "%d items",NUMitems);
-				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				if(card.chdir(card.filename)!= -1){
+					uint16_t NUMitems = card.getnrfilenames();
+					card.updir();
+					card.getWorkDirName();
+					memset(Workdir, '\0', sizeof(Workdir));
+					sprintf(Workdir, "%d items",NUMitems);
+					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				}
+				else{
+					genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+				}
 				}else{
 				
 				listsd.get_lineduration();
@@ -1064,22 +1050,17 @@ inline void ListFilesDownfunc(){
 			if (card.filenameIsDir)
 			{
 				setfoldernames(jint);
-				
-				char Workdir[256];
-				memset(Workdir, '\0', sizeof(Workdir));
-				strcat(Workdir,"/");
-				strcat(Workdir,card.getWorkDirName());
-				strcat(Workdir,"/");
-				card.getfilename(vecto);
-				strcat(Workdir,card.filename);
-				//strcat(path,"/");
-				card.chdir(Workdir);
-				uint16_t NUMitems = card.getnrfilenames();
-				card.updir();
-				card.getWorkDirName();
-				memset(Workdir, '\0', sizeof(Workdir));
-				sprintf(Workdir, "%d items",NUMitems);
-				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				if(card.chdir(card.filename)!= -1){
+					uint16_t NUMitems = card.getnrfilenames();
+					card.updir();
+					card.getWorkDirName();
+					memset(Workdir, '\0', sizeof(Workdir));
+					sprintf(Workdir, "%d items",NUMitems);
+					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				}
+				else{
+					genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+				}
 				}else{
 				
 				listsd.get_lineduration();
@@ -1115,7 +1096,7 @@ inline void ListFilesUpfunc(){
 		
 		int vecto = 0;
 		int jint = 0;
-		
+		char Workdir[20];
 		
 		
 		
@@ -1137,21 +1118,17 @@ inline void ListFilesUpfunc(){
 				
 				setfoldernames(jint);
 				
-				char Workdir[256];
-				memset(Workdir, '\0', sizeof(Workdir));
-				strcat(Workdir,"/");
-				strcat(Workdir,card.getWorkDirName());
-				strcat(Workdir,"/");
-				card.getfilename(vecto);
-				strcat(Workdir,card.filename);
-				//strcat(path,"/");
-				card.chdir(Workdir);
-				uint16_t NUMitems = card.getnrfilenames();
-				card.updir();
-				card.getWorkDirName();
-				memset(Workdir, '\0', sizeof(Workdir));
-				sprintf(Workdir, "%d items",NUMitems);
-				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				if(card.chdir(card.filename)!= -1){
+					uint16_t NUMitems = card.getnrfilenames();
+					card.updir();
+					card.getWorkDirName();
+					memset(Workdir, '\0', sizeof(Workdir));
+					sprintf(Workdir, "%d items",NUMitems);
+					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				}
+				else{
+					genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+				}
 				}else{
 				
 				listsd.get_lineduration();
@@ -1175,21 +1152,17 @@ inline void ListFilesUpfunc(){
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,15,1);
 			setfoldernames(jint);
 			
-			char Workdir[256];
-			memset(Workdir, '\0', sizeof(Workdir));
-			strcat(Workdir,"/");
-			strcat(Workdir,card.getWorkDirName());
-			strcat(Workdir,"/");
-			card.getfilename(vecto);
-			strcat(Workdir,card.filename);
-			//strcat(path,"/");
-			card.chdir(Workdir);
-			uint16_t NUMitems = card.getnrfilenames();
-			card.updir();
-			card.getWorkDirName();
-			memset(Workdir, '\0', sizeof(Workdir));
-			sprintf(Workdir, "%d items",NUMitems);
-			genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+			if(card.chdir(card.filename)!= -1){
+				uint16_t NUMitems = card.getnrfilenames();
+				card.updir();
+				card.getWorkDirName();
+				memset(Workdir, '\0', sizeof(Workdir));
+				sprintf(Workdir, "%d items",NUMitems);
+				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+			}
+			else{
+				genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+			}
 			}else{
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,15,0);
 			listsd.get_lineduration();
@@ -1215,21 +1188,18 @@ inline void ListFilesUpfunc(){
 			{
 				setfoldernames(jint);
 				
-				char Workdir[256];
-				memset(Workdir, '\0', sizeof(Workdir));
-				strcat(Workdir,"/");
-				strcat(Workdir,card.getWorkDirName());
-				strcat(Workdir,"/");
-				card.getfilename(vecto);
-				strcat(Workdir,card.filename);
-				//strcat(path,"/");
-				card.chdir(Workdir);
-				uint16_t NUMitems = card.getnrfilenames();
-				card.updir();
-				card.getWorkDirName();
-				memset(Workdir, '\0', sizeof(Workdir));
-				sprintf(Workdir, "%d items",NUMitems);
-				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				
+				if(card.chdir(card.filename)!= -1){
+					uint16_t NUMitems = card.getnrfilenames();
+					card.updir();
+					card.getWorkDirName();
+					memset(Workdir, '\0', sizeof(Workdir));
+					sprintf(Workdir, "%d items",NUMitems);
+					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				}
+				else{
+					genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+				}
 				}else{
 				
 				listsd.get_lineduration();
@@ -1265,21 +1235,17 @@ inline void ListFilesUpfunc(){
 			{
 				setfoldernames(jint);
 				
-				char Workdir[256];
-				memset(Workdir, '\0', sizeof(Workdir));
-				strcat(Workdir,"/");
-				strcat(Workdir,card.getWorkDirName());
-				strcat(Workdir,"/");
-				card.getfilename(vecto);
-				strcat(Workdir,card.filename);
-				//strcat(path,"/");
-				card.chdir(Workdir);
-				uint16_t NUMitems = card.getnrfilenames();
-				card.updir();
-				card.getWorkDirName();
-				memset(Workdir, '\0', sizeof(Workdir));
-				sprintf(Workdir, "%d items",NUMitems);
-				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				if(card.chdir(card.filename)!= -1){
+					uint16_t NUMitems = card.getnrfilenames();
+					card.updir();
+					card.getWorkDirName();
+					memset(Workdir, '\0', sizeof(Workdir));
+					sprintf(Workdir, "%d items",NUMitems);
+					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				}
+				else{
+					genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+				}
 				}else{
 				
 				listsd.get_lineduration();
@@ -1332,7 +1298,7 @@ inline void ListFilesDownx3func(){
 		
 		int vecto = 0;
 		int jint = 0;
-		
+		char Workdir[20];
 		
 		
 		
@@ -1353,22 +1319,17 @@ inline void ListFilesDownx3func(){
 			{
 				
 				setfoldernames(jint);
-				
-				char Workdir[256];
-				memset(Workdir, '\0', sizeof(Workdir));
-				strcat(Workdir,"/");
-				strcat(Workdir,card.getWorkDirName());
-				strcat(Workdir,"/");
-				card.getfilename(vecto);
-				strcat(Workdir,card.filename);
-				//strcat(path,"/");
-				card.chdir(Workdir);
-				uint16_t NUMitems = card.getnrfilenames();
-				card.updir();
-				card.getWorkDirName();
-				memset(Workdir, '\0', sizeof(Workdir));
-				sprintf(Workdir, "%d items",NUMitems);
-				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				if(card.chdir(card.filename)!= -1){
+					uint16_t NUMitems = card.getnrfilenames();
+					card.updir();
+					card.getWorkDirName();
+					memset(Workdir, '\0', sizeof(Workdir));
+					sprintf(Workdir, "%d items",NUMitems);
+					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				}
+				else{
+					genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+				}
 				}else{
 				
 				listsd.get_lineduration();
@@ -1392,21 +1353,17 @@ inline void ListFilesDownx3func(){
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,15,1);
 			setfoldernames(jint);
 			
-			char Workdir[256];
-			memset(Workdir, '\0', sizeof(Workdir));
-			strcat(Workdir,"/");
-			strcat(Workdir,card.getWorkDirName());
-			strcat(Workdir,"/");
-			card.getfilename(vecto);
-			strcat(Workdir,card.filename);
-			//strcat(path,"/");
-			card.chdir(Workdir);
-			uint16_t NUMitems = card.getnrfilenames();
-			card.updir();
-			card.getWorkDirName();
-			memset(Workdir, '\0', sizeof(Workdir));
-			sprintf(Workdir, "%d items",NUMitems);
-			genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+			if(card.chdir(card.filename)!= -1){
+				uint16_t NUMitems = card.getnrfilenames();
+				card.updir();
+				card.getWorkDirName();
+				memset(Workdir, '\0', sizeof(Workdir));
+				sprintf(Workdir, "%d items",NUMitems);
+				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+			}
+			else{
+				genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+			}
 			}else{
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,15,0);
 			listsd.get_lineduration();
@@ -1432,21 +1389,17 @@ inline void ListFilesDownx3func(){
 			{
 				setfoldernames(jint);
 				
-				char Workdir[256];
-				memset(Workdir, '\0', sizeof(Workdir));
-				strcat(Workdir,"/");
-				strcat(Workdir,card.getWorkDirName());
-				strcat(Workdir,"/");
-				card.getfilename(vecto);
-				strcat(Workdir,card.filename);
-				//strcat(path,"/");
-				card.chdir(Workdir);
-				uint16_t NUMitems = card.getnrfilenames();
-				card.updir();
-				card.getWorkDirName();
-				memset(Workdir, '\0', sizeof(Workdir));
-				sprintf(Workdir, "%d items",NUMitems);
-				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				if(card.chdir(card.filename)!= -1){
+					uint16_t NUMitems = card.getnrfilenames();
+					card.updir();
+					card.getWorkDirName();
+					memset(Workdir, '\0', sizeof(Workdir));
+					sprintf(Workdir, "%d items",NUMitems);
+					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				}
+				else{
+					genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+				}
 				}else{
 				
 				listsd.get_lineduration();
@@ -1482,21 +1435,17 @@ inline void ListFilesDownx3func(){
 			{
 				setfoldernames(jint);
 				
-				char Workdir[256];
-				memset(Workdir, '\0', sizeof(Workdir));
-				strcat(Workdir,"/");
-				strcat(Workdir,card.getWorkDirName());
-				strcat(Workdir,"/");
-				card.getfilename(vecto);
-				strcat(Workdir,card.filename);
-				//strcat(path,"/");
-				card.chdir(Workdir);
-				uint16_t NUMitems = card.getnrfilenames();
-				card.updir();
-				card.getWorkDirName();
-				memset(Workdir, '\0', sizeof(Workdir));
-				sprintf(Workdir, "%d items",NUMitems);
-				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				if(card.chdir(card.filename)!= -1){
+					uint16_t NUMitems = card.getnrfilenames();
+					card.updir();
+					card.getWorkDirName();
+					memset(Workdir, '\0', sizeof(Workdir));
+					sprintf(Workdir, "%d items",NUMitems);
+					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				}
+				else{
+					genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+				}
 				}else{
 				
 				listsd.get_lineduration();
@@ -1526,12 +1475,14 @@ inline void ListFileListINITSD(){
 	filepointer = 0;
 	int vecto = 0;
 	int jint = 0;
+	char Workdir[20];
 	card.initsd();
 	if (card.cardOK){
 		
 		uint16_t fileCnt = card.getnrfilenames();
 		//Declare filepointer
 		card.getWorkDirName();
+		genie.WriteStr(STRING_FOLDER_NAME,card.getWorkDirName());//Printing form
 		//Text index starts at 0
 		//for(jint = 0; jint < 4; jint++){//
 		if(fileCnt > 3){
@@ -1542,22 +1493,17 @@ inline void ListFileListINITSD(){
 			{
 				setfoldernames(jint);
 				
-				char Workdir[256];
-				memset(Workdir, '\0', sizeof(Workdir));
-				strcat(Workdir,"/");
-				strcat(Workdir,card.getWorkDirName());
-				strcat(Workdir,"/");
-				card.getfilename(vecto);
-				strcat(Workdir,card.filename);
-				//strcat(path,"/");
-				card.chdir(Workdir);
-				uint16_t NUMitems = card.getnrfilenames();
-				card.updir();
-				card.getWorkDirName();
-				memset(Workdir, '\0', sizeof(Workdir));
-				sprintf(Workdir, "%d items",NUMitems);
-				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-				
+				if(card.chdir(card.filename)!= -1){
+					uint16_t NUMitems = card.getnrfilenames();
+					card.updir();
+					card.getWorkDirName();
+					memset(Workdir, '\0', sizeof(Workdir));
+					sprintf(Workdir, "%d items",NUMitems);
+					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				}
+				else{
+					genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+				}
 				}else{
 				
 				listsd.get_lineduration();
@@ -1583,21 +1529,17 @@ inline void ListFileListINITSD(){
 			
 			setfoldernames(jint);
 			
-			char Workdir[256];
-			memset(Workdir, '\0', sizeof(Workdir));
-			strcat(Workdir,"/");
-			strcat(Workdir,card.getWorkDirName());
-			strcat(Workdir,"/");
-			card.getfilename(vecto);
-			strcat(Workdir,card.filename);
-			//strcat(path,"/");
-			card.chdir(Workdir);
-			uint16_t NUMitems = card.getnrfilenames();
-			card.updir();
-			card.getWorkDirName();
-			memset(Workdir, '\0', sizeof(Workdir));
-			sprintf(Workdir, "%d items",NUMitems);
-			genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+			if(card.chdir(card.filename)!= -1){
+				uint16_t NUMitems = card.getnrfilenames();
+				card.updir();
+				card.getWorkDirName();
+				memset(Workdir, '\0', sizeof(Workdir));
+				sprintf(Workdir, "%d items",NUMitems);
+				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+			}
+			else{
+				genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+			}
 			}else{
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,15,0);
 			listsd.get_lineduration();
@@ -1620,21 +1562,17 @@ inline void ListFileListINITSD(){
 			{
 				setfoldernames(jint);
 				
-				char Workdir[256];
-				memset(Workdir, '\0', sizeof(Workdir));
-				strcat(Workdir,"/");
-				strcat(Workdir,card.getWorkDirName());
-				strcat(Workdir,"/");
-				card.getfilename(vecto);
-				strcat(Workdir,card.filename);
-				//strcat(path,"/");
-				card.chdir(Workdir);
-				uint16_t NUMitems = card.getnrfilenames();
-				card.updir();
-				card.getWorkDirName();
-				memset(Workdir, '\0', sizeof(Workdir));
-				sprintf(Workdir, "%d items",NUMitems);
-				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				if(card.chdir(card.filename)!= -1){
+					uint16_t NUMitems = card.getnrfilenames();
+					card.updir();
+					card.getWorkDirName();
+					memset(Workdir, '\0', sizeof(Workdir));
+					sprintf(Workdir, "%d items",NUMitems);
+					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				}
+				else{
+					genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+				}
 				}else{
 				
 				listsd.get_lineduration();
@@ -1661,21 +1599,17 @@ inline void ListFileListINITSD(){
 			{
 				setfoldernames(jint);
 				
-				char Workdir[256];
-				memset(Workdir, '\0', sizeof(Workdir));
-				strcat(Workdir,"/");
-				strcat(Workdir,card.getWorkDirName());
-				strcat(Workdir,"/");
-				card.getfilename(vecto);
-				strcat(Workdir,card.filename);
-				//strcat(path,"/");
-				card.chdir(Workdir);
-				uint16_t NUMitems = card.getnrfilenames();
-				card.updir();
-				card.getWorkDirName();
-				memset(Workdir, '\0', sizeof(Workdir));
-				sprintf(Workdir, "%d items",NUMitems);
-				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				if(card.chdir(card.filename)!= -1){
+					uint16_t NUMitems = card.getnrfilenames();
+					card.updir();
+					card.getWorkDirName();
+					memset(Workdir, '\0', sizeof(Workdir));
+					sprintf(Workdir, "%d items",NUMitems);
+					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				}
+				else{
+					genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+				}
 				}else{
 				
 				listsd.get_lineduration();
@@ -1703,18 +1637,17 @@ inline void ListFileListINITSD(){
 	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
 
 }		
-		
 inline void ListFileListENTERBACKFORLDERSD(){
 	filepointer = 0;
 	int vecto = 0;
 	int jint = 0;
-	
+	char Workdir[20];
 	uint16_t fileCnt = card.getnrfilenames();
 	//Declare filepointer
 	card.getWorkDirName();
 	//Text index starts at 0
 	//for(jint = 0; jint < 4; jint++){//
-	
+	genie.WriteStr(STRING_FOLDER_NAME,card.getWorkDirName());//Printing form
 	
 	
 	if(fileCnt > 3){
@@ -1725,21 +1658,18 @@ inline void ListFileListENTERBACKFORLDERSD(){
 		{
 			setfoldernames(jint);
 			
-			char Workdir[256];
-			memset(Workdir, '\0', sizeof(Workdir));
-			strcat(Workdir,"/");
-			strcat(Workdir,card.getWorkDirName());
-			strcat(Workdir,"/");
-			card.getfilename(vecto);
-			strcat(Workdir,card.filename);
-			//strcat(path,"/");
-			card.chdir(Workdir);
-			uint16_t NUMitems = card.getnrfilenames();
-			card.updir();
-			card.getWorkDirName();
-			memset(Workdir, '\0', sizeof(Workdir));
-			sprintf(Workdir, "%d items",NUMitems);
-			genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+			if(card.chdir(card.filename)!= -1){
+				uint16_t NUMitems = card.getnrfilenames();
+				card.updir();
+				card.getWorkDirName();
+				memset(Workdir, '\0', sizeof(Workdir));
+				sprintf(Workdir, "%d items",NUMitems);
+				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+			}
+			else{
+				genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+			}
+			
 			}else{
 			
 			listsd.get_lineduration();
@@ -1765,21 +1695,17 @@ inline void ListFileListENTERBACKFORLDERSD(){
 		genie.WriteObject(GENIE_OBJ_USERBUTTON,15,1);
 		setfoldernames(jint);
 		
-		char Workdir[256];
-		memset(Workdir, '\0', sizeof(Workdir));
-		strcat(Workdir,"/");
-		strcat(Workdir,card.getWorkDirName());
-		strcat(Workdir,"/");
-		card.getfilename(vecto);
-		strcat(Workdir,card.filename);
-		//strcat(path,"/");
-		card.chdir(Workdir);
-		uint16_t NUMitems = card.getnrfilenames();
-		card.updir();
-		card.getWorkDirName();
-		memset(Workdir, '\0', sizeof(Workdir));
-		sprintf(Workdir, "%d items",NUMitems);
-		genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+		if(card.chdir(card.filename)!= -1){
+			uint16_t NUMitems = card.getnrfilenames();
+			card.updir();
+			card.getWorkDirName();
+			memset(Workdir, '\0', sizeof(Workdir));
+			sprintf(Workdir, "%d items",NUMitems);
+			genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+		}
+		else{
+			genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+		}
 		}else{
 		genie.WriteObject(GENIE_OBJ_USERBUTTON,15,0);
 		listsd.get_lineduration();
@@ -1800,21 +1726,17 @@ inline void ListFileListENTERBACKFORLDERSD(){
 		{
 			setfoldernames(jint);
 			
-			char Workdir[256];
-			memset(Workdir, '\0', sizeof(Workdir));
-			strcat(Workdir,"/");
-			strcat(Workdir,card.getWorkDirName());
-			strcat(Workdir,"/");
-			card.getfilename(vecto);
-			strcat(Workdir,card.filename);
-			//strcat(path,"/");
-			card.chdir(Workdir);
-			uint16_t NUMitems = card.getnrfilenames();
-			card.updir();
-			card.getWorkDirName();
-			memset(Workdir, '\0', sizeof(Workdir));
-			sprintf(Workdir, "%d items",NUMitems);
-			genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+			if(card.chdir(card.filename)!= -1){
+				uint16_t NUMitems = card.getnrfilenames();
+				card.updir();
+				card.getWorkDirName();
+				memset(Workdir, '\0', sizeof(Workdir));
+				sprintf(Workdir, "%d items",NUMitems);
+				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+			}
+			else{
+				genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+			}
 			}else{
 			
 			listsd.get_lineduration();
@@ -1840,28 +1762,23 @@ inline void ListFileListENTERBACKFORLDERSD(){
 		if (card.filenameIsDir)
 		{
 			setfoldernames(jint);
-			
-			char Workdir[256];
-			memset(Workdir, '\0', sizeof(Workdir));
-			strcat(Workdir,"/");
-			strcat(Workdir,card.getWorkDirName());
-			strcat(Workdir,"/");
-			card.getfilename(vecto);
-			strcat(Workdir,card.filename);
-			//strcat(path,"/");
-			card.chdir(Workdir);
-			uint16_t NUMitems = card.getnrfilenames();
-			card.updir();
-			card.getWorkDirName();
-			memset(Workdir, '\0', sizeof(Workdir));
-			sprintf(Workdir, "%d items",NUMitems);
-			genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+			if(card.chdir(card.filename)!= -1){
+				uint16_t NUMitems = card.getnrfilenames();
+				card.updir();
+				card.getWorkDirName();
+				memset(Workdir, '\0', sizeof(Workdir));
+				sprintf(Workdir, "%d items",NUMitems);
+				genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+			}
+			else{
+				genie.WriteStr(stringfiledur[jint],"-----");//Printing form
+			}
 			}else{
 			
 			listsd.get_lineduration();
 			sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 			//Serial.println(listsd.comandline);
-			
+			setfilenames(jint);
 		}
 	}
 	else{
@@ -1870,7 +1787,71 @@ inline void ListFileListENTERBACKFORLDERSD(){
 		
 	}
 }
-
+inline void surfing_utilitiescode(){
+	int tHotend=int(degHotend(0));
+	int tHotend1=int(degHotend(1));
+	char buffer[25];
+	memset(buffer, '\0', sizeof(buffer) );
+	//Rapduch
+	//Edit for final TouchScreen
+	
+	genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, current_position[X_AXIS]);
+	genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
+	genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);
+	
+	sprintf(buffer, "%3d %cC",tHotend,0x00B0);
+	//Serial.println(buffer);
+	genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
+	
+	sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
+	//Serial.println(buffer);
+	genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
+	
+	if (degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5) {
+		
+		genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,0);
+		genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,0);
+		genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,0);
+	}
+	else{
+		genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,1);
+		genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,1);
+		genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,1);
+	}
+	
+	#if EXTRUDERS > 1
+	// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
+	if ((degHotend(0) >= (degTargetHotend0()-5)) && (degHotend(1) >= (degTargetHotend1()-5)) && is_changing_filament){
+		// if we want to add user setting temp, we should control if is heating
+		Serial.println("temp ok");
+		
+		Serial.println("Ready to Insert/Remove");
+		//We have preheated correctly
+		if (filament_mode =='I'){
+			heatting = false;
+			genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL,0);
+			genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
+		}
+		else if (filament_mode =='R')
+		{
+			heatting = false;
+			genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
+			genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
+			
+		}
+		else
+		{
+			heatting = false;
+			genie.WriteStr(STRING_FILAMENT,"Press GO to Purge Filament");
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
+		}
+		processing_adjusting = false;
+		is_changing_filament=false; //Reset changing filament control
+	}
+	#endif //Extruders > 1
+}
 #ifdef SIGMA_TOUCH_SCREEN
 //Rapduch
 void touchscreen_update() //Updates the Serial Communications with the screen
@@ -1912,11 +1893,36 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			
 		}
 		waitPeriod = 750 + millis();
-		
-		
-		
 	}
-	
+	if(z_adjust_10up){
+		
+		current_position[Z_AXIS]-=10;
+		plan_discard_current_block();
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
+		
+		z_adjust_10up = false;
+	}
+	if(z_adjust_50up){
+		current_position[Z_AXIS]-=50;
+		plan_discard_current_block();
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
+		
+		z_adjust_50up= false;
+	}
+	if(z_adjust_10down){
+		current_position[Z_AXIS]+=10;
+		plan_discard_current_block();
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
+		
+		z_adjust_10down = false;
+	}
+	if(z_adjust_50down){
+		current_position[Z_AXIS]+=50;
+		plan_discard_current_block();
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
+		
+		z_adjust_50down = false;
+	}
 	
 	if(print_setting_refresh){
 				
@@ -2150,25 +2156,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				sprintf(buffer7, "% 3d %%",feedmultiply);
 				//Serial.println(buffer);
 				genie.WriteStr(STRINGS_PRINTING_FEED,buffer7);
-				/*
-				char buffer3[13];
-				if (String(card.longFilename).length()>12){
-				for (int i = 0; i<12 ; i++)
-				{
-				buffer3[i]=card.longFilename[i];
-				}
-				buffer3[12]='\0';
-				char* buffer2 = strcat(buffer3,"...\0");
-				genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
-				}else{
-				for (int i = 0; i<=String(card.longFilename).length(); i++)
-				{
-				if (buffer3[i] == '.') i = String(card.longFilename).length() +10;
-				else buffer3[i]=card.longFilename[i];
-				}
-				//buffer[count]='\0';
-				genie.WriteStr(STRINGS_PRINTING_GCODE,buffer3);//Printing form//Printing form
-				}*/
+				
 			}
 			
 			waitPeriod=5000+millis();	//Every 5s
@@ -2212,69 +2200,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	{
 		if (millis() >= waitPeriod)
 		{
-			int tHotend=int(degHotend(0));
-			int tHotend1=int(degHotend(1));
-			char buffer[25];
-			memset(buffer, '\0', sizeof(buffer) );
-			//Rapduch
-			//Edit for final TouchScreen
-			
-			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, current_position[X_AXIS]);
-			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
-			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);
-			
-			sprintf(buffer, "%3d %cC",tHotend,0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
-			
-			sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
-			
-			if (degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5) {
-				
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,0);				
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,0);				
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,0);
-			}
-			else{				
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,1);
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,1);
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,1);				
-			}
-			
-			#if EXTRUDERS > 1
-			// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
-			if ((degHotend(0) >= (degTargetHotend0()-5)) && (degHotend(1) >= (degTargetHotend1()-5)) && is_changing_filament){
-			// if we want to add user setting temp, we should control if is heating			
-				Serial.println("temp ok");				
-				
-				Serial.println("Ready to Insert/Remove");
-				//We have preheated correctly
-				if (filament_mode =='I'){		
-					heatting = false;								
-					genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL,0);
-					genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
-				}
-				else if (filament_mode =='R')
-				{
-					heatting = false;	
-					genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
-					genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
-					
-				}
-				else
-				{
-					heatting = false;	
-					genie.WriteStr(STRING_FILAMENT,"Press GO to Purge Filament"); 
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
-				}
-				processing_adjusting = false;
-				is_changing_filament=false; //Reset changing filament control
-			}
-			#endif //Extruders > 1
+			surfing_utilitiescode();
 			waitPeriod=1000+millis(); // Every Second
 		}
 	}	
