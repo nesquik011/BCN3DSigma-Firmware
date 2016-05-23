@@ -45,7 +45,7 @@
 	#define BUTTON_REDO_X_CAB				29
 #define FORM_UTILITIES								4	
 #define FORM_MAIN_SCREEN							5
-	#define BUTTON_Z_SET					3
+	#define BUTTON_Z_SET					7
 #define FORM_ZSET							11
 	#define BUTTON_Z_TOP					40
 	#define BUTTON_Z_BOT					46

@@ -290,6 +290,7 @@ bool screen_change_nozz2down = false;
 bool screen_change_beddown = false;
 bool screen_change_speeddown = false;
 bool home_made = false;
+bool home_made_Z = false;
 bool dobloking = false;
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
@@ -1894,31 +1895,56 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		}
 		waitPeriod = 750 + millis();
 	}
-	if(z_adjust_10up){
+	if(z_adjust_10up && !blocks_queued()){
 		
 		current_position[Z_AXIS]-=10;
-		quickStop();
+		
+		if (home_made_Z){
+			if(current_position[Z_AXIS] < Z_MIN_POS){
+				current_position[Z_AXIS] = Z_MIN_POS;
+			}
+		}
+		else{
+			quickStop();
+		}
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
 		
 		z_adjust_10up = false;
 	}
-	if(z_adjust_50up){
-		current_position[Z_AXIS]-=50;
-		quickStop();
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
+	if(z_adjust_50up && !blocks_queued()){
 		
+		current_position[Z_AXIS]-=50;
+		
+		if (home_made_Z){
+			if(current_position[Z_AXIS]< Z_MIN_POS){
+				current_position[Z_AXIS]= Z_MIN_POS;
+			}
+		}
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
 		z_adjust_50up= false;
 	}
-	if(z_adjust_10down){
+	if(z_adjust_10down && !blocks_queued()){
 		current_position[Z_AXIS]+=10;
-		quickStop();
+		
+		if (home_made_Z){
+			if(current_position[Z_AXIS] > Z_MAX_POS-15){
+				current_position[Z_AXIS] = Z_MAX_POS-15;
+			}
+		}
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
 		
 		z_adjust_10down = false;
 	}
-	if(z_adjust_50down){
+	if(z_adjust_50down && !blocks_queued()){
+		
 		current_position[Z_AXIS]+=50;
-		quickStop();
+		
+		if (home_made_Z){
+			
+			if(current_position[Z_AXIS] > Z_MAX_POS-15){
+				current_position[Z_AXIS] = Z_MAX_POS-15;
+			}
+		}
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
 		
 		z_adjust_50down = false;
@@ -3308,6 +3334,7 @@ inline void gcode_G28(){
 		HOMEAXIS(Z);
 		
 		Serial.println("Z SIGMA Homed");
+		home_made_Z =  true;
 		//At this point our probe is homed, no offset is added.
 
 		//Now lets home with the second extruder:
@@ -8723,6 +8750,7 @@ void process_commands()
 									HOMEAXIS(Z);
 					
 									Serial.println("Z SIGMA Homed");
+									home_made_Z = true;
 									//At this point our probe is homed, no offset is added.
 
 									//Now lets home with the second extruder:
