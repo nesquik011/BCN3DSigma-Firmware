@@ -28,6 +28,9 @@ void myGenieEventHandler();
 bool print_setting_refresh = false;
 bool flag_filament_home= false;
 bool filament_accept_ok = false;
+bool gifhotent0_flag = false;
+bool gifhotent1_flag = false;
+bool gifbed_flag = false;
 bool flag_pause = false;
 bool flag_nylon_clean_metode = false;
 bool print_print_stop = false;
@@ -490,6 +493,56 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_MAINTENANCE, 0);
 					
 				}
+				else if (Event.reportObject.index == BUTTON_GO_TEMPS ){
+					
+					int tHotend=target_temperature[0];
+					int tHotend1=target_temperature[1];
+					int tBed=target_temperature_bed;
+					genie.WriteObject(GENIE_OBJ_FORM, FORM_TEMP_MENU, 0);
+					if(tHotend != 0)genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,1);
+					else genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,0);
+					if(tHotend1 != 0)genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,1);
+					else genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,0);
+					if(tBed != 0)genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,1);
+					else genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,0);
+					gifhotent0_flag=false;
+					gifhotent1_flag = false;
+					gifbed_flag = false;
+					surfing_temps = true;
+						
+				
+						
+				}
+				else if (Event.reportObject.index == BUTTON_PREHEAT_BACK ){
+					screen_sdcard = true;
+					surfing_utilities=false;
+					Serial.println("Surfing 0");
+					surfing_temps = false;
+					genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
+				}
+				else if (Event.reportObject.index == BUTTON_PREHEAT_LEXTR ){
+					int tHotend=target_temperature[0];
+					if(tHotend != 0)setTargetHotend0(0);
+					else setTargetHotend0(200);
+					gifhotent0_flag = false;
+				}
+				else if (Event.reportObject.index == BUTTON_PREHEAT_REXTR ){
+					int tHotend1=target_temperature[1];
+					if(tHotend1 != 0)setTargetHotend1(0);
+					else setTargetHotend1(200);
+					gifhotent1_flag = false;
+				}
+				else if (Event.reportObject.index == BUTTON_PREHEAT_BED ){
+					int tBed=target_temperature_bed;
+					if(tBed != 0)setTargetBed(0);
+					else setTargetBed(55);
+					gifbed_flag = false;
+				}
+				
+				
+				
+				
+				
 				#pragma endregion Utilities
 				
 				
@@ -3016,7 +3069,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{
 					screen_sdcard = true;
 					surfing_utilities=false;
-					surfing_temps = false;
 					Serial.println("Surfing 0");
 					}
 					
@@ -3026,7 +3078,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Serial.println("Surfing 1");
 					}
 					else if (Event.reportObject.index == FORM_TEMP_MENU){
-					surfing_temps = true;
+					
 					}
 					
 					else if (Event.reportObject.index == FORM_PURGE)

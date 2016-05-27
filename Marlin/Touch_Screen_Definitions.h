@@ -46,6 +46,7 @@
 #define FORM_UTILITIES								4	
 	#define BUTTON_MAINTENANCE					7
 #define FORM_MAIN_SCREEN							5
+		#define BUTTON_GO_TEMPS					 54 
 	
 #define FORM_ZSET							11
 	#define BUTTON_Z_TOP					40
@@ -150,6 +151,7 @@
 	#define BUTTON_PREHEAT_LEXTR			11
 	#define BUTTON_PREHEAT_BED				81
 	#define BUTTON_PREHEAT_REXTR			82
+	#define BUTTON_PREHEAT_BACK			83
 	#define GIF_TEMP_LEXTR					3
 	#define GIF_TEMP_BED					4
 	#define GIF_TEMP_REXTR					5		
