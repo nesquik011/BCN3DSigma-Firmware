@@ -2155,7 +2155,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-10) || degBed()<(target_temperature_bed)-10){ //Waiting to heat the extruder
 							manage_heater();
-							touchscreen_update();
 						}
 						processing_adjusting = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
@@ -2204,11 +2203,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						while (degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-10) || degBed()<(target_temperature_bed)-10){ //Waiting to heat the extruder
 							
 							manage_heater();
-							touchscreen_update();
 						}
 						//delay(6000);
 						
-						processing_adjusting = false;
+						//processing_adjusting = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_Z_PRINT,0);
 						home_axis_from_code(true,true,true);
 						right_test_print_code();
