@@ -320,8 +320,20 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				#pragma endregion Printing Settings
 				
+				#pragma region Printing_UTILITIES
 				
-				}else{//All that has to be done out of the printing room
+				else if (Event.reportObject.index == BUTTON_UTILITIES_PRINT_PURGE){
+					
+				}
+				else if (Event.reportObject.index == BUTTON_UTILITIES_PRINT_FILAMENT){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_SELECT_EXTRUDER,0);
+					filament_mode = 'R';
+				}
+				
+				#pragma endregion Printing_UTILITIES
+				
+				}
+			//	else{//All that has to be done out of the printing room
 				
 				
 				/*
@@ -368,42 +380,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				genie.WriteStr(STRING_PRINT_SET_PERCENT,buffer);
 				}*/
 				
-				if (Event.reportObject.index == BUTTON_STOP_YES )
-				{
-					is_on_printing_screen=false;
-					card.sdprinting = false;
-					card.closefile();
-					
-					//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
-					quickStop();
-					
-					home_axis_from_code(true,true,false); //Home X and Y
-					enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
-					enquecommand_P(PSTR("M107"));
-					st_synchronize();
-					if(SD_FINISHED_STEPPERRELEASE)
-					{
-						enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-					}
-					autotempShutdown();
-					setTargetHotend0(0);
-					setTargetHotend1(0);
-					//setTargetHotend2(0);
-					setTargetBed(0);
-					card.sdispaused = false;
-					cancel_heatup = true;
-					
-					
-					//sleep_RELAY();
-					//Rapduch
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
-				}
 				
 				
 				
 				//*****SD Gcode Selection*****
 				#pragma region SD Gcode Selector
-				else if ((Event.reportObject.index == BUTTON_SD_SELECTED) && updownsdfilesflag)
+				 if ((Event.reportObject.index == BUTTON_SD_SELECTED) && updownsdfilesflag)
 				{
 					
 					if(card.cardOK)
@@ -535,7 +517,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_PREHEAT_BED ){
 					int tBed=target_temperature_bed;
 					if(tBed != 0)setTargetBed(0);
-					else setTargetBed(55);
+					else setTargetBed(50);
 					gifbed_flag = false;
 				}
 				
@@ -954,7 +936,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//*****INSERT/REMOVE FILAMENT*****
 				#pragma region Insert_Remove_Fil
 				
-				else if (Event.reportObject.index == BUTTON_FILAMENT_BACK  )
+				else if (Event.reportObject.index == BUTTON_FILAMENT_OPTIONS_BACK  )
 				{
 					flag_filament_home=false;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES,0);
@@ -972,8 +954,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_SELECT_EXTRUDER,0);
 				}
-				
-
+				else if ((Event.reportObject.index == BUTTON_FILAMENT_BACK ))
+				{
+					if(card.sdispaused){
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_PRINT,0);
+					}
+					else{
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
+					}
+					
+				}
 				else if (Event.reportObject.index == BUTTON_FILAMENT_NOZZLE1 || Event.reportObject.index == BUTTON_FILAMENT_NOZZLE2)
 				{
 					if (Event.reportObject.index == BUTTON_FILAMENT_NOZZLE1) //Left Nozzle
@@ -1856,15 +1846,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_SUCCESS_FILAMENT_OK)
 					{
 						//enquecommand_P((PSTR("G28 X0 Y0")));
-						
-						if(!flag_nylon_clean_metode){
-							enquecommand_P((PSTR("T0")));
-							Serial.println("Filament Inserted/Removed, returning to Main Menu");
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
-							//setTargetHotend0(0);
-							//setTargetHotend1(0);
-						}
-						else{
+						filament_accept_ok = false;
+						if(flag_nylon_clean_metode){
 							Serial.println("Filament Removed, GOING TO CLEAN THE NOZZEL");
 							setTargetHotend(260.0,which_extruder);
 							if (which_extruder == 0) changeTool(0);
@@ -1880,8 +1863,50 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP1,0);
 							genie.WriteStr(STRING_FILAMENT,"REMOVE TUBE bla bla");
 							filament_mode = 'N';
+							
+							
 						}
-						filament_accept_ok = false;
+						else if (card.sdispaused && filament_mode == 'R')
+						{
+							
+							filament_mode = 'I';
+							if (which_extruder == 0)	genie.WriteObject(GENIE_OBJ_FORM,FORM_LEFT_MATERIAL,0);
+							else genie.WriteObject(GENIE_OBJ_FORM,FORM_RIGHT_MATERIAL,0);
+						}
+						else if (card.sdispaused && filament_mode == 'I')
+						{
+							
+							processing = true;
+							
+							
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+							current_position[Z_AXIS] = saved_position[Z_AXIS];
+							
+							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
+							
+							st_synchronize();
+							home_axis_from_code(true, true, false);
+							
+							current_position[Z_AXIS] = saved_position[Z_AXIS] + 20;
+							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
+							st_synchronize();
+							
+							
+							
+							current_position[E_AXIS] = saved_position[E_AXIS]-2;
+							plan_set_e_position(current_position[E_AXIS]);
+							
+							processing = false;
+							genie.WriteObject(GENIE_OBJ_FORM, FORM_UTILITIES_PRINT,0);
+						}
+						else{
+							enquecommand_P((PSTR("T0")));
+							Serial.println("Filament Inserted/Removed, returning to Main Menu");
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
+							//setTargetHotend0(0);
+							//setTargetHotend1(0);
+						}
+						
 					}
 					#pragma endregion SuccessScreens
 					
@@ -2990,7 +3015,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					
 					
-				}// else
+				// }else
 			}
 			//Userbuttons
 			//USERBUTTONS------------------------------------------------------
@@ -3063,7 +3088,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//genie.WriteStr(2,card.longFilename);
 					//genie.WriteStr(6,"Printing...");
 					is_on_printing_screen = true;
-					
+					surfing_utilities = false;
 					}
 					else if (Event.reportObject.index == FORM_MAIN_SCREEN)
 					{
