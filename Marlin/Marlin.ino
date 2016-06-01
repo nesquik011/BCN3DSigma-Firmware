@@ -704,7 +704,7 @@ void setup()
 			
 			
 			
-			delay(3500); //showing the splash screen
+			delay(4000); //showing the splash screen
 			
 			// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
 			//Config_RetrieveSettings();
@@ -1861,8 +1861,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	static uint32_t waitPeriod = millis();
 	static uint32_t waitPeriod_p = millis();
 	static uint32_t waitPeriod_pbackhome = millis(); //Processing back home
-	static uint32_t waitPeriod_t = millis(); //Processing back home
-	static uint32_t waitPeriod_u = millis(); //Processing back home 
+	static uint32_t waitPeriod_t = millis(); //Processing back home 
 	static int8_t processing_state = 0;
 	static int count5s = 0;
 	
@@ -2289,10 +2288,10 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	
 	if (surfing_utilities)
 	{
-		if (millis() >= waitPeriod_u)
+		if (millis() >= waitPeriod)
 		{
 			surfing_utilitiescode();
-			waitPeriod_u=1000+millis(); // Every Second
+			waitPeriod=1000+millis(); // Every Second
 		}
 	}	
 	if (processing){
