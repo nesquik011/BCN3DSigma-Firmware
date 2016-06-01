@@ -315,7 +315,7 @@ float volumetric_multiplier[EXTRUDERS] = {1.0
 };
 float	current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float	saved_position[NUM_AXIS] = {0.0,0.0,0.0,0.0}; //Xavi -> array to save the current position to make a pause
-int8_t saved_active_extruder = 0;
+
 float add_homing[3]={0,0,0};
 #ifdef DELTA
 	float endstop_adj[3]={0,0,0};
@@ -1953,41 +1953,34 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	}
 	
 	if(print_setting_refresh){
-		if(card.sdispaused){
-			
-			genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_PRINT,0);
-			surfing_utilities = true;
-			
-		}
-		else{
-			char buffer[25];
-			
-			memset(buffer, '\0', sizeof(buffer) );
-			SERIAL_PROTOCOLPGM("PRINT SETTINGS \n");
-			//char buffer[256];
-			genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTTING_SETTINGS_DEF,0);
-			
-			
-			sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
-			
-			sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
-			
-			sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PS_BED_TEMP,buffer);
-			
-			sprintf(buffer, "%3d %%",feedmultiply);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PS_SPEED,buffer);
-			
-			
-			waitPeriod=5000+millis();	//Every 5s
-		}
-		print_setting_refresh = false;
+				
+				char buffer[25];
+				memset(buffer, '\0', sizeof(buffer) );
+				SERIAL_PROTOCOLPGM("PRINT SETTINGS \n");
+				//char buffer[256];
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTTING_SETTINGS_DEF,0);
+				
+				
+				sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
+				
+				sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
+				
+				sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PS_BED_TEMP,buffer);
+				
+				sprintf(buffer, "%3d %%",feedmultiply);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PS_SPEED,buffer);
+				
+				
+				waitPeriod=5000+millis();	//Every 5s
+				
+				print_setting_refresh = false;
 	}
 	
 	if(card.sdprinting && !card.sdispaused || !card.sdprinting && card.sdispaused )
@@ -4872,9 +4865,9 @@ inline void gcode_G69(){
 		saved_position[X_AXIS] = current_position[X_AXIS];
 		saved_position[Y_AXIS] = current_position[Y_AXIS];
 		saved_position[Z_AXIS] = current_position[Z_AXIS];
-		saved_position[E_AXIS] = current_position[E_AXIS];			
+					
 		//*********************************//
-		saved_active_extruder = active_extruder;		
+					
 		//********RETRACK
 		current_position[E_AXIS]-=2;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
@@ -4916,7 +4909,7 @@ Serial.println("G70 ACTIVATED");
 		current_position[Y_AXIS] = saved_position[Y_AXIS];
 		//Serial.println(current_position[Z_AXIS]);
 		//*********************************//
-		changeTool(saved_active_extruder);			
+					
 					
 					
 					
@@ -4943,7 +4936,7 @@ Serial.println("G70 ACTIVATED");
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 		st_synchronize();
 		//*********************************//
-		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], 0, current_position[E_AXIS]);
+					
 					
 		//********EXTRACK to keep ready to the new instruction
 		current_position[E_AXIS]+=0; //2
