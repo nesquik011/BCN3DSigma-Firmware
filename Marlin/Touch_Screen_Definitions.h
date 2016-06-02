@@ -13,6 +13,7 @@
 //without form declared///////////////////////////////
 #define BUTTON_STOP_YES						1
 #define BUTTON_COOLDOWN_OK					34
+#define BUTTON_CHANGE_EXTRUDER				63
 #define BUTTON_COOLDOWN_OK					34
 #define BUTTON_COOLDOWN_CANCEL				74
 #define STRING_VERSION								3
@@ -43,11 +44,12 @@
 	#define BUTTON_REDO_RIGHT_CAB			28
 	#define BUTTON_REDO_X_CAB				29
 #define FORM_UTILITIES								4	
-		#define BUTTON_MAINTENANCE					7
 #define FORM_MAIN_SCREEN							5
+	#define BUTTON_Z_SET					7
 #define FORM_ZSET							11
 	#define BUTTON_Z_TOP					40
 	#define BUTTON_Z_BOT					46
+	#define BUTTON_Z_STOP					44
 	#define BUTTON_Z_UP						42
 	#define BUTTON_Z_DOWN					45
 	#define BUTTON_Z_BACK					3
@@ -62,12 +64,24 @@
 	#define BACKBUTTON_INFO_FIL_INSERTED	49
 	#define BACKBUTTON_INSERT				49
 	
+/*#define FORM_MANUAL_CONTROL		8
+//Winbuttons
+#define BUTTON_MOVE_AXIS_X					1
+#define BUTTON_MOVE_AXIS_Y					2
+#define BUTTON_MOVE_AXIS_Z					7
+#define BUTTON_MOVE_AXIS_minusX				0
+#define BUTTON_MOVE_AXIS_minusY				3
+#define BUTTON_MOVE_AXIS_minusZ				8
+#define BUTTON_MOVE_AXIS_HOME				4
+#define BUTTON_PREHEAT						15
+#define BUTTON_MOVE_AXIS_E					5
+#define BUTTON_MOVE_AXIS_minusE				6
 
-#define  FORM_MAINTENANCE           18
-	#define Z_ADJUST				59
-	#define CUSTOM_CALIB			57
-	#define MAINTENANCE_BACKMENU    63
-	#define CLEAN_NYLON_METODE	    80	
+//LedDigits
+#define LEDDIGITS_FEEDRATE					18
+#define LEDDIGITS_NOZZLE					19
+#define LEDDIGITS_BED						20
+#define LEDDIGITS_FAN						21*/	
 
 #define FORM_PRINTING								9
 	#define STRING_PRINTING_NOZZ1			0
@@ -106,8 +120,6 @@
 #define FORM_INSERT_FIL								19
 #define FORM_REMOVE_FIL								19
 #define FORM_PURGE_FIL								19
-#define FORM_NYLON_STEP1							19
-#define FORM_NYLON_STEP2							19
 #define FORM_SELECT_EXTRUDER						20
 	#define	BUTTON_FILAMENT_NOZZLE1			75
 	#define	BUTTON_FILAMENT_NOZZLE2			76 
