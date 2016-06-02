@@ -2247,13 +2247,13 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	if (processing_adjusting){
 		if (millis() >= waitPeriod_p){
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ADJUSTING_TEMPERATURES,processing_state);
-			if(processing_state<8){
+			if(processing_state<4){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
-			waitPeriod_p=90+millis();
+			waitPeriod_p=500+millis();
 		}
 	}
 	if(filament_accept_ok && !home_made){
