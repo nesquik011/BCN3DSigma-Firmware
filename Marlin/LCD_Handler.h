@@ -21,7 +21,7 @@
 
 //#include "ultralcd.h"
 void setfilenames(int jint);
-void insertmetod();
+inline void insertmetod();
 void setfoldernames(int jint);
 extern bool cancel_heatup;
 void myGenieEventHandler();
@@ -897,9 +897,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						
-						home_axis_from_code(true,true,true);
-						
-						int feedrate;
+						if (home_made_Z){
+							home_axis_from_code(true,true,false);
+						}
+						else{
+							home_axis_from_code(true,true,true);
+						}
+						/*int feedrate;
 						if (!flag_filament_home){
 							//MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
 							//current_position[X_AXIS]+=25;
@@ -907,7 +911,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							st_synchronize();
 							
 							flag_filament_home=true;
-						}
+						}*/
 						/*
 						
 						current_position[Z_AXIS]=Z_MAX_POS-15;
@@ -3074,7 +3078,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					
 					}
-					void insertmetod(){
+					inline void insertmetod(){
 					processing = true;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					if (!home_made) home_axis_from_code(true,true,true);
