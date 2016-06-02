@@ -1708,6 +1708,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						else{
 							Serial.println("Filament Removed, GOING TO CLEAN THE NOZZEL");
 							setTargetHotend(260.0,which_extruder);
+							if (which_extruder == 0) changeTool(0);
+							else changeTool(1);
+							
 							current_position[Y_AXIS] = 100;
 							current_position[X_AXIS] = 155;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
@@ -3021,7 +3024,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					}
 					inline void setfilenames(int jint){
-					int count = 19;
+					int count = 22;
 					char buffer[count+3];
 					int x = 0;
 					memset( buffer, '\0', sizeof(buffer));
@@ -3063,7 +3066,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					}
 					inline void setfoldernames(int jint){
-					int count = 19;
+					int count = 22;
 					char buffer[count+3];
 					int x = 0;
 					memset( buffer, '\0', sizeof(buffer));
