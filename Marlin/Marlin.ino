@@ -2247,7 +2247,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	if (processing_adjusting){
 		if (millis() >= waitPeriod_p){
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ADJUSTING_TEMPERATURES,processing_state);
-			if(processing_state<9){
+			if(processing_state<8){
 				processing_state++;
 			}
 			else{
@@ -2721,13 +2721,13 @@ int aprox (float voltes)
 
 static void run_z_probe() {
 	plan_bed_level_matrix.set_to_identity();
-	feedrate = homing_feedrate[Z_AXIS];
+	feedrate = next_feedrate;
 
 	// move up until you find the bed
 	float zPosition = -10;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
 	st_synchronize();
-
+	feedrate = homing_feedrate[Z_AXIS];
 	// we have to let the planner know where we are right now as it is not where we said to go.
 	zPosition = st_get_position_mm(Z_AXIS);
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS]);
@@ -2792,6 +2792,7 @@ static void engage_z_probe() {
 		#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
 		servos[servo_endstops[Z_AXIS]].attach(0);
 		#endif
+		delay(1000);
 		servos[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2]);
 		#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
 		delay(PROBE_SERVO_DEACTIVATION_DELAY);
@@ -2820,6 +2821,7 @@ static void retract_z_probe() {
 /// Probe bed height at position (x,y), returns the measured z value
 static float probe_pt(float x, float y, float z_before) {
 	// move to right place
+	
 	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
 	#ifdef Z_SIGMA_AUTOLEVEL
 		if (active_extruder == LEFT_EXTRUDER) //DEFAULT ACTIVE EXTRUDER (left)
@@ -2834,17 +2836,17 @@ static float probe_pt(float x, float y, float z_before) {
 		do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
 	#endif
 	
-	
 
 	#ifndef Z_PROBE_SLED
 		engage_z_probe();   // Engage Z Servo endstop if available
 	#endif // Z_PROBE_SLED
+	
 		run_z_probe();
 	float measured_z = current_position[Z_AXIS];
 	#ifndef Z_PROBE_SLED
 		retract_z_probe();
 	#endif // Z_PROBE_SLED
-
+	
 	SERIAL_PROTOCOLPGM(MSG_BED);
 	SERIAL_PROTOCOLPGM(" x: ");
 	SERIAL_PROTOCOL(x);
@@ -2966,7 +2968,7 @@ static void homeaxis(int axis) {
 		#ifdef DUAL_X_CARRIAGE
 			if (axis == X_AXIS) axis_home_dir = x_home_dir(active_extruder);
 		#endif
-
+		float feedrate_old;
 		current_position[axis] = 0;
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
@@ -2975,26 +2977,33 @@ static void homeaxis(int axis) {
 		feedrate = homing_feedrate[axis];
 		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
 		st_synchronize();
-
+		
+		
+		homing_feedrate[Z_AXIS] = CALIB_FEEDRATE_ZAXIS;
+		feedrate_old = feedrate;
+		feedrate = homing_feedrate[axis]; 
+		
 		current_position[axis] = 0;
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 		
 		destination[axis] = -home_retract_mm(axis) * axis_home_dir;  //Actual retract
-		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder); //Slow
 		st_synchronize();
-
+		
 		destination[axis] = 2*home_retract_mm(axis) * axis_home_dir;
 
 		feedrate = homing_feedrate[axis]/2;
 		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder); //Slow
 		st_synchronize();
-
+		
 		axis_is_at_home(axis);
 		destination[axis] = current_position[axis];
 		feedrate = 0.0;
 		endstops_hit_on_purpose();
 		axis_known_position[axis] = true;
-
+		
+		homing_feedrate[Z_AXIS] = feedrate_old;
+		
 	}
 }
 
@@ -3451,6 +3460,8 @@ inline void gcode_G28(){
 	#ifdef Z_SIGMA_HOME  //This to return the left extruder at Xhome position
 	if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
 		
+		saved_feedrate = homing_feedrate[Z_AXIS];
+		homing_feedrate[Z_AXIS] = CALIB_FEEDRATE_ZAXIS;
 		feedrate = homing_feedrate[Z_AXIS];
 		current_position[Z_AXIS]+=Z_SIGMA_RAISE_AFTER_HOMING;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
@@ -3462,6 +3473,7 @@ inline void gcode_G28(){
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 		st_synchronize();
 		
+		homing_feedrate[Z_AXIS]= saved_feedrate;
 		if(saved_active_extruder==RIGHT_EXTRUDER)
 		{
 			changeToolSigma(RIGHT_EXTRUDER); //Get again the same tool
@@ -4339,8 +4351,9 @@ inline void gcode_G34(){
 	
 #ifdef ENABLE_AUTO_BED_LEVELING
 #ifdef SIGMA_BED_AUTOCALIB
-		
-			
+
+saved_feedrate = homing_feedrate[Z_AXIS];
+homing_feedrate[Z_AXIS]= CALIB_FEEDRATE_ZAXIS;			
 
 				
 if (flag_full_calib){
@@ -4407,9 +4420,10 @@ feedrate = homing_feedrate[Z_AXIS];
 				
 Serial.print("Zvalue after home:");
 Serial.println(current_position[Z_AXIS]);
-				
+next_feedrate = saved_feedrate;				
 dobloking= true;
 float z_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_LEFT_EXTR,Y_SIGMA_PROBE_1_LEFT_EXTR, Z_RAISE_BEFORE_PROBING);
+next_feedrate = homing_feedrate[Z_AXIS];	
 float z_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_LEFT_EXTR,Y_SIGMA_PROBE_2_LEFT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
 float z_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_LEFT_EXTR,Y_SIGMA_PROBE_3_LEFT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
 dobloking= false;
@@ -4432,11 +4446,12 @@ axis_is_at_home(X_AXIS); //Redoes the Max Min calculus for the right extruder
 current_position[X_AXIS]-=10;				
 plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
 				
-				
+next_feedrate = saved_feedrate;					
 //Probe at 3 arbitrary points
 //probe left extruder
 dobloking= true;
 float z2_at_pt_3 = probe_pt(X_SIGMA_PROBE_3_RIGHT_EXTR,Y_SIGMA_PROBE_3_RIGHT_EXTR, Z_RAISE_BEFORE_PROBING);
+next_feedrate = homing_feedrate[Z_AXIS];
 float z2_at_pt_2 = probe_pt(X_SIGMA_PROBE_2_RIGHT_EXTR,Y_SIGMA_PROBE_2_RIGHT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
 float z2_at_pt_1 = probe_pt(X_SIGMA_PROBE_1_RIGHT_EXTR,Y_SIGMA_PROBE_1_RIGHT_EXTR, current_position[Z_AXIS] + (Z_RAISE_BETWEEN_PROBINGS/2));
 dobloking= false;				
@@ -4770,6 +4785,7 @@ if (aprox1==0 && aprox2==0 && aprox3==0) //If the calibration it's ok
 	}
 	SERIAL_PROTOCOLPGM("\n");
 	}
+	homing_feedrate[Z_AXIS]= saved_feedrate;
 	
 #endif //SIGMA_BED_AUTOCALIB
 #endif // ENABLE_AUTO_BED_LEVELING
@@ -8745,6 +8761,7 @@ void process_commands()
 									plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 									plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);//Left Extruder
 									st_synchronize();
+									
 									current_position[X_AXIS] = destination[X_AXIS];
 									current_position[Y_AXIS] = destination[Y_AXIS];
 									HOMEAXIS(Z);
@@ -8860,7 +8877,8 @@ void process_commands()
 						//Rapduch
 						#ifdef Z_SIGMA_HOME  //This to return the left extruder at Xhome position
 							if((home_all_axis) || (z_c)) {
-					
+							saved_feedrate = homing_feedrate[Z_AXIS];
+							homing_feedrate[Z_AXIS] = CALIB_FEEDRATE_ZAXIS;
 							feedrate = homing_feedrate[Z_AXIS];
 							current_position[Z_AXIS]+=Z_SIGMA_RAISE_AFTER_HOMING;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
@@ -8872,6 +8890,7 @@ void process_commands()
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 							st_synchronize();
 							
+							homing_feedrate[Z_AXIS]= saved_feedrate;
 								if(saved_active_extruder==RIGHT_EXTRUDER)
 								{
 									changeToolSigma(RIGHT_EXTRUDER); //Get again the same tool
