@@ -2066,6 +2066,8 @@ if(is_on_printing_screen){
 
 void update_screen_noprinting(){
 	static uint32_t waitPeriodno = millis();
+	static uint32_t waitPeriod_p = millis();
+	static int8_t processing_state = 0;
 	if (surfing_temps){
 		//static uint32_t waitPeriod = millis();
 		if (millis() >= waitPeriodno)
@@ -2090,7 +2092,70 @@ void update_screen_noprinting(){
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_BED,buffer);
 			
+			if ((tHotend <= target_temperature[0]-10 || tHotend >= target_temperature[0]+10) && target_temperature[0]!=0) {
+				gifhotent0_flag = true;
+				
+			}
+			else if(target_temperature[0]!=0){
+				gifhotent0_flag = false;
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,1);
+			}
+			else{
+				gifhotent0_flag = false;
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,0);
+			}
+			if ((tHotend1 <= target_temperature[1]-10 || tHotend1 >= target_temperature[1]+10) && target_temperature[1]!=0)  {
+				gifhotent1_flag = true;
+				
+			}
+			else if(target_temperature[1]!=0){
+				gifhotent1_flag = false;
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,1);
+			}
+			else{
+				gifhotent1_flag = false;
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,0);
+			}
+			if (( tBed <= target_temperature_bed-10 ||  tBed >= target_temperature_bed+10) && target_temperature_bed!=0)  {
+				gifbed_flag = true;
+				
+			}
+			else if(target_temperature_bed!=0){
+				gifbed_flag = false;
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,1);
+			}
+			else{
+				gifbed_flag = false;
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,0);
+			}
+			
+			
+			
 			waitPeriodno=1000+millis(); // Every Second
+		}
+		if (millis() >= waitPeriod_p && (gifhotent0_flag || gifhotent1_flag || gifbed_flag ))
+		{
+			
+			if(processing_state<44){
+				processing_state++;
+			}
+			else{
+				processing_state=0;
+			}
+			
+			if(gifhotent0_flag){
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_LEXTR,processing_state);
+			}
+			if(gifhotent1_flag){
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_REXTR,processing_state);
+			}
+			if(gifbed_flag){
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_BED,processing_state);
+			}
+			
+			
+			
+			waitPeriod_p=90+millis();
 		}
 	}
 	
@@ -2301,7 +2366,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	if (processing){
 		if (millis() >= waitPeriod_p){
 			
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
+			
 			
 			if(processing_state<5){
 				processing_state++;
@@ -2309,18 +2374,20 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			else{
 				processing_state=0;
 			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
 			waitPeriod_p=180+millis();
 		}
 	}
 	if (processing_adjusting){
 		if (millis() >= waitPeriod_p){
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ADJUSTING_TEMPERATURES,processing_state);
+			
 			if(processing_state<4){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ADJUSTING_TEMPERATURES,processing_state);
 			waitPeriod_p=500+millis();
 		}
 	}
