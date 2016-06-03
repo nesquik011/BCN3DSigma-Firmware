@@ -36,7 +36,6 @@ bool print_print_resume = false;
 bool flag_resume = false;
 bool flag_full_calib = false;
 bool flag_bed_calib_done = false;
-bool screen_sdcard = false;
 bool updownsdfilesflag = true;
 bool ListFilesDown = false;
 bool ListFilesUp = false;
@@ -47,6 +46,7 @@ bool z_adjust_50up = false;
 bool z_adjust_10up = false;
 bool z_adjust_50down = false;
 bool z_adjust_10down = false;
+bool data_refresh_flag =  false;
 int  print_setting_tool = 2;
 float offset_x_calib = 0;
 float offset_y_calib = 0;
@@ -2842,73 +2842,20 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 			{
 				if (Event.reportObject.index == FORM_SDFILES)
 				{
+					screen_sdcard = true;
 					ListFilesINITflag = true;
 				}
 				
 				else if (Event.reportObject.index == FORM_PRINTING)
 				{
-					//Restart the preheat buttons
-					/*genie.WriteObject(GENIE_OBJ_USERIMAGES,BUTTON_PREHEAT_PLA,0);
 					
-					#ifdef SIGMA_TOUCH_SCREEN
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
-					char buffer[13];
-					if (String(card.longFilename).length()>12){
-					for (int i = 0; i<12 ; i++)
-					{
-					buffer[i]=card.longFilename[i];
-					}
-					buffer[12]='\0';
-					char* buffer2 = strcat(buffer,"...\0");
-					Serial.print("Card Name: ");
-					Serial.println(card.longFilename);
-					Serial.print("Buffer1: ");
-					Serial.println(buffer);
-					Serial.print("buffer out: ");
-					Serial.println(buffer2);
-					genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
-					}else{
-					for (int i = 0; i<=String(card.longFilename).length(); i++)
-					{
-					if (buffer[i] == '.') i = String(card.longFilename).length() +10;
-					else buffer[i]=card.longFilename[i];
-					}
-					//buffer[count]='\0';
-					genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
-					}
-					
-					//Serial.println((char*)prepareString(card.longFilename,12));
-					//genie.WriteStr(6,"Ready");
-					#endif*/
-					/*enquecommand_P(PSTR("M24"));
-					int count = 12;
-					char buffer[count];
-					if (String(card.longFilename).length()>count){
-					for (int i = 0; i<count ; i++)
-					{
-					buffer[i]=card.longFilename[i];
-					}
-					buffer[count]='\0';
-					char* buffer2 = strcat(buffer,"...\0");
-					genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
-					}else{
-					for (int i = 0; i<=String(card.longFilename).length(); i++)
-					{
-					/*if (buffer[i] = '.') i = String(card.longFilename).length() +10;
-					else *//*buffer[i]=card.longFilename[i];
-					}
-					buffer[count]='\0';
-					genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
-					}*/
-					
-					//genie.WriteStr(2,card.longFilename);
-					//genie.WriteStr(6,"Printing...");
 					is_on_printing_screen = true;
-					
+					genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
+					data_refresh_flag = true;
 					}
 					else if (Event.reportObject.index == FORM_MAIN_SCREEN)
 					{
-					screen_sdcard = true;
+					screen_sdcard = false;
 					surfing_utilities=false;
 					surfing_temps = false;
 					Serial.println("Surfing 0");
@@ -2943,36 +2890,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if (Event.reportObject.index == FORM_PREHEAT_SETTINGS)
 					{
-					//Rapduch
-					//First send the actual command
-					/*setTargetHotend0(print_temp_l);
-					setTargetHotend1(print_temp_r);
-					setTargetBed(max(bed_temp_l,bed_temp_r));
 					
-					//Now let's print it on the touchscreen
-					char buffer[256];
-					int tHotend=target_temperature[0];
-					int tHotend1=target_temperature[1];
-					int tBed=target_temperature_bed;
-					
-					//Serial.println("TARGET TEMPS");
-					
-					sprintf(buffer, "%3d%cC",tHotend,0x00B0);
-					//Serial.println(buffer);
-					genie.WriteStr(STRING_PREHEAT_SET_NOZZ1,buffer);
-					
-					sprintf(buffer, "%3d%cC",tHotend1,0x00B0);
-					//Serial.println(buffer);
-					genie.WriteStr(STRING_PREHEAT_SET_NOZZ2,buffer);
-					
-					sprintf(buffer, "%3d%cC",tBed,0x00B0);
-					//Serial.println(buffer);
-					genie.WriteStr(STRING_PREHEAT_SET_BED,buffer);*/
-					/*setTargetHotend0(print_temp_l);
-					setTargetHotend1(print_temp_r);
-					setTargetBed(max(bed_temp_l,bed_temp_r));*/
-					
-					//Now let's print it on the touchscreen
 					char buffer[256];
 					int tHotend=preheat_E0_value;
 					int tHotend1=preheat_E1_value;

@@ -9,6 +9,7 @@
 */
 
 #define __AVR_ATmega2560__
+#define _VMDEBUG 1
 #define ARDUINO 168
 #define ARDUINO_MAIN
 #define F_CPU 16000000L
@@ -37,7 +38,9 @@ inline void ListFilesUpfunc();
 inline void ListFilesDownx3func();
 inline void ListFileListINITSD();
 inline void ListFileListENTERBACKFORLDERSD();
-inline void surfing_utilitiescode();
+void update_screen_printing();
+void update_screen_noprinting();
+void update_screen_sdcard();
 void touchscreen_update();
 void get_command();
 float code_value();

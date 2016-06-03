@@ -666,6 +666,10 @@ void CardReader::printingHasFinished()
 		setTargetHotend0(0);
 		setTargetHotend1(0);
 		setTargetBed(0);
+		screen_sdcard = false;
+		surfing_utilities=false;
+		surfing_temps = false;
+		
 		//The default states is Left Extruder active	
 	#endif	  
       if(SD_FINISHED_STEPPERRELEASE)
