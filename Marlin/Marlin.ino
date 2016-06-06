@@ -296,6 +296,7 @@ float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
+int8_t saved_active_extruder = 0;
 int extrudemultiply=100; //100->1 200->2
 int extruder_multiply[EXTRUDERS] = {100
 	#if EXTRUDERS > 1
@@ -1794,31 +1795,40 @@ void update_screen_printing(){
 	
 	if(print_setting_refresh){
 		
-		char buffer[25];
-		memset(buffer, '\0', sizeof(buffer) );
-		SERIAL_PROTOCOLPGM("PRINT SETTINGS \n");
-		//char buffer[256];
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTTING_SETTINGS_DEF,0);
-		
-		
-		sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
-		//Serial.println(buffer);
-		genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
-		
-		sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
-		//Serial.println(buffer);
-		genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
-		
-		sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
-		//Serial.println(buffer);
-		genie.WriteStr(STRING_PS_BED_TEMP,buffer);
-		
-		sprintf(buffer, "%3d %%",feedmultiply);
-		//Serial.println(buffer);
-		genie.WriteStr(STRING_PS_SPEED,buffer);
-		
-		
-		waitPeriod=5000+millis();	//Every 5s
+		if(card.sdispaused){
+			
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_PRINT,0);
+			surfing_utilities = true;
+			
+		}
+		else{
+			char buffer[25];
+			
+			memset(buffer, '\0', sizeof(buffer) );
+			SERIAL_PROTOCOLPGM("PRINT SETTINGS \n");
+			//char buffer[256];
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTTING_SETTINGS_DEF,0);
+			
+			
+			sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PS_LEFT_TEMP,buffer);
+			
+			sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PS_RIGHT_TEMP,buffer);
+			
+			sprintf(buffer, "%3d %cC",target_temperature_bed,0x00B0);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PS_BED_TEMP,buffer);
+			
+			sprintf(buffer, "%3d %%",feedmultiply);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PS_SPEED,buffer);
+			
+			
+			waitPeriod=5000+millis();	//Every 5s
+		}
 		
 		print_setting_refresh = false;
 	}
@@ -1989,7 +1999,86 @@ void update_screen_printing(){
 	
 	print_print_stop = false;
 }
-
+if (surfing_utilities)
+{
+	//static uint32_t waitPeriod = millis();
+	if (millis() >= waitPeriod)
+	{
+		int tHotend=int(degHotend(0));
+		int tHotend1=int(degHotend(1));
+		char buffer[25];
+		memset(buffer, '\0', sizeof(buffer) );
+		//Rapduch
+		//Edit for final TouchScreen
+		
+		genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, current_position[X_AXIS]);
+		genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
+		genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);
+		
+		sprintf(buffer, "%3d %cC",tHotend,0x00B0);
+		//Serial.println(buffer);
+		genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
+		
+		sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
+		//Serial.println(buffer);
+		genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
+		
+		if (degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5) {
+			
+			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,0);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,0);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,0);
+		}
+		else{
+			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,1);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,1);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,1);
+		}
+		
+		#if EXTRUDERS > 1
+		// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
+		if ((degHotend(0) >= (degTargetHotend0()-5)) && (degHotend(1) >= (degTargetHotend1()-5)) && is_changing_filament){
+			// if we want to add user setting temp, we should control if is heating
+			Serial.println("temp ok");
+			
+			Serial.println("Ready to Insert/Remove");
+			//We have preheated correctly
+			if (filament_mode =='I'){
+				heatting = false;
+				genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL,0);
+				genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
+			}
+			else if (filament_mode =='R')
+			{
+				heatting = false;
+				genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
+				genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
+				
+			}
+			else
+			{
+				heatting = false;
+				genie.WriteStr(STRING_FILAMENT,"Press GO to Purge Filament");
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
+			}
+			processing_adjusting = false;
+			is_changing_filament=false; //Reset changing filament control
+		}
+		#endif //Extruders > 1
+		
+		waitPeriod=1000+millis(); // Every Second
+	}
+}
+if(filament_accept_ok && !home_made){
+	processing=true;
+	
+}
+if(filament_accept_ok && home_made && processing){
+	processing = false;
+	genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+}
 if(is_on_printing_screen){
 	
 	static int count5s = 0;
@@ -4924,9 +5013,10 @@ inline void gcode_G69(){
 		saved_position[X_AXIS] = current_position[X_AXIS];
 		saved_position[Y_AXIS] = current_position[Y_AXIS];
 		saved_position[Z_AXIS] = current_position[Z_AXIS];
+		saved_position[E_AXIS] = current_position[E_AXIS];	
 					
 		//*********************************//
-					
+		saved_active_extruder = active_extruder;			
 		//********RETRACK
 		current_position[E_AXIS]-=2;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
@@ -4997,7 +5087,7 @@ Serial.println("G70 ACTIVATED");
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 		st_synchronize();
 		//*********************************//
-					
+		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], 0, current_position[E_AXIS]);			
 					
 		//********EXTRACK to keep ready to the new instruction
 		current_position[E_AXIS]+=0; //2

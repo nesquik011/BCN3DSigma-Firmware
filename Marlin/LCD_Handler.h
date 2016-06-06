@@ -333,16 +333,602 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if ((Event.reportObject.index == BUTTON_FILAMENT_BACK ))
 				{
-					if(card.sdispaused){
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_PRINT,0);
-					}
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_PRINT,0);
+					
 					
 				}
 				
+				#pragma region Insert_Remove_Fil
+				
+				else if (Event.reportObject.index == BUTTON_INSERT_FIL || Event.reportObject.index == BUTTON_REMOVE_FIL )
+				{
+					if (Event.reportObject.index == BUTTON_INSERT_FIL) filament_mode = 'I'; //Insert Mode
+					else if (Event.reportObject.index == BUTTON_REMOVE_FIL) filament_mode = 'R'; //Remove Mode
+					
+					/*if (!flag_filament_home){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					
+					}*/
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_SELECT_EXTRUDER,0);
+				}
+				
+
+				else if (Event.reportObject.index == BUTTON_FILAMENT_NOZZLE1 || Event.reportObject.index == BUTTON_FILAMENT_NOZZLE2)
+				{
+					if (Event.reportObject.index == BUTTON_FILAMENT_NOZZLE1) //Left Nozzle
+					{
+						
+						which_extruder=0;
+						
+					}
+					else //Right Nozzle
+					{
+						
+						which_extruder=1;
+					}
+					if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
+					else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);
+					
+					if (filament_mode == 'I') {
+						if (which_extruder == 0)	genie.WriteObject(GENIE_OBJ_FORM,FORM_LEFT_MATERIAL,0);
+						else genie.WriteObject(GENIE_OBJ_FORM,FORM_RIGHT_MATERIAL,0);
+					}
+					
+					else {
+						//*********Move the bed down and the extruders inside
+						processing = true;
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						
+						if (home_made_Z){
+							home_axis_from_code(true,true,false);
+						}
+						else{
+							home_axis_from_code(true,true,true);
+						}
+						/*int feedrate;
+						if (!flag_filament_home){
+							//MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
+							//current_position[X_AXIS]+=25;
+							home_axis_from_code(true,true,false);
+							st_synchronize();
+							
+							flag_filament_home=true;
+						}*/
+						/*
+						
+						current_position[Z_AXIS]=Z_MAX_POS-15;
+						current_position[Y_AXIS]=10;
+						feedrate=max_feedrate[Z_AXIS];
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate, active_extruder); //check speed
+						st_synchronize();
+						
+						
+						*/
+						
+						current_position[Z_AXIS]=Z_MAX_POS-15;
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
+						
+						current_position[Y_AXIS]=10;
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS], active_extruder); //check speed
+						st_synchronize();
+						
+						
+						processing = false;
+						
+						//genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+						//genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
+						/****************************************************/
+						
+						//ATTENTION : Order here is important
+						
+						
+						//Serial.println("REMOVING");
+						//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
+						/*if (filament_mode == 'I') genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
+						else if (filament_mode == 'R') genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
+						else genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);*/
+						processing_adjusting = true;
+						//delay(3500);
+						/*if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
+						else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);*/
+						is_changing_filament=true; //We are changing filament
+						
+					}
+				}
+				
+				else if (Event.reportObject.index == BUTTON_PLA_R){
+					print_temp_r = PLA_PRINT_TEMP;
+					insert_temp_r = PLA_INSERT_TEMP;
+					remove_temp_r = PLA_REMOVE_TEMP;
+					bed_temp_r = PLA_BED_TEMP;
+					//genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					Config_StoreSettings();
+					setTargetHotend1(print_temp_r);
+					insertmetod();
+				}
+				
+				else if (Event.reportObject.index == BUTTON_ABS_R){
+					print_temp_r = ABS_PRINT_TEMP;
+					insert_temp_r = ABS_INSERT_TEMP;
+					remove_temp_r = ABS_REMOVE_TEMP;
+					bed_temp_r = ABS_BED_TEMP;
+					//genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					Config_StoreSettings();
+					setTargetHotend1(print_temp_r);
+					insertmetod();
+				}
+				else if (Event.reportObject.index == BUTTON_PVA_R){
+					print_temp_r = PVA_PRINT_TEMP;
+					insert_temp_r = PVA_INSERT_TEMP;
+					remove_temp_r = PVA_REMOVE_TEMP;
+					bed_temp_r = PVA_BED_TEMP;
+					//genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					Config_StoreSettings();
+					setTargetHotend1(print_temp_r);
+					insertmetod();
+				}
+				else if (Event.reportObject.index == BUTTON_PLA_L){
+					print_temp_l = PLA_PRINT_TEMP;
+					insert_temp_l = PLA_INSERT_TEMP;
+					remove_temp_l = PLA_REMOVE_TEMP;
+					bed_temp_l = PLA_BED_TEMP;
+					//genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					Config_StoreSettings();
+					setTargetHotend0(print_temp_l);
+					insertmetod();
+				}
+				
+				else if (Event.reportObject.index == BUTTON_ABS_L){
+					print_temp_l = ABS_PRINT_TEMP;
+					insert_temp_l = ABS_INSERT_TEMP;
+					remove_temp_l = ABS_REMOVE_TEMP;
+					bed_temp_l = ABS_BED_TEMP;
+					//genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					Config_StoreSettings();
+					setTargetHotend0(print_temp_l);
+					
+					
+					//processing = true;
+					//genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					insertmetod();
+					
+					
+					
+					
+					
+				}
+				else if (Event.reportObject.index == BUTTON_PVA_L){
+					print_temp_l = PVA_PRINT_TEMP;
+					insert_temp_l = PVA_INSERT_TEMP;
+					remove_temp_l = PVA_REMOVE_TEMP;
+					bed_temp_l = PVA_BED_TEMP;
+					//genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					Config_StoreSettings();
+					setTargetHotend0(print_temp_l);
+					insertmetod();
+				}
+				
+				//CUSTOM MATERIAL BUTTONS
+				else if((Event.reportObject.index == BUTTON_CUST_L) || (Event.reportObject.index == BUTTON_CUST_R) ){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CUSTOM_MATERIAL,0);
+					char buffer[10];
+					char buffer1[10];
+					char buffer2[10];
+					char buffer3[256];
+					sprintf(buffer, "%d %cC",custom_insert_temp,0x00B0);
+					genie.WriteStr(STRING_CUSTOM_INSERT,buffer);
+					sprintf(buffer1, "%d %cC",custom_remove_temp,0x00B0);
+					genie.WriteStr(STRING_CUSTOM_REMOVE,buffer1);
+					sprintf(buffer2, "%d %cC",custom_print_temp,0x00B0);
+					genie.WriteStr(STRING_CUSTOM_PRINT,buffer2);
+					sprintf(buffer3, "%d %cC",custom_bed_temp,0x00B0);
+					genie.WriteStr(STRING_CUSTOM_BED,buffer3);
+					
+				}
+				else if (Event.reportObject.index == BUTTON_CUSTOM_BACK){
+					if (which_extruder == 0) genie.WriteObject(GENIE_OBJ_FORM,FORM_LEFT_MATERIAL,0);
+					else genie.WriteObject(GENIE_OBJ_FORM,FORM_RIGHT_MATERIAL,0);
+				}
+				
+				else if(Event.reportObject.index == BUTTON_CUSTOM_INS_LESS){
+					if (custom_insert_temp > 0){
+						char buffer[256];
+						custom_insert_temp -= 10;
+						sprintf(buffer, "%1d %cC",custom_insert_temp,0x00B0);
+						genie.WriteStr(STRING_CUSTOM_INSERT,buffer);
+					}
+				}
+				else if(Event.reportObject.index == BUTTON_CUSTOM_INS_MORE){
+					if (custom_insert_temp < HEATER_0_MAXTEMP-5){
+						char buffer[256];
+						custom_insert_temp += 10;
+						sprintf(buffer, "%1d %cC",custom_insert_temp,0x00B0);
+						genie.WriteStr(STRING_CUSTOM_INSERT,buffer);
+					}
+				}
+				else if(Event.reportObject.index == BUTTON_CUSTOM_REM_LESS){
+					if (custom_remove_temp > 0){
+						char buffer[256];
+						custom_remove_temp -= 10;
+						sprintf(buffer, "%1d %cC",custom_remove_temp,0x00B0);
+						genie.WriteStr(STRING_CUSTOM_REMOVE,buffer);
+					}
+				}
+				else if(Event.reportObject.index == BUTTON_CUSTOM_REM_MORE){
+					if (custom_remove_temp < HEATER_0_MAXTEMP-5){
+						char buffer[256];
+						custom_remove_temp += 10;
+						sprintf(buffer, "%1d %cC",custom_remove_temp,0x00B0);
+						genie.WriteStr(STRING_CUSTOM_REMOVE,buffer);
+					}
+				}
+				else if(Event.reportObject.index == BUTTON_CUSTOM_PRINT_LESS){
+					if (custom_print_temp > 0){
+						char buffer[256];
+						custom_print_temp -= 10;
+						sprintf(buffer, "%1d %cC",custom_print_temp,0x00B0);
+						genie.WriteStr(STRING_CUSTOM_PRINT,buffer);
+					}
+				}
+				else if(Event.reportObject.index == BUTTON_CUSTOM_PRINT_MORE){
+					if (custom_print_temp < HEATER_0_MAXTEMP-5){
+						char buffer[256];
+						custom_print_temp += 10;
+						sprintf(buffer, "%1d %cC",custom_print_temp,0x00B0);
+						genie.WriteStr(STRING_CUSTOM_PRINT,buffer);
+					}
+				}
+				else if(Event.reportObject.index == BUTTON_CUSTOM_BED_LESS){
+					if (custom_bed_temp > 0){
+						char buffer[256];
+						custom_bed_temp -= 10;
+						sprintf(buffer, "%1d %cC",custom_bed_temp,0x00B0);
+						genie.WriteStr(STRING_CUSTOM_BED,buffer);
+					}
+				}
+				else if(Event.reportObject.index == BUTTON_CUSTOM_BED_MORE){
+					if (custom_bed_temp < BED_MAXTEMP -5){
+						char buffer[256];
+						custom_bed_temp += 10;
+						sprintf(buffer, "%1d %cC",custom_bed_temp,0x00B0);
+						genie.WriteStr(STRING_CUSTOM_BED,buffer);
+					}
+				}
+				else if(Event.reportObject.index == BUTTON_CUSTOM_ACCEPT){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					if(which_extruder == 0){
+						if (custom_print_temp <= HEATER_0_MAXTEMP) print_temp_l = custom_print_temp;
+						else print_temp_l = HEATER_0_MAXTEMP;
+						if (custom_insert_temp <= HEATER_0_MAXTEMP) insert_temp_l = custom_insert_temp;
+						else insert_temp_l = HEATER_0_MAXTEMP;
+						if (custom_remove_temp <= HEATER_0_MAXTEMP) remove_temp_l = custom_remove_temp;
+						else remove_temp_l = HEATER_0_MAXTEMP;
+						if (custom_bed_temp <= BED_MAXTEMP) bed_temp_l = custom_bed_temp;
+						else bed_temp_l = BED_MAXTEMP;
+						setTargetHotend0(insert_temp_l);
+					}
+					else{
+						if (custom_print_temp <= HEATER_1_MAXTEMP)print_temp_r = custom_print_temp;
+						else print_temp_r = HEATER_1_MAXTEMP;
+						if (custom_insert_temp <= HEATER_1_MAXTEMP)insert_temp_r = custom_insert_temp;
+						else print_temp_r = HEATER_1_MAXTEMP;
+						if (custom_remove_temp <= HEATER_1_MAXTEMP)remove_temp_r = custom_remove_temp;
+						else remove_temp_r = HEATER_1_MAXTEMP;
+						if (custom_bed_temp <= BED_MAXTEMP)bed_temp_r = custom_bed_temp;
+						else bed_temp_r = BED_MAXTEMP;
+						setTargetHotend1(insert_temp_r);
+					}
+					Config_StoreSettings();
+				}
+				
+				//////////////////////////
+				else if (Event.reportObject.index == BUTTON_INFO_FIL_INSERTED)
+				{
+					
+					//*********Move the bed down and the extruders inside
+					processing = true;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					if (!home_made) home_axis_from_code(true,true,true);
+					
+					int feedrate;
+					if (!flag_filament_home){
+						//MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
+						//current_position[X_AXIS]+=25;
+						
+						home_axis_from_code(true,true,false);
+						/*current_position[X_AXIS] = x_home_pos(LEFT_EXTRUDER)+25;
+						feedrate=homing_feedrate[X_AXIS];
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
+						st_synchronize();
+						//current_position[X_AXIS] = x_home_pos(RIGHT_EXTRUDER);
+						
+						current_position[X_AXIS]=extruder_offset[X_AXIS][1];
+						Serial.println(current_position[X_AXIS]);
+						plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+						//current_position[X_AXIS]-=25;
+						current_position[X_AXIS] = x_home_pos(RIGHT_EXTRUDER)-25;
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
+						st_synchronize();*/
+						flag_filament_home=true;
+					}
+					
+					/*current_position[Y_AXIS]=285;
+					feedrate=homing_feedrate[Y_AXIS];
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+					st_synchronize();*/
+					
+					current_position[Z_AXIS]=Z_MAX_POS-15;
+					feedrate=homing_feedrate[Z_AXIS];
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate*2/60, active_extruder); //check speed
+					st_synchronize();
+					/****************************************************/
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FILAMENT_TOP,0);
+					processing = false;
+					
+				}
+
+				else if(Event.reportObject.index == BUTTON_MOVE_INSERT){
+					
+					//ATTENTION : Order here is important
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+					//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
+					//genie.WriteStr(STRING_ADVISE_FILAMENT,"Insert the filament until you feel it stops, \n then while you keep inserting around \n 10 mm of filament, press the clip");
+					processing_adjusting = true;
+					
+					if (which_extruder==0) setTargetHotend(max(insert_temp_l,old_insert_temp_l),which_extruder);
+					else setTargetHotend(max(insert_temp_r,old_insert_temp_r),which_extruder);
+					//delay(3500);
+					is_changing_filament=true;
+					
+					if (which_extruder == 0) changeTool(0);
+					else changeTool(1);
+					
+					current_position[Y_AXIS] = 100;
+					current_position[X_AXIS] = 155;
+					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
+					st_synchronize();
+				}
+				
+				
+				
+				else if (Event.reportObject.index == BUTTON_INSERT )
+				{// We should have already checked if filament is inserted
+					if (filament_mode =='I')
+					{ //Inserting...
+						processing = true;
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						delay(850);
+						Serial.print("Inserting :   ");
+						current_position[E_AXIS] += 30;//Extra extrusion at low feedrate
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  700/60, which_extruder); //850/60
+						current_position[E_AXIS] += ((BOWDEN_LENGTH-EXTRUDER_LENGTH)-15);//BOWDEN_LENGTH-300+340);
+						Serial.println(current_position[E_AXIS]);
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_FAST_SPEED/60, which_extruder);
+						current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
+						
+						
+						st_synchronize();
+						processing = false;
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUST_FILAMENT,0);
+						
+					}
+					else if (filament_mode =='R')
+					{ //Removing...
+						current_position[E_AXIS] -= (BOWDEN_LENGTH + EXTRUDER_LENGTH + 100);//Extra extrusion at fast feedrate
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_FAST_SPEED/60, which_extruder);
+						previous_state = FORM_FILAMENT;
+						processing = true;
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						st_synchronize();
+						processing = false;
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+						if (which_extruder == 0){
+							old_insert_temp_l = insert_temp_l;
+							old_remove_temp_l = remove_temp_l;
+							old_print_temp_l  = print_temp_l;
+						}
+						else{
+							old_insert_temp_r = insert_temp_r;
+							old_remove_temp_r = remove_temp_r;
+							old_print_temp_r  = print_temp_r;
+						}
+					}
+					else if (filament_mode == 'C'){
+						previous_state = FORM_FILAMENT;
+						processing = true;
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						delay(850);
+						Serial.print("Inserting :   ");
+						current_position[E_AXIS] += 60;//Extra extrusion at low feedrate
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder); //850/60
+						current_position[E_AXIS] += (BOWDEN_LENGTH-EXTRUDER_LENGTH);//BOWDEN_LENGTH-300+340);
+						Serial.println(current_position[E_AXIS]);
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, which_extruder);
+						current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_SLOW_SPEED/60, which_extruder);
+						
+						st_synchronize();
+						Serial.println(current_position[E_AXIS]);
+						processing = false;
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUST_FILAMENT,0);
+					}
+					else if (filament_mode == 'N'){ //Step1
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+						processing_adjusting = true;
+						
+						while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-10)){ //Waiting to heat the extruder
+							manage_heater();
+							touchscreen_update();
+						}
+						processing_adjusting = false;
+						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP2,0);
+						genie.WriteStr(STRING_FILAMENT,"STEP 1");
+						filament_mode = 'M';//Step 2
+					}
+					else if (filament_mode == 'M'){ //Step2
+						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP2,0);
+						genie.WriteStr(STRING_FILAMENT,"STEP 2");
+						filament_mode = 'L';//Step 2
+					}
+					else if (filament_mode == 'L'){ //Step3
+						setTargetHotend(170.0,which_extruder);
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+						processing_adjusting = true;
+						
+						while (degHotend(which_extruder)>(degTargetHotend(which_extruder)+10)){ //Waiting to heat the extruder
+							manage_heater();
+							touchscreen_update();
+						}
+						processing_adjusting = false;
+						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP2,0);
+						genie.WriteStr(STRING_FILAMENT,"STEP 3");
+						filament_mode = 'Q';//Step 2
+					}
+					else if (filament_mode == 'Q'){ //Step4
+						setTargetHotend(50.0,which_extruder);
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+						processing_adjusting = true;
+						
+						while (degHotend(which_extruder)>(degTargetHotend(which_extruder)+10)){ //Waiting to heat the extruder
+							manage_heater();
+							touchscreen_update();
+						}
+						processing_adjusting = false;
+						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP2,0);
+						genie.WriteStr(STRING_FILAMENT,"STEP 4");
+						filament_mode = 'P';//Step 2
+					}
+					else if (filament_mode == 'P'){ //Step4
+						setTargetHotend(105.0,which_extruder);
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+						processing_adjusting = true;
+						
+						while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-10)){ //Waiting to heat the extruder
+							manage_heater();
+							touchscreen_update();
+						}
+						processing_adjusting = false;
+						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+						flag_nylon_clean_metode = false;
+					}
+				}
+				#pragma endregion Insert_Remove_Fil
+				
+				#pragma region AdjustFilament
+				else if (Event.reportObject.index == BUTTON_ACCEPT_ADJUST && filament_accept_ok == false)
+				{
+					
+					if (millis() >= waitPeriod_purge){
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						filament_accept_ok = true;
+						home_made = false;
+						processing=true;
+						home_axis_from_code(true,true,false);
+						//genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+						
+						
+					}
+					
+					
+					
+					
+					/*if (quick_guide){
+					if (quick_guide_step == 1) genie.WriteObject(GENIE_OBJ_FORM,FORM_QUICK_RIGHT,0);
+					else if(quick_guide_step == 2) genie.WriteObject(GENIE_OBJ_FORM,FORM_QUICK_CALIBRATE,0);
+					}
+					else {*/
+						
+						//}
+						//setTargetHotend0(0);
+						//setTargetHotend1(0);
+						//changeTool(0);
+					}
+					
+					else if (Event.reportObject.index == BUTTON_ADJUST_ZUp  && filament_accept_ok == false)
+					{
+						if (millis() >= waitPeriod_purge){
+							//Adjusting the filament with a retrack Up
+							Serial.println("Adjust ZUp");
+							float modified_position=current_position[E_AXIS]-6;
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, INSERT_SLOW_SPEED/60, which_extruder);
+							current_position[E_AXIS]=modified_position;
+							
+							waitPeriod_purge=millis()+3000;
+						}
+						
+					}
+					
+					else if (Event.reportObject.index == BUTTON_ADJUST_ZDown  && filament_accept_ok == false)
+					{
+						//Adjusting the filament with a purge Down
+						if (millis() >= waitPeriod_purge){
+							Serial.println("Adjust ZDown");
+							float modified_position=current_position[E_AXIS]+6;
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], modified_position, INSERT_SLOW_SPEED/60, which_extruder);
+							current_position[E_AXIS]=modified_position;
+							waitPeriod_purge=millis()+3000;
+						}
+					}
+					#pragma endregion AdjustFilament
+				
 				#pragma endregion Printing_UTILITIES
 				
+				#pragma region SuccessScreens
+				else if (Event.reportObject.index == BUTTON_SUCCESS_FILAMENT_OK)
+				{
+					//enquecommand_P((PSTR("G28 X0 Y0")));
+					
+					
+					filament_accept_ok = false;
+					if (filament_mode == 'R')
+					{
+						
+						filament_mode = 'I';
+						if (which_extruder == 0)	genie.WriteObject(GENIE_OBJ_FORM,FORM_LEFT_MATERIAL,0);
+						else genie.WriteObject(GENIE_OBJ_FORM,FORM_RIGHT_MATERIAL,0);
+					}
+					else if (filament_mode == 'I')
+					{
+						
+						processing = true;
+						changeTool(saved_active_extruder);
+						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						current_position[Z_AXIS] = saved_position[Z_AXIS];
+						
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
+						
+						st_synchronize();
+						home_axis_from_code(true, true, false);
+						
+						current_position[Z_AXIS] = saved_position[Z_AXIS] + 20;
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
+						st_synchronize();
+						
+						
+						
+						current_position[E_AXIS] = saved_position[E_AXIS]-2;
+						plan_set_e_position(current_position[E_AXIS]);
+						
+						processing = false;
+						genie.WriteObject(GENIE_OBJ_FORM, FORM_UTILITIES_PRINT,0);
+					}
+					
+					
+					#pragma endregion SuccessScreens
 			
-				
+				}
 				}else{//All that has to be done out of the printing room
 				
 				
@@ -1312,13 +1898,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing_adjusting = false;
 						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP2,0);
-						genie.WriteStr(STRING_FILAMENT,"INSERT NYLON bla bla");
+						genie.WriteStr(STRING_FILAMENT,"STEP 1");
 						filament_mode = 'M';//Step 2
 					}
 					else if (filament_mode == 'M'){ //Step2
 						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP2,0);
-						genie.WriteStr(STRING_FILAMENT,"AFTER PRESSING GO, KEEP PUSHING UNTIL REACH 170 deg");
+						genie.WriteStr(STRING_FILAMENT,"STEP 2");
 						filament_mode = 'L';//Step 2
 					}
 					else if (filament_mode == 'L'){ //Step3
@@ -1333,7 +1919,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing_adjusting = false;
 						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP2,0);
-						genie.WriteStr(STRING_FILAMENT,"COOLDOWN to 50 deg");
+						genie.WriteStr(STRING_FILAMENT,"STEP 3");
 						filament_mode = 'Q';//Step 2
 					}
 					else if (filament_mode == 'Q'){ //Step4
@@ -1348,7 +1934,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing_adjusting = false;
 						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP2,0);
-						genie.WriteStr(STRING_FILAMENT,"HEAT UP to 105 deg");
+						genie.WriteStr(STRING_FILAMENT,"STEP 4");
 						filament_mode = 'P';//Step 2
 					}
 					else if (filament_mode == 'P'){ //Step4
@@ -1457,12 +2043,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
-							genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
+							//genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
 							genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_EXTRUDERS,0);
 							
 							//changeToolSigma(LEFT_EXTRUDER);
-							genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
+							genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDERS are heating up");
 							genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
 							
 							
@@ -1522,36 +2108,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						
 					}
-					else if (Event.reportObject.index == BUTTON_PRINT_SET_BACK )
-					{
-						is_on_printing_screen=true;
-						int count = 12;
-						char buffer[13];
-						if (String(card.longFilename).length()>12){
-							for (int i = 0; i<12 ; i++)
-							{
-								buffer[i]=card.longFilename[i];
-							}
-							buffer[12]='\0';
-							char* buffer2 = strcat(buffer,"...\0");
-							Serial.print("Card Name: ");
-							Serial.println(card.longFilename);
-							Serial.print("Buffer1: ");
-							Serial.println(buffer);
-							Serial.print("buffer out: ");
-							Serial.println(buffer2);
-							genie.WriteStr(STRINGS_PRINTING_GCODE,buffer2);//Printing form
-							}else{
-							for (int i = 0; i<=String(card.longFilename).length(); i++)
-							{
-								if (buffer[i] == '.') i = String(card.longFilename).length() +10;
-								else buffer[i]=card.longFilename[i];
-							}
-							//buffer[count]='\0';
-							genie.WriteStr(STRINGS_PRINTING_GCODE,buffer);//Printing form//Printing form
-						}
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,1);
-					}
+					
 					
 					//*****Preheat Settings*****
 					#pragma region Preheat Settings
@@ -1797,7 +2354,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							st_synchronize();
 							processing = false;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP1,0);
-							genie.WriteStr(STRING_FILAMENT,"REMOVE TUBE bla bla");
+							genie.WriteStr(STRING_FILAMENT,"STEP 0");
 							filament_mode = 'N';
 						}
 						filament_accept_ok = false;
@@ -2928,6 +3485,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					
 					is_on_printing_screen = true;
+					surfing_utilities = false;
 					genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
 					data_refresh_flag = true;
 					}

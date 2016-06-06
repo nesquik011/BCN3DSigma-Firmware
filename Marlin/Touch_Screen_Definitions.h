@@ -54,7 +54,7 @@
 	#define BUTTON_Z_BACK					3
 
 #define FORM_FILAMENT								6
-	#define	BUTTON_FILAMENT_OPTIONS_BACK			77
+	#define	BUTTON_FILAMENT_OPTIONS_BACK			0
 	#define	BUTTON_PURGE					159
 	#define BUTTON_INSERT_FIL				2
 	#define BUTTON_REMOVE_FIL				50
