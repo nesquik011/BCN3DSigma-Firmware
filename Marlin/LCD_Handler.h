@@ -318,8 +318,30 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					screen_change_beddown = true;
 				}
 				
+				
+				
 				#pragma endregion Printing Settings
 				
+				#pragma region Printing_UTILITIES
+				
+				else if (Event.reportObject.index == BUTTON_UTILITIES_PRINT_PURGE){
+					
+				}
+				else if (Event.reportObject.index == BUTTON_UTILITIES_PRINT_FILAMENT){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_SELECT_EXTRUDER,0);
+					filament_mode = 'R';
+				}
+				else if ((Event.reportObject.index == BUTTON_FILAMENT_BACK ))
+				{
+					if(card.sdispaused){
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_PRINT,0);
+					}
+					
+				}
+				
+				#pragma endregion Printing_UTILITIES
+				
+			
 				
 				}else{//All that has to be done out of the printing room
 				
@@ -451,21 +473,22 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_PREHEAT_LEXTR ){
 					int tHotend=target_temperature[0];
 					if(tHotend != 0)setTargetHotend0(0);
-					else setTargetHotend0(200);
+					else setTargetHotend0(print_temp_l);
 					gifhotent0_flag = false;
 				}
 				else if (Event.reportObject.index == BUTTON_PREHEAT_REXTR ){
 					int tHotend1=target_temperature[1];
 					if(tHotend1 != 0)setTargetHotend1(0);
-					else setTargetHotend1(200);
+					else setTargetHotend1(print_temp_r);
 					gifhotent1_flag = false;
 				}
 				else if (Event.reportObject.index == BUTTON_PREHEAT_BED ){
 					int tBed=target_temperature_bed;
 					if(tBed != 0)setTargetBed(0);
-					else setTargetBed(55);
+					else setTargetBed( max(bed_temp_l,bed_temp_r));
 					gifbed_flag = false;
 				}
+				
 				#pragma endregion Utilities
 				
 				
@@ -848,10 +871,17 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//*****INSERT/REMOVE FILAMENT*****
 				#pragma region Insert_Remove_Fil
 				
-				else if (Event.reportObject.index == BUTTON_FILAMENT_BACK  )
+				else if (Event.reportObject.index == BUTTON_FILAMENT_OPTIONS_BACK  )
 				{
 					flag_filament_home=false;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES,0);
+				}
+				else if ((Event.reportObject.index == BUTTON_FILAMENT_BACK ))
+				{
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
+					
+					
 				}
 				
 				else if (Event.reportObject.index == BUTTON_INSERT_FIL || Event.reportObject.index == BUTTON_REMOVE_FIL )
