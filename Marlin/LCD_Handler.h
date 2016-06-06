@@ -902,7 +902,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{
 						
 						processing = true;
-						changeTool(saved_active_extruder);
+						
 						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						current_position[Z_AXIS] = saved_position[Z_AXIS];
@@ -1023,10 +1023,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma endregion SD Gcode Selector
 				
 				
-				#pragma region Utilities
+				#pragma region PREHEAD
 				else if (Event.reportObject.index == BUTTON_MAINTENANCE ){
 					
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_MAINTENANCE, 0);
+					
+					
 					
 				}
 				else if (Event.reportObject.index == BUTTON_GO_TEMPS ){
@@ -1050,7 +1052,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 				}
 				else if (Event.reportObject.index == BUTTON_PREHEAT_BACK ){
-					screen_sdcard = true;
+					screen_sdcard = false;
 					surfing_utilities=false;
 					Serial.println("Surfing 0");
 					surfing_temps = false;
@@ -1075,7 +1077,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					gifbed_flag = false;
 				}
 				
-				#pragma endregion Utilities
+				#pragma endregion PREHEAD
 				
 				
 				

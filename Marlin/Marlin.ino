@@ -5060,7 +5060,7 @@ Serial.println("G70 ACTIVATED");
 		current_position[Y_AXIS] = saved_position[Y_AXIS];
 		//Serial.println(current_position[Z_AXIS]);
 		//*********************************//
-					
+		changeTool(saved_active_extruder);			
 					
 					
 					
