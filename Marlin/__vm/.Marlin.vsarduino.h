@@ -173,6 +173,7 @@ void home_axis_from_code(bool x_c, bool y_c, bool z_c);
 #include <..\Marlin\LiquidCrystalRus.h>
 #include <..\Marlin\Marlin.h>
 #include <..\Marlin\Marlin.ino>
+#include <..\Marlin\Marlin_main.cpp>
 #include <..\Marlin\SD_ListFiles.cpp>
 #include <..\Marlin\SD_ListFiles.h>
 #include <..\Marlin\Sd2Card.cpp>
