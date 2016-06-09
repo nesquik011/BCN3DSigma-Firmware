@@ -2037,7 +2037,7 @@ if (surfing_utilities)
 		
 		#if EXTRUDERS > 1
 		// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
-		if ((degHotend(0) >= (degTargetHotend0()-5)) && (degHotend(1) >= (degTargetHotend1()-5)) && is_changing_filament){
+		if ((degHotend(0) >= (degTargetHotend0()-10)) && (degHotend(1) >= (degTargetHotend1()-10)) && is_changing_filament){
 			// if we want to add user setting temp, we should control if is heating
 			Serial.println("temp ok");
 			
@@ -2286,7 +2286,7 @@ void update_screen_noprinting(){
 			
 			#if EXTRUDERS > 1
 			// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
-			if ((degHotend(0) >= (degTargetHotend0()-5)) && (degHotend(1) >= (degTargetHotend1()-5)) && is_changing_filament){
+			if ((degHotend(0) >= (degTargetHotend0()-10)) && (degHotend(1) >= (degTargetHotend1()-10)) && is_changing_filament){
 				// if we want to add user setting temp, we should control if is heating
 				Serial.println("temp ok");
 				
