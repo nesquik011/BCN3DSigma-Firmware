@@ -59,8 +59,8 @@ int custom_insert_temp = 210;
 int custom_remove_temp = 210;
 int custom_print_temp = 210;
 int custom_bed_temp = 40;
-unsigned int stringfilename[5] = {STRING_NAME_FILE0, STRING_NAME_FILE1, STRING_NAME_FILE2, STRING_NAME_FILE3, STRING_NAME_FILE4};
-unsigned int stringfiledur[5] = {STRING_NAME_FILE_DUR0, STRING_NAME_FILE_DUR1, STRING_NAME_FILE_DUR2, STRING_NAME_FILE_DUR3, STRING_NAME_FILE_DUR4};
+unsigned int stringfilename[6] = {STRING_NAME_FILE0, STRING_NAME_FILE1, STRING_NAME_FILE2, STRING_NAME_FILE3, STRING_NAME_FILE4, STRING_NAME_FILE5};
+unsigned int stringfiledur[6] = {STRING_NAME_FILE_DUR0, STRING_NAME_FILE_DUR1, STRING_NAME_FILE_DUR2, STRING_NAME_FILE_DUR3, STRING_NAME_FILE_DUR4,STRING_NAME_FILE_DUR5};
 
 
 int redo_source;
@@ -1047,7 +1047,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							filepointer=0; //First SD file
 						}
 						else{
-							filepointer++;
+							filepointer+=2;
 						}
 						card.getfilename(filepointer);
 						Serial.println(card.longFilename);
@@ -1111,11 +1111,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if ((Event.reportObject.index == BUTTON_SD_LEFT || Event.reportObject.index == BUTTON_SD_RIGHT || Event.reportObject.index == BUTTON_SD_LEFTx3 ))
 				{
 					
-					if (Event.reportObject.index == BUTTON_SD_LEFT) //LEFT button pressed
+					/*if (Event.reportObject.index == BUTTON_SD_LEFT) //LEFT button pressed
 					{
 						ListFilesDown = true;
-					}
-					else if (Event.reportObject.index == BUTTON_SD_RIGHT) //RIGHT button pressed
+					}*/
+					 if (Event.reportObject.index == BUTTON_SD_RIGHT) //RIGHT button pressed
 					{
 						ListFilesUp = true;
 					}
