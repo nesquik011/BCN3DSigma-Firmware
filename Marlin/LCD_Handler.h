@@ -59,8 +59,8 @@ int custom_insert_temp = 210;
 int custom_remove_temp = 210;
 int custom_print_temp = 210;
 int custom_bed_temp = 40;
-unsigned int stringfilename[6] = {STRING_NAME_FILE0, STRING_NAME_FILE1, STRING_NAME_FILE2, STRING_NAME_FILE3, STRING_NAME_FILE4, STRING_NAME_FILE5};
-unsigned int stringfiledur[6] = {STRING_NAME_FILE_DUR0, STRING_NAME_FILE_DUR1, STRING_NAME_FILE_DUR2, STRING_NAME_FILE_DUR3, STRING_NAME_FILE_DUR4,STRING_NAME_FILE_DUR5};
+unsigned int stringfilename[7] = {STRING_NAME_FILE0, STRING_NAME_FILE1, STRING_NAME_FILE2, STRING_NAME_FILE3, STRING_NAME_FILE4, STRING_NAME_FILE5,STRING_NAME_FILE6};
+unsigned int stringfiledur[7] = {STRING_NAME_FILE_DUR0, STRING_NAME_FILE_DUR1, STRING_NAME_FILE_DUR2, STRING_NAME_FILE_DUR3, STRING_NAME_FILE_DUR4,STRING_NAME_FILE_DUR5, STRING_NAME_FILE_DUR6};
 
 
 int redo_source;
@@ -938,28 +938,20 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				//*****SD Gcode Selection*****
 				#pragma region SD Gcode Selector
+				
 				if ((Event.reportObject.index == BUTTON_SD_SELECTED0) && updownsdfilesflag)
 				{
 					
 					if(card.cardOK)
 					{
-						uint16_t fileCnt = card.getnrfilenames();
-						
-						if (filepointer == 0)
-						{
-							filepointer=card.getnrfilenames()-1; //Last SD file
-							}else{
-							filepointer--;
-						}
-						
-						
+						updownsdfilesflag = false;
 						card.getfilename(filepointer);
 						Serial.println(card.longFilename);
 						if (!card.filenameIsDir){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
 							sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
-							setfilenames(4);
+							setfilenames(6);
 							
 						}
 						else{
@@ -970,6 +962,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							
 						}
+						updownsdfilesflag = true;
 					}
 				}
 				if ((Event.reportObject.index == BUTTON_SD_SELECTED1) && updownsdfilesflag)
@@ -977,33 +970,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					if(card.cardOK)
 					{
-						card.getfilename(filepointer);
-						Serial.println(card.longFilename);
-						if (!card.filenameIsDir){
-							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
-							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
-							setfilenames(4);
-							
-						}
-						else{
-							if (card.chdir(card.filename)!=-1){
-								Serial.println(card.filename);
-								ListFileListENTERBACKFORLDERSDflag = true;
-							}
-							
-							
-						}
-					}
-				}
-				if ((Event.reportObject.index == BUTTON_SD_SELECTED2) && updownsdfilesflag)
-				{
-					
-					if(card.cardOK)
-					{
-						
+						updownsdfilesflag = false;
 						uint16_t fileCnt = card.getnrfilenames();
-						
+						if(fileCnt > 1){
 						if (filepointer == card.getnrfilenames()-1)
 						{
 							filepointer=0; //First SD file
@@ -1017,7 +986,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
 							sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
-							setfilenames(4);
+							setfilenames(6);
 							
 						}
 						else{
@@ -1028,16 +997,18 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							
 						}
+						}
+						updownsdfilesflag = true;
 					}
 				}
-				if ((Event.reportObject.index == BUTTON_SD_SELECTED3) && updownsdfilesflag)
+				if ((Event.reportObject.index == BUTTON_SD_SELECTED2) && updownsdfilesflag)
 				{
 					
 					if(card.cardOK)
 					{
-						
+						updownsdfilesflag = false;
 						uint16_t fileCnt = card.getnrfilenames();
-						
+						if(fileCnt > 2){
 						if (filepointer == card.getnrfilenames()-1)
 						{
 							filepointer=1; //First SD file
@@ -1055,7 +1026,51 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
 							sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
-							setfilenames(4);
+							setfilenames(6);
+							
+						}
+						else{
+							if (card.chdir(card.filename)!=-1){
+								Serial.println(card.filename);
+								ListFileListENTERBACKFORLDERSDflag = true;
+							}
+							
+							
+						}
+						}
+						updownsdfilesflag = true;
+					}
+				}
+				if ((Event.reportObject.index == BUTTON_SD_SELECTED3) && updownsdfilesflag)
+				{
+					
+					if(card.cardOK)
+					{	
+						updownsdfilesflag = false;
+						uint16_t fileCnt = card.getnrfilenames();
+						if(fileCnt > 3){
+						if (filepointer == card.getnrfilenames()-1)
+						{
+							filepointer=2; //First SD file
+						}
+						else if (filepointer == card.getnrfilenames()-2 )
+						{
+							filepointer=1; //First SD file
+						}
+						else if (filepointer == card.getnrfilenames()-3 )
+						{
+							filepointer=0; //First SD file
+						}
+						else{
+							filepointer+=3;
+						}
+						card.getfilename(filepointer);
+						Serial.println(card.longFilename);
+						if (!card.filenameIsDir){
+							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
+							listsd.get_lineduration();
+							sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+							setfilenames(6);
 							
 						}
 						else{
@@ -1067,6 +1082,112 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 						}
 					}
+					
+					updownsdfilesflag = true;
+					}
+					
+				}
+				if ((Event.reportObject.index == BUTTON_SD_SELECTED4) && updownsdfilesflag)
+				{
+					
+					if(card.cardOK)
+					{
+						updownsdfilesflag = false;
+						uint16_t fileCnt = card.getnrfilenames();
+						if(fileCnt > 4){
+						if (filepointer == card.getnrfilenames()-1)
+						{
+							filepointer=3; //First SD file
+						}
+						else if (filepointer == card.getnrfilenames()-2 )
+						{
+							filepointer=2; //First SD file
+						}
+						else if (filepointer == card.getnrfilenames()-3 )
+						{
+							filepointer=1; //First SD file
+						}
+						else if (filepointer == card.getnrfilenames()-4 )
+						{
+							filepointer=0; //First SD file
+						}
+						else{
+							filepointer+=4;
+						}
+						card.getfilename(filepointer);
+						Serial.println(card.longFilename);
+						if (!card.filenameIsDir){
+							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
+							listsd.get_lineduration();
+							sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+							setfilenames(6);
+							
+						}
+						else{
+							if (card.chdir(card.filename)!=-1){
+								Serial.println(card.filename);
+								ListFileListENTERBACKFORLDERSDflag = true;
+							}
+							
+							
+						}
+						}
+						updownsdfilesflag = true;
+					}
+					
+				}
+				if ((Event.reportObject.index == BUTTON_SD_SELECTED5) && updownsdfilesflag)
+				{
+					
+					if(card.cardOK)
+					{
+						updownsdfilesflag = false;
+						uint16_t fileCnt = card.getnrfilenames();
+						if(fileCnt > 5){
+							if (filepointer == card.getnrfilenames()-1)
+							{
+								filepointer=4; //First SD file
+							}
+							else if (filepointer == card.getnrfilenames()-2 )
+							{
+								filepointer=3; //First SD file
+							}
+							else if (filepointer == card.getnrfilenames()-3 )
+							{
+								filepointer=2; //First SD file
+							}
+							else if (filepointer == card.getnrfilenames()-4 )
+							{
+								filepointer=1; //First SD file
+							}
+							else if (filepointer == card.getnrfilenames()-5 )
+							{
+								filepointer=0; //First SD file
+							}
+							else{
+								filepointer+=5;
+							}
+							card.getfilename(filepointer);
+							Serial.println(card.longFilename);
+							if (!card.filenameIsDir){
+								genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
+								listsd.get_lineduration();
+								sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+								setfilenames(6);
+								
+							}
+							else{
+								if (card.chdir(card.filename)!=-1){
+									Serial.println(card.filename);
+									ListFileListENTERBACKFORLDERSDflag = true;
+								}
+								
+								
+							}
+						}
+						updownsdfilesflag = true;
+					}
+					
 				}
 				else if (Event.reportObject.index == BUTTON_FOLDER_BACK)
 				{
@@ -1108,7 +1229,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				
-				else if ((Event.reportObject.index == BUTTON_SD_LEFT || Event.reportObject.index == BUTTON_SD_RIGHT || Event.reportObject.index == BUTTON_SD_LEFTx3 ))
+				else if (Event.reportObject.index == BUTTON_SD_RIGHT || Event.reportObject.index == BUTTON_SD_LEFTx3 )
 				{
 					
 					/*if (Event.reportObject.index == BUTTON_SD_LEFT) //LEFT button pressed

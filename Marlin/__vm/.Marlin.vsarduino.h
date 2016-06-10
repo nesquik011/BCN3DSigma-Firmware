@@ -32,7 +32,6 @@ void servo_init();
 //
 //
 int getBuflen ();
-inline void ListFilesDownfunc();
 inline void ListFilesUpfunc();
 inline void ListFilesDownx3func();
 inline void ListFileListINITSD();
