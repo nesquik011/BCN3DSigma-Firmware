@@ -341,6 +341,19 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				#pragma region Insert_Remove_Fil
 				
+				else if (Event.reportObject.index == BUTTON_FILAMENT_OPTIONS_BACK  )
+				{
+					flag_filament_home=false;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES,0);
+				}
+				else if ((Event.reportObject.index == BUTTON_FILAMENT_BACK ))
+				{
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
+					
+					
+				}
+				
 				else if (Event.reportObject.index == BUTTON_INSERT_FIL || Event.reportObject.index == BUTTON_REMOVE_FIL )
 				{
 					if (Event.reportObject.index == BUTTON_INSERT_FIL) filament_mode = 'I'; //Insert Mode
@@ -350,8 +363,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					
 					}*/
-					
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_FILAMENT_NOZZLE2, 0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_FILAMENT_NOZZLE1, 0);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_SELECT_EXTRUDER,0);
+					which_extruder = -1;
+					//genie.WriteObject(GENIE_OBJ_IMAGE, IMAG_MATERIALS, -1);
+					
+					/*genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PLA, -1);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_ABS, -1);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PVA, -1);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_CUST, -1);*/
 				}
 				
 
@@ -368,16 +389,33 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						which_extruder=1;
 					}
-					if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
-					else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);
-					
 					if (filament_mode == 'I') {
-						if (which_extruder == 0)	genie.WriteObject(GENIE_OBJ_FORM,FORM_LEFT_MATERIAL,0);
-						else genie.WriteObject(GENIE_OBJ_FORM,FORM_RIGHT_MATERIAL,0);
+						if (which_extruder == 0){
+							genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_FILAMENT_NOZZLE1, 1);
+							genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_FILAMENT_NOZZLE2, 0);
+							genie.WriteObject(GENIE_OBJ_IMAGE, IMAG_MATERIALS, 0);
+							/*genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PLA, 0);
+							genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_ABS, 0);
+							genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PVA, 0);
+							genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_CUST, 0);*/
+						}
+						else{
+							genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_FILAMENT_NOZZLE2, 1);
+							genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_FILAMENT_NOZZLE1, 0);
+							genie.WriteObject(GENIE_OBJ_IMAGE, IMAG_MATERIALS, 0);
+							/*genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PLA, 0);
+							genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_ABS, 0);
+							genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PVA, 0);
+							genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_CUST, 0);*/
+						}
 					}
+					
+					
 					
 					else {
 						//*********Move the bed down and the extruders inside
+						if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
+						else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						
@@ -438,8 +476,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 					}
 				}
-				
-				else if (Event.reportObject.index == BUTTON_PLA_R){
+				else if (Event.reportObject.index == BUTTON_PLA){
+					if (which_extruder == 1) // Need to pause
+					{
+						
+					
+					
 					print_temp_r = PLA_PRINT_TEMP;
 					insert_temp_r = PLA_INSERT_TEMP;
 					remove_temp_r = PLA_REMOVE_TEMP;
@@ -448,71 +490,86 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					Config_StoreSettings();
 					setTargetHotend1(print_temp_r);
 					insertmetod();
+					}
+					else if(which_extruder == 0){
+						
+						
+						print_temp_l = PLA_PRINT_TEMP;
+						insert_temp_l = PLA_INSERT_TEMP;
+						remove_temp_l = PLA_REMOVE_TEMP;
+						bed_temp_l = PLA_BED_TEMP;
+						//genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+						Config_StoreSettings();
+						setTargetHotend0(print_temp_l);
+						insertmetod();
+					}
+					
 				}
 				
-				else if (Event.reportObject.index == BUTTON_ABS_R){
-					print_temp_r = ABS_PRINT_TEMP;
-					insert_temp_r = ABS_INSERT_TEMP;
-					remove_temp_r = ABS_REMOVE_TEMP;
-					bed_temp_r = ABS_BED_TEMP;
-					//genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
-					Config_StoreSettings();
-					setTargetHotend1(print_temp_r);
-					insertmetod();
-				}
-				else if (Event.reportObject.index == BUTTON_PVA_R){
-					print_temp_r = PVA_PRINT_TEMP;
-					insert_temp_r = PVA_INSERT_TEMP;
-					remove_temp_r = PVA_REMOVE_TEMP;
-					bed_temp_r = PVA_BED_TEMP;
-					//genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
-					Config_StoreSettings();
-					setTargetHotend1(print_temp_r);
-					insertmetod();
-				}
-				else if (Event.reportObject.index == BUTTON_PLA_L){
-					print_temp_l = PLA_PRINT_TEMP;
-					insert_temp_l = PLA_INSERT_TEMP;
-					remove_temp_l = PLA_REMOVE_TEMP;
-					bed_temp_l = PLA_BED_TEMP;
-					//genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
-					Config_StoreSettings();
-					setTargetHotend0(print_temp_l);
-					insertmetod();
-				}
+				else if (Event.reportObject.index == BUTTON_ABS){
+					if (which_extruder == 1) // Need to pause
+					{
+						
+						
+						
+						print_temp_r = ABS_PRINT_TEMP;
+						insert_temp_r = ABS_INSERT_TEMP;
+						remove_temp_r = ABS_REMOVE_TEMP;
+						bed_temp_r = ABS_BED_TEMP;
+						//genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+						Config_StoreSettings();
+						setTargetHotend1(print_temp_r);
+						insertmetod();
+					}
+					else if(which_extruder == 0){
+						
+						
+						print_temp_l = ABS_PRINT_TEMP;
+						insert_temp_l = ABS_INSERT_TEMP;
+						remove_temp_l = ABS_REMOVE_TEMP;
+						bed_temp_l = ABS_BED_TEMP;
+						//genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+						Config_StoreSettings();
+						setTargetHotend0(print_temp_l);
+						insertmetod();
+					}
 				
-				else if (Event.reportObject.index == BUTTON_ABS_L){
-					print_temp_l = ABS_PRINT_TEMP;
-					insert_temp_l = ABS_INSERT_TEMP;
-					remove_temp_l = ABS_REMOVE_TEMP;
-					bed_temp_l = ABS_BED_TEMP;
-					//genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
-					Config_StoreSettings();
-					setTargetHotend0(print_temp_l);
-					
-					
-					//processing = true;
-					//genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-					insertmetod();
-					
-					
-					
-					
 					
 				}
-				else if (Event.reportObject.index == BUTTON_PVA_L){
-					print_temp_l = PVA_PRINT_TEMP;
-					insert_temp_l = PVA_INSERT_TEMP;
-					remove_temp_l = PVA_REMOVE_TEMP;
-					bed_temp_l = PVA_BED_TEMP;
-					//genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
-					Config_StoreSettings();
-					setTargetHotend0(print_temp_l);
-					insertmetod();
+				else if (Event.reportObject.index == BUTTON_PVA){
+					if (which_extruder == 1) // Need to pause
+					{
+						
+						
+						
+						print_temp_r = PVA_PRINT_TEMP;
+						insert_temp_r = PVA_INSERT_TEMP;
+						remove_temp_r = PVA_REMOVE_TEMP;
+						bed_temp_r = PVA_BED_TEMP;
+						//genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+						Config_StoreSettings();
+						setTargetHotend1(print_temp_r);
+						insertmetod();
+					}
+					else if(which_extruder == 0){
+						
+						
+						print_temp_l = PVA_PRINT_TEMP;
+						insert_temp_l = PVA_INSERT_TEMP;
+						remove_temp_l = PVA_REMOVE_TEMP;
+						bed_temp_l = PVA_BED_TEMP;
+						//genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+						Config_StoreSettings();
+						setTargetHotend0(print_temp_l);
+						insertmetod();
+					}
+				
 				}
 				
 				//CUSTOM MATERIAL BUTTONS
-				else if((Event.reportObject.index == BUTTON_CUST_L) || (Event.reportObject.index == BUTTON_CUST_R) ){
+				else if(Event.reportObject.index == BUTTON_CUST){
+					if (which_extruder == 1 || which_extruder == 0) // Need to pause
+					{
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_CUSTOM_MATERIAL,0);
 					char buffer[10];
 					char buffer1[10];
@@ -526,11 +583,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteStr(STRING_CUSTOM_PRINT,buffer2);
 					sprintf(buffer3, "%d %cC",custom_bed_temp,0x00B0);
 					genie.WriteStr(STRING_CUSTOM_BED,buffer3);
-					
+					}
 				}
+				
 				else if (Event.reportObject.index == BUTTON_CUSTOM_BACK){
-					if (which_extruder == 0) genie.WriteObject(GENIE_OBJ_FORM,FORM_LEFT_MATERIAL,0);
-					else genie.WriteObject(GENIE_OBJ_FORM,FORM_RIGHT_MATERIAL,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_FILAMENT_NOZZLE2, 0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_FILAMENT_NOZZLE1, 0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_SELECT_EXTRUDER,0);
+					which_extruder = -1;
 				}
 				
 				else if(Event.reportObject.index == BUTTON_CUSTOM_INS_LESS){
@@ -598,7 +658,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				else if(Event.reportObject.index == BUTTON_CUSTOM_ACCEPT){
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					if(which_extruder == 0){
 						if (custom_print_temp <= HEATER_0_MAXTEMP) print_temp_l = custom_print_temp;
 						else print_temp_l = HEATER_0_MAXTEMP;
@@ -622,6 +682,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						setTargetHotend1(insert_temp_r);
 					}
 					Config_StoreSettings();
+					insertmetod();
 				}
 				
 				//////////////////////////
@@ -884,11 +945,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				#pragma endregion Printing_UTILITIES
 				
-				#pragma region SuccessScreens
+				#pragma region SuccessScreensPrint
 				else if (Event.reportObject.index == BUTTON_SUCCESS_FILAMENT_OK)
 				{
 					//enquecommand_P((PSTR("G28 X0 Y0")));
-					
+					Serial.println("HOLA SUCCESS");
 					
 					filament_accept_ok = false;
 					if (filament_mode == 'R')
@@ -926,7 +987,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					
 					
-					#pragma endregion SuccessScreens
+					#pragma endregion SuccessScreensPrin
 			
 				}
 				}else{//All that has to be done out of the printing room
@@ -2003,7 +2064,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				else if(Event.reportObject.index == BUTTON_CUSTOM_ACCEPT){
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_FIL_INSERTED,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					if(which_extruder == 0){
 						if (custom_print_temp <= HEATER_0_MAXTEMP) print_temp_l = custom_print_temp;
 						else print_temp_l = HEATER_0_MAXTEMP;
@@ -2027,6 +2088,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						setTargetHotend1(insert_temp_r);
 					}
 					Config_StoreSettings();
+					insertmetod();
 				}
 				
 				//////////////////////////
