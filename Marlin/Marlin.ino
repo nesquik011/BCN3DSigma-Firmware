@@ -5388,95 +5388,94 @@ if (aprox1==0 && aprox2==0 && aprox3==0) //If the calibration it's ok
 }
 inline void gcode_G69(){
 #ifdef ENABLE_AUTO_BED_LEVELING	
-	Serial.println("G69 ACTIVATED");
-		////*******SAVE ACTUIAL POSITION
-		saved_position[X_AXIS] = current_position[X_AXIS];
-		saved_position[Y_AXIS] = current_position[Y_AXIS];
-		saved_position[Z_AXIS] = current_position[Z_AXIS];
-		saved_position[E_AXIS] = current_position[E_AXIS];	
+		Serial.println("G69 ACTIVATED");
+					////*******SAVE ACTUIAL POSITION
+					saved_position[X_AXIS] = current_position[X_AXIS];
+					saved_position[Y_AXIS] = current_position[Y_AXIS];
+					saved_position[Z_AXIS] = current_position[Z_AXIS];
+					saved_position[E_AXIS] = current_position[E_AXIS];
+					//*********************************//
 					
-		//*********************************//
-		saved_active_extruder = active_extruder;			
-		//********RETRACK
-		current_position[E_AXIS]-=2;
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
-		st_synchronize();
-		//*********************************//
+					//********RETRACK
+					current_position[E_AXIS]-=2;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
+					st_synchronize();
+					//*********************************//
 					
-		//********MOVE TO PAUSE POSITION
+					//********MOVE TO PAUSE POSITION
 					
-		if(current_position[Z_AXIS]>=180) current_position[Z_AXIS] += 2;								//
-		else if(current_position[Z_AXIS]>=205) {}														//Move the bed, more or less in function of current_position
-		else current_position[Z_AXIS] += 20;															//
-		int feedrate=homing_feedrate[Z_AXIS];
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-		st_synchronize();
+					if(current_position[Z_AXIS]>=180) current_position[Z_AXIS] += 2;								//
+					else if(current_position[Z_AXIS]>=205) {}														//Move the bed, more or less in function of current_position
+					else current_position[Z_AXIS] += 20;															//
+					int feedrate=homing_feedrate[Z_AXIS];
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+					st_synchronize();
 					
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] -= 4, 400, active_extruder);	//Retrack
-		st_synchronize();
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] -= 4, 400, active_extruder);	//Retrack
+					st_synchronize();
 					
-		feedrate=homing_feedrate[X_AXIS];
-		if (active_extruder == LEFT_EXTRUDER){															//Move X axis, controlling the current_extruder
-		current_position[X_AXIS] = 0;
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-		}else{
-		current_position[X_AXIS] = extruder_offset[X_AXIS][1];
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-		}
-		st_synchronize();
-		//*********************************//
-		flag_pause = false;
+					feedrate=homing_feedrate[X_AXIS];
+					if (active_extruder == LEFT_EXTRUDER){															//Move X axis, controlling the current_extruder
+					current_position[X_AXIS] = 0;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+					}else{
+					current_position[X_AXIS] = extruder_offset[X_AXIS][1];
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+					}
+					st_synchronize();
+					//*********************************//
+					flag_pause = false;
 					
-		processing = false;
-		genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
-		genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
-		data_refresh_flag = true;
+					processing = false;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+					genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
+					data_refresh_flag = true;
 #endif //ENABLE_AUTO_BED_LEVELING					
 }
 inline void gcode_G70(){
 #ifdef ENABLE_AUTO_BED_LEVELING
-Serial.println("G70 ACTIVATED");
-		////*******LOAD ACTUIAL POSITION
-		current_position[Y_AXIS] = saved_position[Y_AXIS];
-		//Serial.println(current_position[Z_AXIS]);
-		//*********************************//
-		changeTool(saved_active_extruder);			
+////*******LOAD ACTUIAL POSITION
+					current_position[Y_AXIS] = saved_position[Y_AXIS];
+					//Serial.println(current_position[Z_AXIS]);
+					//*********************************//
 					
 					
 					
-		////******PURGE   -->> Purge to clean the extruder, retrack to avoid the trickle
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] += 1.2, 400, active_extruder);
-		st_synchronize();
-		delay(300);
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] -= 4, 2400, active_extruder);
-		st_synchronize();
-		//*********************************//
 					
-		//********MOVE TO ORIGINAL POSITION X
-		current_position[X_AXIS] = saved_position[X_AXIS];
-		feedrate=homing_feedrate[X_AXIS];
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-		st_synchronize();
-		//*********************************//
+					////******PURGE   -->> Purge to clean the extruder, retrack to avoid the trickle
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] += 1.2, 400, active_extruder);
+					st_synchronize();
+					delay(300);
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] -= 4, 2400, active_extruder);
+					st_synchronize();
+					//*********************************//
+					
+					//********MOVE TO ORIGINAL POSITION X
+					current_position[X_AXIS] = saved_position[X_AXIS];
+					feedrate=homing_feedrate[X_AXIS];
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+					st_synchronize();
+					//*********************************//
 					
 					
-		//********MOVE TO ORIGINAL POSITION Z
-		//if(current_position[Z_AXIS]>=extruder_offset[Z_AXIS]) += 20;
-		current_position[Z_AXIS] = saved_position[Z_AXIS];
-		feedrate=homing_feedrate[Z_AXIS];
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-		st_synchronize();
-		//*********************************//
-		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], 0, current_position[E_AXIS]);			
+					//********MOVE TO ORIGINAL POSITION Z
+					//if(current_position[Z_AXIS]>=extruder_offset[Z_AXIS]) += 20;
+					destination[Z_AXIS] = current_position[Z_AXIS];
+					current_position[Z_AXIS] = saved_position[Z_AXIS];
+					feedrate=homing_feedrate[Z_AXIS];
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+					st_synchronize();
+					//*********************************//
 					
-		//********EXTRACK to keep ready to the new instruction
-		current_position[E_AXIS]+=0; //2
-		feedrate=20*60;
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-		st_synchronize();
-		//*********************************//
 					
-		flag_resume = false;
+					//********EXTRACK to keep ready to the new instruction
+					current_position[E_AXIS]+=0; //2
+					feedrate=20*60;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+					st_synchronize();
+					//*********************************//
+					
+					flag_resume = false;
 	
 #endif //ENABLE_AUTO_BED_LEVELING
  	

@@ -324,9 +324,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				#pragma region Printing_UTILITIES
 				
-				else if (Event.reportObject.index == BUTTON_UTILITIES_PRINT_PURGE){
-					
-				}
 				else if (Event.reportObject.index == BUTTON_UTILITIES_PRINT_FILAMENT){
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_SELECT_EXTRUDER,0);
 					filament_mode = 'R';
@@ -340,6 +337,33 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				
 				#pragma region Insert_Remove_Fil
+				else if (Event.reportObject.index == BUTTON_UTILITIES_PRINT_PURGE)
+				{
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE,0);
+					
+					
+					Serial.println("Enter in purge mode");
+					setTargetHotend0(print_temp_l);
+					setTargetHotend1(print_temp_r);
+					if(purge_extruder_selected == 0) {
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,0);
+						
+					}
+					else {
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,1);
+					}
+					
+					char buffer[256];
+					sprintf(buffer, "%3d %cC",int(degHotend(0)),0x00B0);
+					genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);	Serial.println(buffer);
+					sprintf(buffer, "%3d %cC",int(degHotend(1)),0x00B0);
+					genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);	Serial.println(buffer);
+					sprintf(buffer, "%3d %cC",int(target_temperature[purge_extruder_selected]),0x00B0);
+					genie.WriteStr(STRING_PURGE_SELECTED,buffer);	Serial.println(buffer);
+					
+				}
 				
 				else if (Event.reportObject.index == BUTTON_FILAMENT_OPTIONS_BACK  )
 				{
@@ -353,6 +377,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					
 				}
+				
+				
 				
 				else if (Event.reportObject.index == BUTTON_INSERT_FIL || Event.reportObject.index == BUTTON_REMOVE_FIL )
 				{
@@ -942,6 +968,148 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 					}
 					#pragma endregion AdjustFilament
+					#pragma region PURGEpause
+					
+					
+					
+				//****************PURGE BUTTONS******
+				else if (Event.reportObject.index == BUTTON_PURGE_LEFT ){
+					if (purge_extruder_selected == 1){
+						purge_extruder_selected = 0;
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,0);
+						char buffer[256];
+						sprintf(buffer, "%d %cC",target_temperature[0],0x00B0);
+						genie.WriteStr(STRING_PURGE_SELECTED,buffer);
+						Serial.println(buffer);
+						sprintf(buffer, "%3d %cC",int(degHotend(0)),0x00B0);
+						genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
+					}
+					else{
+						char buffer[256];
+						purge_extruder_selected = 0;
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,0);
+						sprintf(buffer, "%3d %cC",int(degHotend(0)),0x00B0);
+						genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
+					}
+				}
+				else if (Event.reportObject.index == BUTTON_PURGE_RIGHT ){
+					if (purge_extruder_selected == 0){
+						purge_extruder_selected = 1;
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,1);
+						char buffer[256];
+						sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
+						genie.WriteStr(STRING_PURGE_SELECTED,buffer);
+						Serial.println(buffer);
+						sprintf(buffer, "%3d %cC",int(degHotend(1)),0x00B0);
+						genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
+					}
+					else{
+						purge_extruder_selected = 0;
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,1);
+						char buffer[256];
+						sprintf(buffer, "%3d %cC",int(degHotend(1)),0x00B0);
+						genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
+					}
+				}
+				else if(Event.reportObject.index == BUTTON_PURGE_TEMP_UP){
+					
+					if (target_temperature[purge_extruder_selected] < HEATER_0_MAXTEMP){
+						target_temperature[purge_extruder_selected] += 5;
+						setTargetHotend0(target_temperature[0]);
+						setTargetHotend1(target_temperature[1]);
+						char buffer[256];
+						sprintf(buffer, "%3d %cC",int(target_temperature[purge_extruder_selected]),0x00B0);
+						genie.WriteStr(STRING_PURGE_SELECTED,buffer);
+					}
+				}
+				else if(Event.reportObject.index == BUTTON_PURGE_TEMP_DOWN){
+					if (target_temperature[purge_extruder_selected] > 0){
+						target_temperature[purge_extruder_selected] -= 5;
+						setTargetHotend0(target_temperature[0]);
+						setTargetHotend1(target_temperature[1]);
+						char buffer[256];
+						sprintf(buffer, "%3d %cC",int(target_temperature[purge_extruder_selected]),0x00B0);
+						genie.WriteStr(STRING_PURGE_SELECTED,buffer);
+					}
+				}
+				//***MOVING
+				else if(Event.reportObject.index == BUTTON_PURGE_RETRACK){
+					if (millis() >= waitPeriod_purge){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5){
+							current_position[E_AXIS]-=3;
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retrack
+						}
+						waitPeriod_purge=millis()+1500;
+					}
+				}
+				else if(Event.reportObject.index == BUTTON_PURGE_INSERT){
+					if (millis() >= waitPeriod_purge){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5){
+							current_position[E_AXIS]+=3;
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
+						}
+						waitPeriod_purge=millis()+1500;
+					}
+				}
+				else if(Event.reportObject.index == BUTTON_PURGE_INSERTX3){
+					if (millis() >= waitPeriod_purge){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5){
+							current_position[E_AXIS]+=15;
+							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
+						}
+						waitPeriod_purge=millis()+7500;
+					}
+				}
+				//***************************************
+				//********CHANGE NEW FILAMENT
+				/*else if(Event.reportObject.index == BUTTON_PURGE_NEW_FILAMENT){
+				
+				
+				genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+				
+				if (purge_extruder_selected == 0) setTargetHotend0(INSERT_FIL_TEMP);
+				else setTargetHotend1(INSERT_FIL_TEMP);
+				
+				if (!home_made) home_axis_from_code(true,true,true);
+				home_axis_from_code(true,true,false);
+				st_synchronize();
+				current_position[Z_AXIS]=Z_MAX_POS-15;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, active_extruder);
+				
+				while (degHotend(purge_extruder_selected)<=(degTargetHotend(purge_extruder_selected)-5)){ //Waiting to heat the extruder
+				manage_heater();
+				}
+				filament_mode = 'C';
+				genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL,0);
+				genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
+				
+				}*/
+				
+				//****************************************
+				
+				
+				else if(Event.reportObject.index	== BUTTON_PURGE_BACK){
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_PRINT,0);
+					
+				current_position[E_AXIS] = saved_position[E_AXIS]-2;
+						plan_set_e_position(current_position[E_AXIS]);
+					//setTargetHotend0(0);
+					//setTargetHotend1(0);
+					
+				}
+				
+				//************************************
+				
+					
+					
+					
+					#pragma endregion PURGEpause
 				
 				#pragma endregion Printing_UTILITIES
 				
@@ -956,33 +1124,35 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{
 						
 						filament_mode = 'I';
-						if (which_extruder == 0)	genie.WriteObject(GENIE_OBJ_FORM,FORM_LEFT_MATERIAL,0);
-						else genie.WriteObject(GENIE_OBJ_FORM,FORM_RIGHT_MATERIAL,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_FILAMENT_NOZZLE2, 0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_FILAMENT_NOZZLE1, 0);
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_SELECT_EXTRUDER,0);
+						which_extruder = -1;
 					}
 					else if (filament_mode == 'I')
 					{
 						
-						processing = true;
+						/*processing = true;
 						
 						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						current_position[Z_AXIS] = saved_position[Z_AXIS];
 						
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS],which_extruder);
 						
 						st_synchronize();
 						home_axis_from_code(true, true, false);
 						
 						current_position[Z_AXIS] = saved_position[Z_AXIS] + 20;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],homing_feedrate[Z_AXIS] ,which_extruder);
 						st_synchronize();
-						
-						
+						processing = false;
+						*/
 						
 						current_position[E_AXIS] = saved_position[E_AXIS]-2;
 						plan_set_e_position(current_position[E_AXIS]);
 						
-						processing = false;
+						
 						genie.WriteObject(GENIE_OBJ_FORM, FORM_UTILITIES_PRINT,0);
 					}
 					
