@@ -705,7 +705,7 @@ void setup()
 			
 			
 			
-			delay(4000); //showing the splash screen
+			delay(4500); //showing the splash screen
 			
 			// loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
 			//Config_RetrieveSettings();
@@ -2652,7 +2652,7 @@ void update_screen_noprinting(){
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
 			
-			if (degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5) {
+			if (degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10) {
 				
 				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,0);
 				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,0);
@@ -5395,7 +5395,7 @@ inline void gcode_G69(){
 					saved_position[Z_AXIS] = current_position[Z_AXIS];
 					saved_position[E_AXIS] = current_position[E_AXIS];
 					//*********************************//
-					
+					saved_active_extruder = active_extruder;
 					//********RETRACK
 					current_position[E_AXIS]-=2;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
@@ -5435,15 +5435,25 @@ inline void gcode_G69(){
 inline void gcode_G70(){
 #ifdef ENABLE_AUTO_BED_LEVELING
 ////*******LOAD ACTUIAL POSITION
-					current_position[Y_AXIS] = saved_position[Y_AXIS];
+					
 					//Serial.println(current_position[Z_AXIS]);
 					//*********************************//
+					active_extruder = saved_active_extruder;
 					
 					
 					
 					
+					
+					current_position[E_AXIS]+=10;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
+					st_synchronize();
+					current_position[E_AXIS] = saved_position[E_AXIS]-2;
+					plan_set_e_position(current_position[E_AXIS]);
+					
+					
+					current_position[Y_AXIS] = saved_position[Y_AXIS];
 					////******PURGE   -->> Purge to clean the extruder, retrack to avoid the trickle
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] += 1.2, 400, active_extruder);
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] += 2, 400, active_extruder);
 					st_synchronize();
 					delay(300);
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] -= 4, 2400, active_extruder);
@@ -5460,10 +5470,11 @@ inline void gcode_G70(){
 					
 					//********MOVE TO ORIGINAL POSITION Z
 					//if(current_position[Z_AXIS]>=extruder_offset[Z_AXIS]) += 20;
-					destination[Z_AXIS] = current_position[Z_AXIS];
+					
 					current_position[Z_AXIS] = saved_position[Z_AXIS];
 					feedrate=homing_feedrate[Z_AXIS];
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+					destination[Z_AXIS] = current_position[Z_AXIS];
 					st_synchronize();
 					//*********************************//
 					

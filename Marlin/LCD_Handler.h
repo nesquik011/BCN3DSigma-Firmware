@@ -444,13 +444,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-						
+						/*
 						if (home_made_Z){
 							home_axis_from_code(true,true,false);
 						}
 						else{
 							home_axis_from_code(true,true,true);
-						}
+						}*/
 						/*int feedrate;
 						if (!flag_filament_home){
 							//MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
@@ -772,13 +772,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					//delay(3500);
 					is_changing_filament=true;
 					
-					if (which_extruder == 0) changeTool(0);
+					/*if (which_extruder == 0) changeTool(0);
 					else changeTool(1);
 					
 					current_position[Y_AXIS] = 100;
 					current_position[X_AXIS] = 155;
 					plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
-					st_synchronize();
+					st_synchronize();*/
 				}
 				
 				
@@ -917,12 +917,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					
 					if (millis() >= waitPeriod_purge){
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						/*genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						filament_accept_ok = true;
 						home_made = false;
 						processing=true;
-						home_axis_from_code(true,true,false);
-						//genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+						home_axis_from_code(true,true,false);*/
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
 						
 						
 					}
@@ -1039,7 +1039,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//***MOVING
 				else if(Event.reportObject.index == BUTTON_PURGE_RETRACK){
 					if (millis() >= waitPeriod_purge){
-						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10){
 							current_position[E_AXIS]-=3;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retrack
 						}
@@ -1048,7 +1048,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if(Event.reportObject.index == BUTTON_PURGE_INSERT){
 					if (millis() >= waitPeriod_purge){
-						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10){
 							current_position[E_AXIS]+=3;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
 						}
@@ -1057,7 +1057,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if(Event.reportObject.index == BUTTON_PURGE_INSERTX3){
 					if (millis() >= waitPeriod_purge){
-						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10){
 							current_position[E_AXIS]+=15;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
 						}
@@ -1096,9 +1096,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				else if(Event.reportObject.index	== BUTTON_PURGE_BACK){
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_PRINT,0);
-					
+				/*	
 				current_position[E_AXIS] = saved_position[E_AXIS]-2;
-						plan_set_e_position(current_position[E_AXIS]);
+						plan_set_e_position(current_position[E_AXIS]);*/
 					//setTargetHotend0(0);
 					//setTargetHotend1(0);
 					
@@ -1132,25 +1132,24 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (filament_mode == 'I')
 					{
 						
-						/*processing = true;
+						processing = true;
 						
 						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						current_position[Z_AXIS] = saved_position[Z_AXIS];
 						
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS],which_extruder);
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS],saved_active_extruder);
 						
 						st_synchronize();
-						home_axis_from_code(true, true, false);
+						//home_axis_from_code(true, true, false);
 						
 						current_position[Z_AXIS] = saved_position[Z_AXIS] + 20;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],homing_feedrate[Z_AXIS] ,which_extruder);
+						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],homing_feedrate[Z_AXIS] ,saved_active_extruder);
 						st_synchronize();
 						processing = false;
-						*/
 						
-						current_position[E_AXIS] = saved_position[E_AXIS]-2;
-						plan_set_e_position(current_position[E_AXIS]);
+						
+						
 						
 						
 						genie.WriteObject(GENIE_OBJ_FORM, FORM_UTILITIES_PRINT,0);
@@ -1695,7 +1694,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//***MOVING
 				else if(Event.reportObject.index == BUTTON_PURGE_RETRACK){
 					if (millis() >= waitPeriod_purge){
-						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10){
 							current_position[E_AXIS]-=3;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retrack
 						}
@@ -1704,7 +1703,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if(Event.reportObject.index == BUTTON_PURGE_INSERT){
 					if (millis() >= waitPeriod_purge){
-						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10){
 							current_position[E_AXIS]+=3;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
 						}
@@ -1713,7 +1712,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if(Event.reportObject.index == BUTTON_PURGE_INSERTX3){
 					if (millis() >= waitPeriod_purge){
-						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10){
 							current_position[E_AXIS]+=15;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
 						}
@@ -4173,42 +4172,26 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					inline void insertmetod(){
 					processing = true;
+					if(!card.sdispaused){
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					if (!home_made) home_axis_from_code(true,true,true);
 					
 					int feedrate;
 					if (!flag_filament_home){
-					//MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
-					//current_position[X_AXIS]+=25;
+					
 					
 					home_axis_from_code(true,true,false);
-					/*current_position[X_AXIS] = x_home_pos(LEFT_EXTRUDER)+25;
-					feedrate=homing_feedrate[X_AXIS];
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, LEFT_EXTRUDER);
-					st_synchronize();
-					//current_position[X_AXIS] = x_home_pos(RIGHT_EXTRUDER);
 					
-					current_position[X_AXIS]=extruder_offset[X_AXIS][1];
-					Serial.println(current_position[X_AXIS]);
-					plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
-					//current_position[X_AXIS]-=25;
-					current_position[X_AXIS] = x_home_pos(RIGHT_EXTRUDER)-25;
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, RIGHT_EXTRUDER);
-					st_synchronize();*/
 					flag_filament_home=true;
 					}
 					
-					/*current_position[Y_AXIS]=285;
-					feedrate=homing_feedrate[Y_AXIS];
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-					st_synchronize();*/
 					
 					current_position[Z_AXIS]=Z_MAX_POS-15;
 					feedrate=homing_feedrate[Z_AXIS];
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate*2/60, active_extruder); //check speed
 					st_synchronize();
 					/****************************************************/
-					
+					}
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FILAMENT_TOP,0);
 					processing = false;
 					}
