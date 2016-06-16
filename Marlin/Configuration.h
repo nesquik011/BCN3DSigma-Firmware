@@ -1122,7 +1122,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  //set measured to nominal initially 
 
 
-#define LISTNUMSDFILES 3
+#define LISTNUMSDFILES 5
 
 
 

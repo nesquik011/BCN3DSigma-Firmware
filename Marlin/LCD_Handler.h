@@ -440,36 +440,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					else {
 						//*********Move the bed down and the extruders inside
-						if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
-						else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);
+						if(which_extruder == 0) setTargetHotend(max(print_temp_r,old_print_temp_l),which_extruder);
+						else setTargetHotend(max(print_temp_r,old_print_temp_r),which_extruder);
 						processing = true;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-						/*
-						if (home_made_Z){
-							home_axis_from_code(true,true,false);
-						}
-						else{
-							home_axis_from_code(true,true,true);
-						}*/
-						/*int feedrate;
-						if (!flag_filament_home){
-							//MOVING THE EXTRUDERS TO AVOID HITTING THE CASE WHEN PROBING-------------------------
-							//current_position[X_AXIS]+=25;
-							home_axis_from_code(true,true,false);
-							st_synchronize();
-							
-							flag_filament_home=true;
-						}*/
-						/*
-						
-						current_position[Z_AXIS]=Z_MAX_POS-15;
-						current_position[Y_AXIS]=10;
-						feedrate=max_feedrate[Z_AXIS];
-						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate, active_extruder); //check speed
-						st_synchronize();
-						
-						
-						*/
+					
 						
 						current_position[Z_AXIS]=Z_MAX_POS-15;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
@@ -481,24 +456,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						processing = false;
 						
-						//genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
-						//genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
-						/****************************************************/
-						
-						//ATTENTION : Order here is important
 						
 						
-						//Serial.println("REMOVING");
-						//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
-						/*if (filament_mode == 'I') genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
-						else if (filament_mode == 'R') genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
-						else genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);*/
 						processing_adjusting = true;
-						//delay(3500);
-						/*if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
-						else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);*/
-						is_changing_filament=true; //We are changing filament
+						
+						is_changing_filament=true; 
 						
 					}
 				}
