@@ -1124,6 +1124,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #define LISTNUMSDFILES 5
 
+//#define SCREENTEST
 
 
 

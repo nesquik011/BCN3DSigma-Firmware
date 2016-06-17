@@ -6861,10 +6861,1060 @@ inline void gcode_M202(){
 	}
 	#endif
 }
+inline void gcode_M203(){
+	for(int8_t i=0; i < NUM_AXIS; i++) {
+		if(code_seen(axis_codes[i])) max_feedrate[i] = code_value();
+	}
+}
+inline void gcode_M204(){
+	
+	if(code_seen('S')) acceleration = code_value();
+	if(code_seen('T')) retract_acceleration = code_value();
+	
+}
+inline void gcode_M205(){
+	
+	if(code_seen('S')) minimumfeedrate = code_value();
+	if(code_seen('T')) mintravelfeedrate = code_value();
+	if(code_seen('B')) minsegmenttime = code_value() ;
+	if(code_seen('X')) max_xy_jerk = code_value() ;
+	if(code_seen('Z')) max_z_jerk = code_value() ;
+	if(code_seen('E')) max_e_jerk = code_value() ;
+	
+}
+inline void gcode_M206(){
+	for(int8_t i=0; i < 3; i++)
+	{
+		if(code_seen(axis_codes[i])) add_homing[i] = code_value();
+	}
+	#ifdef SCARA
+	if(code_seen('T'))       // Theta
+	{
+		add_homing[0] = code_value() ;
+	}
+	if(code_seen('P'))       // Psi
+	{
+		add_homing[1] = code_value() ;
+	}
+	#endif
+}
 
+inline void gcode_M665(){
+	#ifdef DELTA
+	if(code_seen('L')) {
+		delta_diagonal_rod= code_value();
+	}
+	if(code_seen('R')) {
+		delta_radius= code_value();
+	}
+	if(code_seen('S')) {
+		delta_segments_per_second= code_value();
+	}
+	
+	recalc_delta_settings(delta_radius, delta_diagonal_rod);
+	break;
+	case 666: // M666 set delta endstop adjustemnt
+	for(int8_t i=0; i < 3; i++)
+	{
+		if(code_seen(axis_codes[i])) endstop_adj[i] = code_value();
+	}
+	#endif
+}
+
+inline void gcode_M207(){
+	#ifdef FWRETRACT
+	if(code_seen('S'))
+	{
+		retract_length = code_value() ;
+	}
+	if(code_seen('F'))
+	{
+		retract_feedrate = code_value()/60 ;
+	}
+	if(code_seen('Z'))
+	{
+		retract_zlift = code_value() ;
+	}
+	#endif
+}
+inline void gcode_M208(){
+	#ifdef FWRETRACT
+	if(code_seen('S'))
+	{
+		retract_recover_length = code_value() ;
+	}
+	if(code_seen('F'))
+	{
+		retract_recover_feedrate = code_value()/60 ;
+	}
+	#endif
+}
+inline void gcode_M209(){
+	#ifdef FWRETRACT
+	if(code_seen('S'))
+	{
+		int t= code_value() ;
+		switch(t)
+		{
+			case 0:
+			{
+				autoretract_enabled=false;
+				retracted[0]=false;
+				#if EXTRUDERS > 1
+				retracted[1]=false;
+				#endif
+				#if EXTRUDERS > 2
+				retracted[2]=false;
+				#endif
+			}break;
+			case 1:
+			{
+				autoretract_enabled=true;
+				retracted[0]=false;
+				#if EXTRUDERS > 1
+				retracted[1]=false;
+				#endif
+				#if EXTRUDERS > 2
+				retracted[2]=false;
+				#endif
+			}break;
+			default:
+			SERIAL_ECHO_START;
+			SERIAL_ECHOPGM(MSG_UNKNOWN_COMMAND);
+			SERIAL_ECHO(cmdbuffer[bufindr]);
+			SERIAL_ECHOLNPGM("\"");
+		}
+	}
+
+	#endif
+}
+inline void gcode_M218(){
+#if EXTRUDERS > 1
+	
+	if(setTargetedHotend(218)){
+		return;
+	}
+	if(code_seen('X'))
+	{
+		extruder_offset[X_AXIS][tmp_extruder] = code_value();
+	}
+	if(code_seen('Y'))
+	{
+		extruder_offset[Y_AXIS][tmp_extruder] = code_value();
+	}
+	#ifdef DUAL_X_CARRIAGE
+	if(code_seen('Z'))
+	{
+		extruder_offset[Z_AXIS][tmp_extruder] = code_value();
+	}
+	#endif
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
+	for(tmp_extruder = 0; tmp_extruder < EXTRUDERS; tmp_extruder++)
+	{
+		SERIAL_ECHO(" ");
+		SERIAL_ECHO(extruder_offset[X_AXIS][tmp_extruder]);
+		SERIAL_ECHO(",");
+		SERIAL_ECHO(extruder_offset[Y_AXIS][tmp_extruder]);
+		#ifdef DUAL_X_CARRIAGE
+		SERIAL_ECHO(",");
+		SERIAL_ECHO(extruder_offset[Z_AXIS][tmp_extruder]);
+		#endif
+	}
+	SERIAL_ECHOLN("");
+	
+#endif
+}
+inline void gcode_M220(){
+	if(code_seen('S'))
+	{
+		feedmultiply = code_value() ;
+	}
+}
+inline void gcode_M221(){
+	if(code_seen('S'))
+	{
+		int tmp_code = code_value();
+		if (code_seen('T'))
+		{
+			if(setTargetedHotend(221)){
+				return;
+			}
+			extruder_multiply[tmp_extruder] = tmp_code;
+		}
+		else
+		{
+			extrudemultiply = tmp_code ;
+		}
+	}
+}
+inline void gcode_M226(){
+
+	if(code_seen('P')){
+		int pin_number = code_value(); // pin number
+		int pin_state = -1; // required pin state - default is inverted
+
+		if(code_seen('S')) pin_state = code_value(); // required pin state
+
+		if(pin_state >= -1 && pin_state <= 1){
+
+			for(int8_t i = 0; i < (int8_t)(sizeof(sensitive_pins)/sizeof(int)); i++)
+			{
+				if (sensitive_pins[i] == pin_number)
+				{
+					pin_number = -1;
+					return;
+				}
+			}
+
+			if (pin_number > -1)
+			{
+				st_synchronize();
+
+				pinMode(pin_number, INPUT);
+
+				int target;
+				switch(pin_state){
+					case 1:
+					target = HIGH;
+					break;
+
+					case 0:
+					target = LOW;
+					break;
+
+					case -1:
+					target = !digitalRead(pin_number);
+					break;
+				}
+
+				while(digitalRead(pin_number) != target){
+					manage_heater();
+					manage_inactivity();
+					//lcd_update();
+					#ifdef SIGMA_TOUCH_SCREEN
+					touchscreen_update();
+					#endif
+				}
+			}
+		}
+	}
+	
+}
+inline void gcode_M280(){
+#if NUM_SERVOS > 0
+	
+	int servo_index = -1;
+	int servo_position = 0;
+	if (code_seen('P'))
+	servo_index = code_value();
+	if (code_seen('S')) {
+		servo_position = code_value();
+		if ((servo_index >= 0) && (servo_index < NUM_SERVOS)) {
+			#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+			servos[servo_index].attach(0);
+			#endif
+			servos[servo_index].write(servo_position);
+			#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+			delay(PROBE_SERVO_DEACTIVATION_DELAY);
+			servos[servo_index].detach();
+			#endif
+		}
+		else {
+			SERIAL_ECHO_START;
+			SERIAL_ECHO("Servo ");
+			SERIAL_ECHO(servo_index);
+			SERIAL_ECHOLN(" out of range");
+		}
+	}
+	else if (servo_index >= 0) {
+		SERIAL_PROTOCOL(MSG_OK);
+		SERIAL_PROTOCOL(" Servo ");
+		SERIAL_PROTOCOL(servo_index);
+		SERIAL_PROTOCOL(": ");
+		SERIAL_PROTOCOL(servos[servo_index].read());
+		SERIAL_PROTOCOLLN("");
+	}
+}
+	
+#endif // NUM_SERVOS > 0
+}
+inline void gcode_M300(){
+	#if (LARGE_FLASH == true && ( BEEPER > 0 || defined(ULTRALCD) || defined(LCD_USE_I2C_BUZZER)))
+	
+	int beepS = code_seen('S') ? code_value() : 110;
+	int beepP = code_seen('P') ? code_value() : 1000;
+	if (beepS > 0)
+	{
+		#if BEEPER > 0
+		tone(BEEPER, beepS);
+		delay(beepP);
+		noTone(BEEPER);
+		#elif defined(ULTRALCD)
+		lcd_buzz(beepS, beepP);
+		#elif defined(LCD_USE_I2C_BUZZER)
+		lcd_buzz(beepP, beepS);
+		#endif
+	}
+	else
+	{
+		delay(beepP);
+	}
+	
+	#endif // M300
+}
+inline void gcode_M301(){
+#ifdef PIDTEMP
+	int ext=0;
+	if(code_seen('E')) ext = code_value();
+	if(code_seen('P')) Kp[ext] = code_value();
+	if(code_seen('I')) Ki[ext] = scalePID_i(code_value());
+	if(code_seen('D')) Kd[ext] = scalePID_d(code_value());
+
+	#ifdef PID_ADD_EXTRUSION_RATE
+	if(code_seen('C')) Kc[ext] = code_value();
+	#endif
+
+	updatePID();
+	SERIAL_PROTOCOL(MSG_OK);
+	SERIAL_PROTOCOL(" E:");
+	SERIAL_PROTOCOL(ext);
+	SERIAL_PROTOCOL(" P:");
+	SERIAL_PROTOCOL(Kp[ext]);
+	SERIAL_PROTOCOL(" I:");
+	SERIAL_PROTOCOL(unscalePID_i(Ki[ext]));
+	SERIAL_PROTOCOL(" D:");
+	SERIAL_PROTOCOL(unscalePID_d(Kd[ext]));
+	#ifdef PID_ADD_EXTRUSION_RATE
+	SERIAL_PROTOCOL(" C:");
+	//Kc does not have scaling applied above, or in resetting defaults
+	SERIAL_PROTOCOL(Kc[ext]);
+	#endif
+	SERIAL_PROTOCOLLN("");
+
+#endif //PIDTEMP
+}
+inline void gcode_M304(){
+	#ifdef PIDTEMPBED
+	
+	if(code_seen('P')) bedKp = code_value();
+	if(code_seen('I')) bedKi = scalePID_i(code_value());
+	if(code_seen('D')) bedKd = scalePID_d(code_value());
+
+	updatePID();
+	SERIAL_PROTOCOL(MSG_OK);
+	SERIAL_PROTOCOL(" p:");
+	SERIAL_PROTOCOL(bedKp);
+	SERIAL_PROTOCOL(" i:");
+	SERIAL_PROTOCOL(unscalePID_i(bedKi));
+	SERIAL_PROTOCOL(" d:");
+	SERIAL_PROTOCOL(unscalePID_d(bedKd));
+	SERIAL_PROTOCOLLN("");
+	
+	#endif //PIDTEMP
+}
+inline void gcode_M240(){
+
+	#ifdef CHDK
+		
+	SET_OUTPUT(CHDK);
+	WRITE(CHDK, HIGH);
+	chdkHigh = millis();
+	chdkActive = true;
+		
+	#else
+		
+	#if defined(PHOTOGRAPH_PIN) && PHOTOGRAPH_PIN > -1
+	const uint8_t NUM_PULSES=16;
+	const float PULSE_LENGTH=0.01524;
+	for(int i=0; i < NUM_PULSES; i++) {
+		WRITE(PHOTOGRAPH_PIN, HIGH);
+		_delay_ms(PULSE_LENGTH);
+		WRITE(PHOTOGRAPH_PIN, LOW);
+		_delay_ms(PULSE_LENGTH);
+	}
+	delay(7.33);
+	for(int i=0; i < NUM_PULSES; i++) {
+		WRITE(PHOTOGRAPH_PIN, HIGH);
+		_delay_ms(PULSE_LENGTH);
+		WRITE(PHOTOGRAPH_PIN, LOW);
+		_delay_ms(PULSE_LENGTH);
+	}
+	#endif
+	#endif //chdk end if
+	
+}
+inline void gcode_M250(){
+	#ifdef DOGLCD
+	if (code_seen('C')) {
+		lcd_setcontrast( ((int)code_value())&63 );
+	}
+	SERIAL_PROTOCOLPGM("lcd contrast value: ");
+	SERIAL_PROTOCOL(lcd_contrast);
+	SERIAL_PROTOCOLLN("");
+	}
+	#endif
+}
+inline void gcode_M302(){
+	#ifdef PREVENT_DANGEROUS_EXTRUDE
+	
+	float temp = .0;
+	if (code_seen('S')) temp=code_value();
+	set_extrude_min_temp(temp);
+	
+	#endif
+}
+inline void gcode_M303(){
+	float temp = 150.0;
+	int e=0;
+	int c=5;
+	if (code_seen('E')) e=code_value();
+	if (e<0)
+	temp=70;
+	if (code_seen('S')) temp=code_value();
+	if (code_seen('C')) c=code_value();
+	PID_autotune(temp, e, c);
+}
+inline void gcode_M307(){
+	
+	float temp = max((float)print_temp_l,(float)print_temp_r);
+	int e=0;
+	int c=10;
+	if (code_seen('E')) {
+		e = code_value();
+		if(e==0) temp = float(print_temp_l);
+		else  temp = float(print_temp_r);
+	}
+	if (code_seen('S')) temp = code_value();
+	PID_autotune_Save(temp, e, c);
+	Config_StoreSettings();
+	SERIAL_PROTOCOL(MSG_OK);
+	SERIAL_PROTOCOL(" p:");
+	SERIAL_PROTOCOL(Kp[e]);
+	SERIAL_PROTOCOL(" i:");
+	SERIAL_PROTOCOL(unscalePID_i(Ki[e]));
+	SERIAL_PROTOCOL(" d:");
+	SERIAL_PROTOCOL(unscalePID_d(Kd[e]));
+	
+}
+inline void gcode_M360(){
+	#ifdef SCARA
+	SERIAL_ECHOLN(" Cal: Theta 0 ");
+	//SoftEndsEnabled = false;              // Ignore soft endstops during calibration
+	//SERIAL_ECHOLN(" Soft endstops disabled ");
+	if(Stopped == false) {
+		//get_coordinates(); // For X Y Z E F
+		delta[0] = 0;
+		delta[1] = 120;
+		calculate_SCARA_forward_Transform(delta);
+		destination[0] = delta[0]/axis_scaling[X_AXIS];
+		destination[1] = delta[1]/axis_scaling[Y_AXIS];
+		
+		prepare_move();
+		//ClearToSend();
+		return;
+	}
+	#endif
+}
+inline void gcode_M361(){
+	#ifdef SCARA
+	SERIAL_ECHOLN(" Cal: Theta 90 ");
+	//SoftEndsEnabled = false;              // Ignore soft endstops during calibration
+	//SERIAL_ECHOLN(" Soft endstops disabled ");
+	if(Stopped == false) {
+		//get_coordinates(); // For X Y Z E F
+		delta[0] = 90;
+		delta[1] = 130;
+		calculate_SCARA_forward_Transform(delta);
+		destination[0] = delta[0]/axis_scaling[X_AXIS];
+		destination[1] = delta[1]/axis_scaling[Y_AXIS];
+		
+		prepare_move();
+		//ClearToSend();
+		return;
+	}
+	#endif
+}
+inline void gcode_M362(){
+	#ifdef SCARA
+	SERIAL_ECHOLN(" Cal: Psi 0 ");
+	//SoftEndsEnabled = false;              // Ignore soft endstops during calibration
+	//SERIAL_ECHOLN(" Soft endstops disabled ");
+	if(Stopped == false) {
+		//get_coordinates(); // For X Y Z E F
+		delta[0] = 60;
+		delta[1] = 180;
+		calculate_SCARA_forward_Transform(delta);
+		destination[0] = delta[0]/axis_scaling[X_AXIS];
+		destination[1] = delta[1]/axis_scaling[Y_AXIS];
+		
+		prepare_move();
+		//ClearToSend();
+		return;
+	}
+	#endif
+}
+inline void gcode_M363(){
+	#ifdef SCARA
+	SERIAL_ECHOLN(" Cal: Psi 90 ");
+	//SoftEndsEnabled = false;              // Ignore soft endstops during calibration
+	//SERIAL_ECHOLN(" Soft endstops disabled ");
+	if(Stopped == false) {
+		//get_coordinates(); // For X Y Z E F
+		delta[0] = 50;
+		delta[1] = 90;
+		calculate_SCARA_forward_Transform(delta);
+		destination[0] = delta[0]/axis_scaling[X_AXIS];
+		destination[1] = delta[1]/axis_scaling[Y_AXIS];
+		
+		prepare_move();
+		//ClearToSend();
+		return;
+	}
+	#endif
+}
+inline void gcode_M364(){
+	#ifdef SCARA
+	SERIAL_ECHOLN(" Cal: Theta-Psi 90 ");
+	// SoftEndsEnabled = false;              // Ignore soft endstops during calibration
+	//SERIAL_ECHOLN(" Soft endstops disabled ");
+	if(Stopped == false) {
+		//get_coordinates(); // For X Y Z E F
+		delta[0] = 45;
+		delta[1] = 135;
+		calculate_SCARA_forward_Transform(delta);
+		destination[0] = delta[0]/axis_scaling[X_AXIS];
+		destination[1] = delta[1]/axis_scaling[Y_AXIS];
+		
+		prepare_move();
+		//ClearToSend();
+		return;
+	}
+	#endif
+}
+inline void gcode_M365(){
+	#ifdef SCARA
+	for(int8_t i=0; i < 3; i++)
+	{
+		if(code_seen(axis_codes[i]))
+		{
+			
+			axis_scaling[i] = code_value();
+			
+		}
+	}
+	#endif
+}
+inline void gcode_M400(){
+	st_synchronize();
+}
+inline void gcode_M401(){
+	#if defined(ENABLE_AUTO_BED_LEVELING) && defined(SERVO_ENDSTOPS) && not defined(Z_PROBE_SLED)
+	engage_z_probe();    // Engage Z Servo endstop if available
+	#endif
+}
+inline void gcode_M402(){
+	#if defined(ENABLE_AUTO_BED_LEVELING) && defined(SERVO_ENDSTOPS) && not defined(Z_PROBE_SLED)
+	retract_z_probe();    // Retract Z Servo endstop if enabled
+	#endif
+}
+inline void gcode_M404(){
+	#ifdef FILAMENT_SENSOR
+	#if (FILWIDTH_PIN > -1)
+	if(code_seen('N')) filament_width_nominal=code_value();
+	else{
+		SERIAL_PROTOCOLPGM("Filament dia (nominal mm):");
+		SERIAL_PROTOCOLLN(filament_width_nominal);
+	}
+	#endif
+	#endif
+}
+inline void gcode_M405(){
+	#ifdef FILAMENT_SENSOR
+	if(code_seen('D')) meas_delay_cm=code_value();
+	
+	if(meas_delay_cm> MAX_MEASUREMENT_DELAY)
+	meas_delay_cm = MAX_MEASUREMENT_DELAY;
+	
+	if(delay_index2 == -1)  //initialize the ring buffer if it has not been done since startup
+	{
+		int temp_ratio = widthFil_to_size_ratio();
+		
+		for (delay_index1=0; delay_index1<(MAX_MEASUREMENT_DELAY+1); ++delay_index1 ){
+			measurement_delay[delay_index1]=temp_ratio-100;  //subtract 100 to scale within a signed byte
+		}
+		delay_index1=0;
+		delay_index2=0;
+	}
+	
+	filament_sensor = true ;
+	
+	//SERIAL_PROTOCOLPGM("Filament dia (measured mm):");
+	//SERIAL_PROTOCOL(filament_width_meas);
+	//SERIAL_PROTOCOLPGM("Extrusion ratio(%):");
+	//SERIAL_PROTOCOL(extrudemultiply);
+	#endif
+}
+inline void gcode_M406(){
+	#ifdef FILAMENT_SENSOR
+	filament_sensor = false;
+	#endif
+}
+inline void gcode_M407(){
+	#ifdef FILAMENT_SENSOR
+	
+	SERIAL_PROTOCOLPGM("Filament dia (measured mm):");
+	SERIAL_PROTOCOLLN(filament_width_meas);
+	#endif
+	
+}
+inline void gcode_M500(){
+	Config_StoreSettings();
+}
+inline void gcode_M501(){
+	Config_RetrieveSettings();
+}
+inline void gcode_M502(){
+	Config_ResetDefault();
+	Config_StoreSettings();
+}
+inline void gcode_M503(){
+	Config_PrintSettings();
+}
+inline void gcode_M504(){
+	Config_Reset_Calib();
+	Config_StoreSettings();
+}
+inline void gcode_M505(){
+	int input = 0;
+	if (code_seen('P')) input = code_value();
+	Config_Reset_Statistics(input);
+	Config_StoreSettings();
+}
+inline void gcode_M510(){
+	int i_temp_l = 0, r_temp_l = 0 , p_temp_l = 0, b_temp_l =0;
+	if (code_seen('I')) i_temp_l = code_value();
+	if (code_seen('R')) r_temp_l = code_value();
+	if (code_seen('P')) p_temp_l = code_value();
+	if (code_seen('B')) b_temp_l = code_value();
+	Change_ConfigTemp_LeftHotend(i_temp_l, r_temp_l, p_temp_l, b_temp_l);
+	Config_StoreSettings();
+}
+inline void gcode_M520(){
+	int i_temp_r = 0, r_temp_r = 0 , p_temp_r = 0, b_temp_r =0;
+	if (code_seen('I')) i_temp_r = code_value();
+	if (code_seen('R')) r_temp_r = code_value();
+	if (code_seen('P')) p_temp_r = code_value();
+	if (code_seen('B')) b_temp_r = code_value();
+	Change_ConfigTemp_RightHotend(i_temp_r, r_temp_r, p_temp_r, b_temp_r);
+	Config_StoreSettings();
+}
+inline void gcode_M530(){
+	float Xcalib, Ycalib, Zcalib, Zprobecalib;
+	if (code_seen('X')) Xcalib = code_value();
+	else Xcalib = extruder_offset[X_AXIS][1];
+	if (code_seen('Y')) Ycalib = code_value();
+	else Ycalib = extruder_offset[Y_AXIS][1];
+	if (code_seen('Z')) Zcalib = code_value();
+	else Zcalib = extruder_offset[Z_AXIS][1];
+	if (code_seen('P')) Zprobecalib = code_value();
+	else Zprobecalib = zprobe_zoffset;
+	Change_ConfigCalibration(Xcalib, Ycalib, Zcalib, Zprobecalib);
+	Config_StoreSettings();
+}
+inline void gcode_M540(){
+	#ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
+	if(code_seen('S')) abort_on_endstop_hit = code_value() > 0;
+	#endif
+}
+inline void gcode_M600(){
+	
+	#ifdef FILAMENTCHANGEENABLE
+	
+		float target[4];
+		float lastpos[4];
+		target[X_AXIS]=current_position[X_AXIS];
+		target[Y_AXIS]=current_position[Y_AXIS];
+		target[Z_AXIS]=current_position[Z_AXIS];
+		target[E_AXIS]=current_position[E_AXIS];
+		lastpos[X_AXIS]=current_position[X_AXIS];
+		lastpos[Y_AXIS]=current_position[Y_AXIS];
+		lastpos[Z_AXIS]=current_position[Z_AXIS];
+		lastpos[E_AXIS]=current_position[E_AXIS];
+		//retract by E
+		if(code_seen('E'))
+		{
+			target[E_AXIS]+= code_value();
+		}
+		else
+		{
+			#ifdef FILAMENTCHANGE_FIRSTRETRACT
+			target[E_AXIS]+= FILAMENTCHANGE_FIRSTRETRACT ;
+			#endif
+		}
+		plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+
+		//lift Z
+		if(code_seen('Z'))
+		{
+			target[Z_AXIS]+= code_value();
+		}
+		else
+		{
+			#ifdef FILAMENTCHANGE_ZADD
+			target[Z_AXIS]+= FILAMENTCHANGE_ZADD ;
+			#endif
+		}
+		plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+
+		//move xy
+		if(code_seen('X'))
+		{
+			target[X_AXIS]+= code_value();
+		}
+		else
+		{
+			#ifdef FILAMENTCHANGE_XPOS
+			target[X_AXIS]= FILAMENTCHANGE_XPOS ;
+			#endif
+		}
+		if(code_seen('Y'))
+		{
+			target[Y_AXIS]= code_value();
+		}
+		else
+		{
+			#ifdef FILAMENTCHANGE_YPOS
+			target[Y_AXIS]= FILAMENTCHANGE_YPOS ;
+			#endif
+		}
+
+		plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+
+		if(code_seen('L'))
+		{
+			target[E_AXIS]+= code_value();
+		}
+		else
+		{
+			#ifdef FILAMENTCHANGE_FINALRETRACT
+			target[E_AXIS]+= FILAMENTCHANGE_FINALRETRACT ;
+			#endif
+		}
+
+		plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+
+		//finish moves
+		st_synchronize();
+		//disable extruder steppers so filament can be removed
+		disable_e0();
+		disable_e1();
+		disable_e2();
+		delay(100);
+		LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
+		uint8_t cnt=0;
+		while(!lcd_clicked()){
+			cnt++;
+			manage_heater();
+			manage_inactivity();
+			lcd_update();
+			if(cnt==0)
+			{
+				#if BEEPER > 0
+				SET_OUTPUT(BEEPER);
+
+				WRITE(BEEPER,HIGH);
+				delay(3);
+				WRITE(BEEPER,LOW);
+				delay(3);
+				#else
+				#if !defined(LCD_FEEDBACK_FREQUENCY_HZ) || !defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS)
+				lcd_buzz(1000/6,100);
+				#else
+				lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS,LCD_FEEDBACK_FREQUENCY_HZ);
+				#endif
+				#endif
+			}
+		}
+
+		//return to normal
+		if(code_seen('L'))
+		{
+			target[E_AXIS]+= -code_value();
+		}
+		else
+		{
+			#ifdef FILAMENTCHANGE_FINALRETRACT
+			target[E_AXIS]+=(-1)*FILAMENTCHANGE_FINALRETRACT ;
+			#endif
+		}
+		current_position[E_AXIS]=target[E_AXIS]; //the long retract of L is compensated by manual filament feeding
+		plan_set_e_position(current_position[E_AXIS]);
+		plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //should do nothing
+		plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //move xy back
+		plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //move z back
+		plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //final untretract
+		
+	#endif
+	
+}
+inline void gcode_M605(){
+	#ifdef DUAL_X_CARRIAGE
+	//    M605 S0: Full control mode. The slicer has full control over x-carriage movement
+	//    M605 S1: Auto-park mode. The inactive head will auto park/unpark without slicer involvement
+	//    M605 S2 [Xnnn] [Rmmm]: Duplication mode. The second extruder will duplicate the first with nnn
+	//                         millimeters x-offset and an optional differential hotend temperature of
+	//                         mmm degrees. E.g., with "M605 S2 X100 R2" the second extruder will duplicate
+	//                         the first with a spacing of 100mm in the x direction and 2 degrees hotter.
+	//
+	//    Note: the X axis should be homed after changing dual x-carriage mode.
+	
+		st_synchronize();
+
+		if (code_seen('S'))
+		dual_x_carriage_mode = code_value();
+
+		if (dual_x_carriage_mode == DXC_DUPLICATION_MODE)
+		{
+			if (code_seen('X'))
+			duplicate_extruder_x_offset = max(code_value(),X2_MIN_POS - x_home_pos(0));
+
+			if (code_seen('R'))
+			duplicate_extruder_temp_offset = code_value();
+
+			SERIAL_ECHO_START;
+			SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
+			SERIAL_ECHO(" ");
+			SERIAL_ECHO(extruder_offset[X_AXIS][0]);
+			SERIAL_ECHO(",");
+			SERIAL_ECHO(extruder_offset[Y_AXIS][0]);
+			SERIAL_ECHO(" ");
+			SERIAL_ECHO(duplicate_extruder_x_offset);
+			SERIAL_ECHO(",");
+			SERIAL_ECHOLN(extruder_offset[Y_AXIS][1]);
+		}
+		else if (dual_x_carriage_mode != DXC_FULL_CONTROL_MODE && dual_x_carriage_mode != DXC_AUTO_PARK_MODE)
+		{
+			dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
+		}
+
+		active_extruder_parked = false;
+		extruder_duplication_enabled = false;
+		delayed_move_time = 0;
+	#endif //DUAL_X_CARRIAGE
+	
+}
+inline void gcode_M907(){
+	#if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
+	for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) digipot_current(i,code_value());
+	if(code_seen('B')) digipot_current(4,code_value());
+	if(code_seen('S')) for(int i=0;i<=4;i++) digipot_current(i,code_value());
+	#endif
+	#ifdef MOTOR_CURRENT_PWM_XY_PIN
+	if(code_seen('X')) digipot_current(0, code_value());
+	#endif
+	#ifdef MOTOR_CURRENT_PWM_Z_PIN
+	if(code_seen('Z')) digipot_current(1, code_value());
+	#endif
+	#ifdef MOTOR_CURRENT_PWM_E_PIN
+	if(code_seen('E')) digipot_current(2, code_value());
+	#endif
+	#ifdef DIGIPOT_I2C
+	// this one uses actual amps in floating point
+	for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) digipot_i2c_set_current(i, code_value());
+	// for each additional extruder (named B,C,D,E..., channels 4,5,6,7...)
+	for(int i=NUM_AXIS;i<DIGIPOT_I2C_NUM_CHANNELS;i++) if(code_seen('B'+i-NUM_AXIS)) digipot_i2c_set_current(i, code_value());
+	#endif
+}
+inline void gcode_M908(){
+	#if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
+	uint8_t channel,current;
+	if(code_seen('P')) channel=code_value();
+	if(code_seen('S')) current=code_value();
+	digitalPotWrite(channel, current);
+	#endif
+}
+inline void gcode_M350(){
+	#if defined(X_MS1_PIN) && X_MS1_PIN > -1
+	if(code_seen('S')) for(int i=0;i<=4;i++) microstep_mode(i,code_value());
+	for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) microstep_mode(i,(uint8_t)code_value());
+	if(code_seen('B')) microstep_mode(4,code_value());
+	microstep_readings();
+	#endif
+}
+inline void gcode_M351(){
+	#if defined(X_MS1_PIN) && X_MS1_PIN > -1
+	if(code_seen('S')) switch((int)code_value()){
+		case 1:
+		for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) microstep_ms(i,code_value(),-1);
+		if(code_seen('B')) microstep_ms(4,code_value(),-1);
+		break;
+		case 2:
+		for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) microstep_ms(i,-1,code_value());
+		if(code_seen('B')) microstep_ms(4,-1,code_value());
+		break;
+	}
+	microstep_readings();
+	#endif
+}
+inline void gcode_M999(){
+	Stopped = false;
+	lcd_reset_alert_level();
+	gcode_LastN = Stopped_gcode_LastN;
+	FlushSerialRequestResend();
+}
+inline void gcode_M851(){
+	#ifdef CUSTOM_M_CODE_SET_Z_PROBE_OFFSET
+	float value;
+	if (code_seen('Z'))
+	{
+		value = code_value();
+		if ((Z_PROBE_OFFSET_RANGE_MIN <= value) && (value <= Z_PROBE_OFFSET_RANGE_MAX))
+		{
+			zprobe_zoffset = -value; // compare w/ line 278 of ConfigurationStore.cpp
+			SERIAL_ECHO_START;
+			SERIAL_ECHOLNPGM(MSG_ZPROBE_ZOFFSET " " MSG_OK);
+			SERIAL_PROTOCOLLN("");
+		}
+		else
+		{
+			SERIAL_ECHO_START;
+			SERIAL_ECHOPGM(MSG_ZPROBE_ZOFFSET);
+			SERIAL_ECHOPGM(MSG_Z_MIN);
+			SERIAL_ECHO(Z_PROBE_OFFSET_RANGE_MIN);
+			SERIAL_ECHOPGM(MSG_Z_MAX);
+			SERIAL_ECHO(Z_PROBE_OFFSET_RANGE_MAX);
+			SERIAL_PROTOCOLLN("");
+		}
+	}
+	else
+	{
+		SERIAL_ECHO_START;
+		SERIAL_ECHOLNPGM(MSG_ZPROBE_ZOFFSET " : ");
+		SERIAL_ECHO(-zprobe_zoffset);
+		SERIAL_PROTOCOLLN("");
+	}
+	#endif // CUSTOM_M_CODE_SET_Z_PROBE_OFFSET
+}
 
 #pragma endregion MCODES
 
+#pragma region TCODES
+inline void gcode_T0_T1(){
+	tmp_extruder = code_value();
+	if(tmp_extruder >= EXTRUDERS) {
+		SERIAL_ECHO_START;
+		SERIAL_ECHO("T");
+		SERIAL_ECHO(tmp_extruder);
+		SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
+	}
+	else {
+		boolean make_move = false;
+		if(code_seen('F')) {
+			make_move = true;
+			next_feedrate = code_value();
+			if(next_feedrate > 0.0) {
+				feedrate = next_feedrate;
+			}
+		}
+		#if EXTRUDERS > 1
+		
+		if(tmp_extruder != active_extruder) {
+			// Save current position to return to after applying extruder offset
+			//Rapduch toolchange
+			z_restaurada = current_position[Z_AXIS]; //Save the Z position that will be restored after changing tool
+			memcpy(destination, current_position, sizeof(destination));
+			#ifdef DUAL_X_CARRIAGE
+			if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && Stopped == false && (delayed_move_time != 0 || current_position[X_AXIS] != x_home_pos(active_extruder)))
+			{
+				// Park old head: 1) raise 2) move to park position 3) lower
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT, current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+				plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT, current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);
+				plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+				st_synchronize();
+			}
+			
+			if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE && current_position[X_AXIS] != x_home_pos(active_extruder)) //DUAL FULL CONTROL and NOT HOMED
+			{
+				// Park old head: 1) raise 2) move to park position 3) lower
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], max_feedrate[Z_AXIS]/2, active_extruder);
+				plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], XY_SIGMA_TRAVEL_SPEED, active_extruder);
+				plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] ,current_position[E_AXIS], max_feedrate[Z_AXIS]/2, active_extruder);
+				st_synchronize();
+				//current_position[Z_AXIS]= current_position[Z_AXIS]+TOOLCHANGE_PARK_ZLIFT;
+			}
+			Serial.print("POSITION HOME: ");
+			Serial.println(x_home_pos(active_extruder));
+
+			// apply Y & Z extruder offset (x offset is already used in determining home pos)
+			//current_position[Y_AXIS] = current_position[Y_AXIS] - extruder_offset[Y_AXIS][active_extruder] + extruder_offset[Y_AXIS][tmp_extruder];
+			//current_position[Z_AXIS] = current_position[Z_AXIS] - extruder_offset[Z_AXIS][active_extruder] + extruder_offset[Z_AXIS][tmp_extruder];
+			plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS]- extruder_offset[Y_AXIS][active_extruder] + extruder_offset[Y_AXIS][tmp_extruder], current_position[Z_AXIS] - extruder_offset[Z_AXIS][tmp_extruder] + extruder_offset[Z_AXIS][active_extruder], current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);
+			active_extruder = tmp_extruder;
+
+			// This function resets the max/min values - the current position may be overwritten below.
+			axis_is_at_home(X_AXIS);
+
+			//Rapduch
+			if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE)
+			{
+				memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+				active_extruder_parked = true;
+			}
+			else if (dual_x_carriage_mode == DXC_FULL_CONTROL_MODE)
+			{
+				current_position[X_AXIS] = inactive_extruder_x_pos;
+				inactive_extruder_x_pos = destination[X_AXIS];
+			}
+			else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE)
+			{
+				active_extruder_parked = (active_extruder == 0); // this triggers the second extruder to move into the duplication position
+				if (active_extruder == 0 || active_extruder_parked) current_position[X_AXIS] = inactive_extruder_x_pos;
+				else current_position[X_AXIS] = destination[X_AXIS] + duplicate_extruder_x_offset;
+				inactive_extruder_x_pos = destination[X_AXIS];
+				extruder_duplication_enabled = false;
+			}
+			else
+			{
+				// record raised toolhead position for use by unpark
+				memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+				raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT;
+				active_extruder_parked = true;
+				delayed_move_time = 0;
+			}
+			
+			#else
+			// Offset extruder (only by XY)
+			int i;
+			for(i = 0; i < 2; i++) {
+				current_position[i] = current_position[i] -	extruder_offset[i][active_extruder] + extruder_offset[i][tmp_extruder];
+			}
+			// Set the new active extruder and position
+			active_extruder = tmp_extruder;
+			#endif //else DUAL_X_CARRIAGE
+
+			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+			//Rapduch purge
+			//Maybe we could purge here
+			//Purge line
+			//current_position[E_AXIS]+=10;
+			//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], (current_position[E_AXIS]),600/60,active_extruder);
+			
+			
+			// Move to the old position if 'F' was in the parameters
+			if(make_move && Stopped == false) {
+				prepare_move();
+			}
+		}
+		#endif
+		SERIAL_ECHO_START;
+		SERIAL_ECHO(MSG_ACTIVE_EXTRUDER);
+		SERIAL_PROTOCOLLN((int)active_extruder);
+	}
+	
+}
+
+#pragma endregion TCODES
 
 
 
@@ -6924,9 +7974,9 @@ void process_commands()
 			break;
 			
 			case 34:
-			
 			gcode_G34();
 			break;
+			
 			case 69: //G69 pause
 			gcode_G69();
 			break;		
@@ -6954,12 +8004,13 @@ void process_commands()
 			case 90: // G90
 			gcode_G90();
 			break;
+			
 			case 91: // G91
 			gcode_G91();
 			break;
+			
 			case 92: // G92
 			gcode_G92();
-			
 			break;
 		}
 	}
@@ -6968,7 +8019,6 @@ void process_commands()
 	{
 		switch( (int)code_value() )
 		{
-			
 			case 0: // M0 - Unconditional stop - Wait for user button press on LCD
 			case 1: // M1 - Conditional stop - Wait for user button press on LCD
 			gcode_M0_M1();
@@ -7039,10 +8089,8 @@ void process_commands()
 			break;
 
 			case 48: // M48 Z-Probe repeatability
-			{
 			gcode_M48();
 			break;
-			}
 			
 			case 104: // M104
 			gcode_M104();
@@ -7159,2364 +8207,1482 @@ void process_commands()
 						
 			case 202: // M202
 			gcode_M202();
-			break;		
-					case 203: // M203 max feedrate mm/sec
+			break;	
+				
+			case 203: // M203 max feedrate mm/sec
+			gcode_M203();
+			break;
+			
+			case 204: // M204 acclereration S normal moves T filmanent only moves
+			gcode_M204();
+			break;
+			
+			case 205: //M205 advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
+			gcode_M205();
+			break;
+			
+			case 206: // M206 additional homing offset
+			gcode_M206();
+			break;
+			
+			case 665: // M665 set delta configurations L<diagonal_rod> R<delta_radius> S<segments_per_sec>
+			gcode_M665();
+			break;
+			
+			case 207: //M207 - set retract length S[positive mm] F[feedrate mm/min] Z[additional zlift/hop]
+			gcode_M207();
+			break;
 					
-					for(int8_t i=0; i < NUM_AXIS; i++) {
-					if(code_seen(axis_codes[i])) max_feedrate[i] = code_value();
-					}
-					break;
-					case 204: // M204 acclereration S normal moves T filmanent only moves
-					{
-					if(code_seen('S')) acceleration = code_value() ;
-					if(code_seen('T')) retract_acceleration = code_value() ;
-					}
-					break;
-					case 205: //M205 advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
-					{
-					if(code_seen('S')) minimumfeedrate = code_value();
-					if(code_seen('T')) mintravelfeedrate = code_value();
-					if(code_seen('B')) minsegmenttime = code_value() ;
-					if(code_seen('X')) max_xy_jerk = code_value() ;
-					if(code_seen('Z')) max_z_jerk = code_value() ;
-					if(code_seen('E')) max_e_jerk = code_value() ;
-					}
-					break;
-					case 206: // M206 additional homing offset
-					for(int8_t i=0; i < 3; i++)
-					{
-					if(code_seen(axis_codes[i])) add_homing[i] = code_value();
-					}
-					#ifdef SCARA
-					if(code_seen('T'))       // Theta
-					{
-					add_homing[0] = code_value() ;
-					}
-					if(code_seen('P'))       // Psi
-					{
-					add_homing[1] = code_value() ;
-					}
-					#endif
-					break;
-					#ifdef DELTA
-					case 665: // M665 set delta configurations L<diagonal_rod> R<delta_radius> S<segments_per_sec>
-					if(code_seen('L')) {
-					delta_diagonal_rod= code_value();
-					}
-					if(code_seen('R')) {
-					delta_radius= code_value();
-					}
-					if(code_seen('S')) {
-					delta_segments_per_second= code_value();
-					}
+			case 208: // M208 - set retract recover length S[positive mm surplus to the M207 S*] F[feedrate mm/min]
+			gcode_M208();
+			break;
 					
-					recalc_delta_settings(delta_radius, delta_diagonal_rod);
-					break;
-					case 666: // M666 set delta endstop adjustemnt
-					for(int8_t i=0; i < 3; i++)
-					{
-					if(code_seen(axis_codes[i])) endstop_adj[i] = code_value();
-					}
-					break;
-					#endif
-					#ifdef FWRETRACT
-					case 207: //M207 - set retract length S[positive mm] F[feedrate mm/min] Z[additional zlift/hop]
-					{
-					if(code_seen('S'))
-					{
-					retract_length = code_value() ;
-					}
-					if(code_seen('F'))
-					{
-					retract_feedrate = code_value()/60 ;
-					}
-					if(code_seen('Z'))
-					{
-					retract_zlift = code_value() ;
-					}
-					}break;
-					case 208: // M208 - set retract recover length S[positive mm surplus to the M207 S*] F[feedrate mm/min]
-					{
-					if(code_seen('S'))
-					{
-					retract_recover_length = code_value() ;
-					}
-					if(code_seen('F'))
-					{
-					retract_recover_feedrate = code_value()/60 ;
-					}
-					}break;
-					case 209: // M209 - S<1=true/0=false> enable automatic retract detect if the slicer did not support G10/11: every normal extrude-only move will be classified as retract depending on the direction.
-					{
-					if(code_seen('S'))
-					{
-					int t= code_value() ;
-					switch(t)
-					{
-					case 0:
-					{
-					autoretract_enabled=false;
-					retracted[0]=false;
-					#if EXTRUDERS > 1
-					retracted[1]=false;
-					#endif
-					#if EXTRUDERS > 2
-					retracted[2]=false;
-					#endif
-					}break;
-					case 1:
-					{
-					autoretract_enabled=true;
-					retracted[0]=false;
-					#if EXTRUDERS > 1
-					retracted[1]=false;
-					#endif
-					#if EXTRUDERS > 2
-					retracted[2]=false;
-					#endif
-					}break;
-					default:
-					SERIAL_ECHO_START;
-					SERIAL_ECHOPGM(MSG_UNKNOWN_COMMAND);
-					SERIAL_ECHO(cmdbuffer[bufindr]);
-					SERIAL_ECHOLNPGM("\"");
-					}
-					}
+			case 209: // M209 - S<1=true/0=false> enable automatic retract detect if the slicer did not support G10/11: every normal extrude-only move will be classified as retract depending on the direction.
+			gcode_M209();
+			break;
+					
+			case 218:
+			gcode_M218();
+			break;
+					
+			case 220: // M220 S<factor in percent>- set speed factor override percentage
+			gcode_M220();
+			break;
+					
+			case 221: // M221 S<factor in percent>- set extrude factor override percentage
+			gcode_M221();
+			break;
 
-					}break;
-					#endif // FWRETRACT
-					#if EXTRUDERS > 1
-					case 218: // M218 - set hotend offset (in mm), T<extruder_number> X<offset_on_X> Y<offset_on_Y>
-					{
-					if(setTargetedHotend(218)){
-					break;
-					}
-					if(code_seen('X'))
-					{
-					extruder_offset[X_AXIS][tmp_extruder] = code_value();
-					}
-					if(code_seen('Y'))
-					{
-					extruder_offset[Y_AXIS][tmp_extruder] = code_value();
-					}
-					#ifdef DUAL_X_CARRIAGE
-					if(code_seen('Z'))
-					{
-					extruder_offset[Z_AXIS][tmp_extruder] = code_value();
-					}
-					#endif
-					SERIAL_ECHO_START;
-					SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
-					for(tmp_extruder = 0; tmp_extruder < EXTRUDERS; tmp_extruder++)
-					{
-					SERIAL_ECHO(" ");
-					SERIAL_ECHO(extruder_offset[X_AXIS][tmp_extruder]);
-					SERIAL_ECHO(",");
-					SERIAL_ECHO(extruder_offset[Y_AXIS][tmp_extruder]);
-					#ifdef DUAL_X_CARRIAGE
-					SERIAL_ECHO(",");
-					SERIAL_ECHO(extruder_offset[Z_AXIS][tmp_extruder]);
-					#endif
-					}
-					SERIAL_ECHOLN("");
-					}break;
-					#endif
-					case 220: // M220 S<factor in percent>- set speed factor override percentage
-					{
-					if(code_seen('S'))
-					{
-					feedmultiply = code_value() ;
-					}
-					}
-					break;
-					case 221: // M221 S<factor in percent>- set extrude factor override percentage
-					{
-					if(code_seen('S'))
-					{
-					int tmp_code = code_value();
-					if (code_seen('T'))
-					{
-					if(setTargetedHotend(221)){
-					break;
-					}
-					extruder_multiply[tmp_extruder] = tmp_code;
-					}
-					else
-					{
-					extrudemultiply = tmp_code ;
-					}
-					}
-					}
-					break;
+			case 226: // M226 P<pin number> S<pin state>- Wait until the specified pin reaches the state required
+			gcode_M226();
+			break;
+					
+			case 280: // M280 - set servo position absolute. P: servo index, S: angle or microseconds
+					
+			gcode_M280();
+			break;
 
-					case 226: // M226 P<pin number> S<pin state>- Wait until the specified pin reaches the state required
-					{
-					if(code_seen('P')){
-					int pin_number = code_value(); // pin number
-					int pin_state = -1; // required pin state - default is inverted
+			case 300: // M300
+			gcode_M300();
+			break;
+			
+			case 301: // M301
+			gcode_M301();
+			break;
+					
+			case 304: // M304
+			gcode_M304();
+			break;
+			
+			case 240: // M240  Triggers a camera by emulating a Canon RC-1 : http://www.doc-diy.net/photo/rc-1_hacked/
+			gcode_M240();
+			break;
+				
+			case 250: // M250  Set LCD contrast value: C<value> (value 0..63)
+			gcode_M250();
+			break;
+				
+			case 302: // allow cold extrudes, or set the minimum extrude temperature
+			gcode_M302();
+			break;
+				
+			case 303: // M303 PID autotune
+			gcode_M303();
+			break;
+					
+			case 307: //M307 PID AUTOTUNE SAVE
+			gcode_M307();
+			break;
+					
+			case 360:  // M360 SCARA Theta pos1
+			gcode_M360();
+			break;
 
-					if(code_seen('S')) pin_state = code_value(); // required pin state
-
-					if(pin_state >= -1 && pin_state <= 1){
-
-					for(int8_t i = 0; i < (int8_t)(sizeof(sensitive_pins)/sizeof(int)); i++)
-					{
-					if (sensitive_pins[i] == pin_number)
-					{
-					pin_number = -1;
-					break;
-					}
-					}
-
-					if (pin_number > -1)
-					{
-					st_synchronize();
-
-					pinMode(pin_number, INPUT);
-
-					int target;
-					switch(pin_state){
-					case 1:
-					target = HIGH;
-					break;
-
-					case 0:
-					target = LOW;
-					break;
-
-					case -1:
-					target = !digitalRead(pin_number);
-					break;
-					}
-
-					while(digitalRead(pin_number) != target){
-					manage_heater();
-					manage_inactivity();
-					//lcd_update();
-					#ifdef SIGMA_TOUCH_SCREEN
-					touchscreen_update();
-					#endif
-					}
-					}
-					}
-					}
-					}
-					break;
-
-					#if NUM_SERVOS > 0
-					case 280: // M280 - set servo position absolute. P: servo index, S: angle or microseconds
-					{
-					int servo_index = -1;
-					int servo_position = 0;
-					if (code_seen('P'))
-					servo_index = code_value();
-					if (code_seen('S')) {
-					servo_position = code_value();
-					if ((servo_index >= 0) && (servo_index < NUM_SERVOS)) {
-					#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
-					servos[servo_index].attach(0);
-					#endif
-					servos[servo_index].write(servo_position);
-					#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
-					delay(PROBE_SERVO_DEACTIVATION_DELAY);
-					servos[servo_index].detach();
-					#endif
-					}
-					else {
-					SERIAL_ECHO_START;
-					SERIAL_ECHO("Servo ");
-					SERIAL_ECHO(servo_index);
-					SERIAL_ECHOLN(" out of range");
-					}
-					}
-					else if (servo_index >= 0) {
-					SERIAL_PROTOCOL(MSG_OK);
-					SERIAL_PROTOCOL(" Servo ");
-					SERIAL_PROTOCOL(servo_index);
-					SERIAL_PROTOCOL(": ");
-					SERIAL_PROTOCOL(servos[servo_index].read());
-					SERIAL_PROTOCOLLN("");
-					}
-					}
-					break;
-					#endif // NUM_SERVOS > 0
-
-					#if (LARGE_FLASH == true && ( BEEPER > 0 || defined(ULTRALCD) || defined(LCD_USE_I2C_BUZZER)))
-					case 300: // M300
-					{
-					int beepS = code_seen('S') ? code_value() : 110;
-					int beepP = code_seen('P') ? code_value() : 1000;
-					if (beepS > 0)
-					{
-					#if BEEPER > 0
-					tone(BEEPER, beepS);
-					delay(beepP);
-					noTone(BEEPER);
-					#elif defined(ULTRALCD)
-					lcd_buzz(beepS, beepP);
-					#elif defined(LCD_USE_I2C_BUZZER)
-					lcd_buzz(beepP, beepS);
-					#endif
-					}
-					else
-					{
-					delay(beepP);
-					}
-					}
-					break;
-					#endif // M300
-
-					#ifdef PIDTEMP
-						case 301: // M301
-						{
-							int ext=0;
-							if(code_seen('E')) ext = code_value();
-							if(code_seen('P')) Kp[ext] = code_value();
-							if(code_seen('I')) Ki[ext] = scalePID_i(code_value());
-							if(code_seen('D')) Kd[ext] = scalePID_d(code_value());
-
-							#ifdef PID_ADD_EXTRUSION_RATE
-								if(code_seen('C')) Kc[ext] = code_value();
-							#endif
-
-							updatePID();
-							SERIAL_PROTOCOL(MSG_OK);
-							SERIAL_PROTOCOL(" E:");
-							SERIAL_PROTOCOL(ext);
-							SERIAL_PROTOCOL(" P:");
-							SERIAL_PROTOCOL(Kp[ext]);
-							SERIAL_PROTOCOL(" I:");
-							SERIAL_PROTOCOL(unscalePID_i(Ki[ext]));
-							SERIAL_PROTOCOL(" D:");
-							SERIAL_PROTOCOL(unscalePID_d(Kd[ext]));
-							#ifdef PID_ADD_EXTRUSION_RATE
-							SERIAL_PROTOCOL(" C:");
-							//Kc does not have scaling applied above, or in resetting defaults
-							SERIAL_PROTOCOL(Kc[ext]);
-							#endif
-							SERIAL_PROTOCOLLN("");
-						}
-						break;
-					#endif //PIDTEMP
-					#ifdef PIDTEMPBED
-					case 304: // M304
-					{
-					if(code_seen('P')) bedKp = code_value();
-					if(code_seen('I')) bedKi = scalePID_i(code_value());
-					if(code_seen('D')) bedKd = scalePID_d(code_value());
-
-					updatePID();
-					SERIAL_PROTOCOL(MSG_OK);
-					SERIAL_PROTOCOL(" p:");
-					SERIAL_PROTOCOL(bedKp);
-					SERIAL_PROTOCOL(" i:");
-					SERIAL_PROTOCOL(unscalePID_i(bedKi));
-					SERIAL_PROTOCOL(" d:");
-					SERIAL_PROTOCOL(unscalePID_d(bedKd));
-					SERIAL_PROTOCOLLN("");
-					}
-					break;
-					#endif //PIDTEMP
-					case 240: // M240  Triggers a camera by emulating a Canon RC-1 : http://www.doc-diy.net/photo/rc-1_hacked/
-					{
-					#ifdef CHDK
-					
-					SET_OUTPUT(CHDK);
-					WRITE(CHDK, HIGH);
-					chdkHigh = millis();
-					chdkActive = true;
-					
-					#else
-					
-					#if defined(PHOTOGRAPH_PIN) && PHOTOGRAPH_PIN > -1
-					const uint8_t NUM_PULSES=16;
-					const float PULSE_LENGTH=0.01524;
-					for(int i=0; i < NUM_PULSES; i++) {
-					WRITE(PHOTOGRAPH_PIN, HIGH);
-					_delay_ms(PULSE_LENGTH);
-					WRITE(PHOTOGRAPH_PIN, LOW);
-					_delay_ms(PULSE_LENGTH);
-					}
-					delay(7.33);
-					for(int i=0; i < NUM_PULSES; i++) {
-					WRITE(PHOTOGRAPH_PIN, HIGH);
-					_delay_ms(PULSE_LENGTH);
-					WRITE(PHOTOGRAPH_PIN, LOW);
-					_delay_ms(PULSE_LENGTH);
-					}
-					#endif
-					#endif //chdk end if
-					}
-					break;
-					#ifdef DOGLCD
-					case 250: // M250  Set LCD contrast value: C<value> (value 0..63)
-					{
-					if (code_seen('C')) {
-					lcd_setcontrast( ((int)code_value())&63 );
-					}
-					SERIAL_PROTOCOLPGM("lcd contrast value: ");
-					SERIAL_PROTOCOL(lcd_contrast);
-					SERIAL_PROTOCOLLN("");
-					}
-					break;
-					#endif
-					#ifdef PREVENT_DANGEROUS_EXTRUDE
-					case 302: // allow cold extrudes, or set the minimum extrude temperature
-					{
-					float temp = .0;
-					if (code_seen('S')) temp=code_value();
-					set_extrude_min_temp(temp);
-					}
-					break;
-					#endif
-					case 303: // M303 PID autotune
-					{
-					float temp = 150.0;
-					int e=0;
-					int c=5;
-					if (code_seen('E')) e=code_value();
-					if (e<0)
-					temp=70;
-					if (code_seen('S')) temp=code_value();
-					if (code_seen('C')) c=code_value();
-					PID_autotune(temp, e, c);
-					}
-					break;
-					case 307: //M307 PID AUTOTUNE SAVE
-					{
-						float temp = max((float)print_temp_l,(float)print_temp_r);
-						int e=0;
-						int c=10;
-						if (code_seen('E')) {
-							e = code_value();
-							if(e==0) temp = float(print_temp_l);
-							else  temp = float(print_temp_r);
-						}
-						if (code_seen('S')) temp = code_value();
-						PID_autotune_Save(temp, e, c);						
-						Config_StoreSettings();
-						SERIAL_PROTOCOL(MSG_OK);
-						SERIAL_PROTOCOL(" p:");
-						SERIAL_PROTOCOL(Kp[e]);
-						SERIAL_PROTOCOL(" i:");
-						SERIAL_PROTOCOL(unscalePID_i(Ki[e]));
-						SERIAL_PROTOCOL(" d:");
-						SERIAL_PROTOCOL(unscalePID_d(Kd[e]));
-					}
-					#ifdef SCARA
-					case 360:  // M360 SCARA Theta pos1
-					SERIAL_ECHOLN(" Cal: Theta 0 ");
-					//SoftEndsEnabled = false;              // Ignore soft endstops during calibration
-					//SERIAL_ECHOLN(" Soft endstops disabled ");
-					if(Stopped == false) {
-					//get_coordinates(); // For X Y Z E F
-					delta[0] = 0;
-					delta[1] = 120;
-					calculate_SCARA_forward_Transform(delta);
-					destination[0] = delta[0]/axis_scaling[X_AXIS];
-					destination[1] = delta[1]/axis_scaling[Y_AXIS];
-					
-					prepare_move();
-					//ClearToSend();
-					return;
-					}
-					break;
-
-					case 361:  // SCARA Theta pos2
-					SERIAL_ECHOLN(" Cal: Theta 90 ");
-					//SoftEndsEnabled = false;              // Ignore soft endstops during calibration
-					//SERIAL_ECHOLN(" Soft endstops disabled ");
-					if(Stopped == false) {
-					//get_coordinates(); // For X Y Z E F
-					delta[0] = 90;
-					delta[1] = 130;
-					calculate_SCARA_forward_Transform(delta);
-					destination[0] = delta[0]/axis_scaling[X_AXIS];
-					destination[1] = delta[1]/axis_scaling[Y_AXIS];
-					
-					prepare_move();
-					//ClearToSend();
-					return;
-					}
-					break;
-					case 362:  // SCARA Psi pos1
-					SERIAL_ECHOLN(" Cal: Psi 0 ");
-					//SoftEndsEnabled = false;              // Ignore soft endstops during calibration
-					//SERIAL_ECHOLN(" Soft endstops disabled ");
-					if(Stopped == false) {
-					//get_coordinates(); // For X Y Z E F
-					delta[0] = 60;
-					delta[1] = 180;
-					calculate_SCARA_forward_Transform(delta);
-					destination[0] = delta[0]/axis_scaling[X_AXIS];
-					destination[1] = delta[1]/axis_scaling[Y_AXIS];
-					
-					prepare_move();
-					//ClearToSend();
-					return;
-					}
-					break;
-					case 363:  // SCARA Psi pos2
-					SERIAL_ECHOLN(" Cal: Psi 90 ");
-					//SoftEndsEnabled = false;              // Ignore soft endstops during calibration
-					//SERIAL_ECHOLN(" Soft endstops disabled ");
-					if(Stopped == false) {
-					//get_coordinates(); // For X Y Z E F
-					delta[0] = 50;
-					delta[1] = 90;
-					calculate_SCARA_forward_Transform(delta);
-					destination[0] = delta[0]/axis_scaling[X_AXIS];
-					destination[1] = delta[1]/axis_scaling[Y_AXIS];
-					
-					prepare_move();
-					//ClearToSend();
-					return;
-					}
-					break;
-					case 364:  // SCARA Psi pos3 (90 deg to Theta)
-					SERIAL_ECHOLN(" Cal: Theta-Psi 90 ");
-					// SoftEndsEnabled = false;              // Ignore soft endstops during calibration
-					//SERIAL_ECHOLN(" Soft endstops disabled ");
-					if(Stopped == false) {
-					//get_coordinates(); // For X Y Z E F
-					delta[0] = 45;
-					delta[1] = 135;
-					calculate_SCARA_forward_Transform(delta);
-					destination[0] = delta[0]/axis_scaling[X_AXIS];
-					destination[1] = delta[1]/axis_scaling[Y_AXIS];
-					
-					prepare_move();
-					//ClearToSend();
-					return;
-					}
-					break;
-					case 365: // M364  Set SCARA scaling for X Y Z
-					for(int8_t i=0; i < 3; i++)
-					{
-					if(code_seen(axis_codes[i]))
-					{
-					
-					axis_scaling[i] = code_value();
-					
-					}
-					}
-					break;
-					#endif
-					case 400: // M400 finish all moves
-					{
-					st_synchronize();
-					}
-					break;
-					#if defined(ENABLE_AUTO_BED_LEVELING) && defined(SERVO_ENDSTOPS) && not defined(Z_PROBE_SLED)
-					case 401:
-					{
-					engage_z_probe();    // Engage Z Servo endstop if available
-					}
-					break;
-
-					case 402:
-					{
-					retract_z_probe();    // Retract Z Servo endstop if enabled
-					}
-					break;
-					#endif
-
-					#ifdef FILAMENT_SENSOR
-					case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or display nominal filament width
-					{
-					#if (FILWIDTH_PIN > -1)
-					if(code_seen('N')) filament_width_nominal=code_value();
-					else{
-					SERIAL_PROTOCOLPGM("Filament dia (nominal mm):");
-					SERIAL_PROTOCOLLN(filament_width_nominal);
-					}
-					#endif
-					}
-					break;
-					
-					case 405:  //M405 Turn on filament sensor for control
-					{
-					
-					
-					if(code_seen('D')) meas_delay_cm=code_value();
-					
-					if(meas_delay_cm> MAX_MEASUREMENT_DELAY)
-					meas_delay_cm = MAX_MEASUREMENT_DELAY;
-					
-					if(delay_index2 == -1)  //initialize the ring buffer if it has not been done since startup
-					{
-					int temp_ratio = widthFil_to_size_ratio();
-					
-					for (delay_index1=0; delay_index1<(MAX_MEASUREMENT_DELAY+1); ++delay_index1 ){
-					measurement_delay[delay_index1]=temp_ratio-100;  //subtract 100 to scale within a signed byte
-					}
-					delay_index1=0;
-					delay_index2=0;
-					}
-					
-					filament_sensor = true ;
-					
-					//SERIAL_PROTOCOLPGM("Filament dia (measured mm):");
-					//SERIAL_PROTOCOL(filament_width_meas);
-					//SERIAL_PROTOCOLPGM("Extrusion ratio(%):");
-					//SERIAL_PROTOCOL(extrudemultiply);
-					}
-					break;
-					
-					case 406:  //M406 Turn off filament sensor for control
-					{
-					filament_sensor = false ;
-					}
-					break;
-					
-					case 407:   //M407 Display measured filament diameter
-					{
-					
-					
-					
-					SERIAL_PROTOCOLPGM("Filament dia (measured mm):");
-					SERIAL_PROTOCOLLN(filament_width_meas);
-					}
-					break;
-					#endif
-
-					case 500: // M500 Store settings in EEPROM
-					{
-						Config_StoreSettings();
-					}
-					break;
-					case 501: // M501 Read settings from EEPROM
-					{
-						Config_RetrieveSettings();
-					}
-					break;
-					case 502: // M502 Revert to default settings
-					{
-						Config_ResetDefault();
-						Config_StoreSettings();
-					}
-					break;
-					case 503: // M503 print settings currently in memory
-					{
-						Config_PrintSettings();
-					}
-					break;
-					case 504: //M504 Revert to default settings calibration and PID
-					{
-						Config_Reset_Calib();
-						Config_StoreSettings();
+			case 361:  // SCARA Theta pos2
+			gcode_M361();
+			break;
+				
+			case 362:  // SCARA Psi pos1
+			gcode_M362();
+			break;
 						
-					}
-					break;
-					case 505:
-					{
-						int input = 0;
-						if (code_seen('P')) input = code_value();
-						Config_Reset_Statistics(input);
-						Config_StoreSettings();
-						
-						
-					}
-					break;
-					case 510:  //left hotend
-					{
-						int i_temp_l = 0, r_temp_l = 0 , p_temp_l = 0, b_temp_l =0;
-						if (code_seen('I')) i_temp_l = code_value();
-						if (code_seen('R')) r_temp_l = code_value();
-						if (code_seen('P')) p_temp_l = code_value();
-						if (code_seen('B')) b_temp_l = code_value();
-						Change_ConfigTemp_LeftHotend(i_temp_l, r_temp_l, p_temp_l, b_temp_l);
-						Config_StoreSettings();
-					}
-					break;
-					case 520:  //right hotend
-					{
-						int i_temp_r = 0, r_temp_r = 0 , p_temp_r = 0, b_temp_r =0;
-						if (code_seen('I')) i_temp_r = code_value();
-						if (code_seen('R')) r_temp_r = code_value();
-						if (code_seen('P')) p_temp_r = code_value();
-						if (code_seen('B')) b_temp_r = code_value();
-						Change_ConfigTemp_RightHotend(i_temp_r, r_temp_r, p_temp_r, b_temp_r);
-						Config_StoreSettings();
-					}
-					break;
-					case 530:  //right hotend
-					{
-						
-						float Xcalib, Ycalib, Zcalib, Zprobecalib;
-						if (code_seen('X')) Xcalib = code_value();
-						else Xcalib = extruder_offset[X_AXIS][1];
-						if (code_seen('Y')) Ycalib = code_value();
-						else Ycalib = extruder_offset[Y_AXIS][1];
-						if (code_seen('Z')) Zcalib = code_value();
-						else Zcalib = extruder_offset[Z_AXIS][1];
-						if (code_seen('P')) Zprobecalib = code_value();
-						else Zprobecalib = zprobe_zoffset;
-						Change_ConfigCalibration(Xcalib, Ycalib, Zcalib, Zprobecalib);
-						Config_StoreSettings();
-						
-					}
-					#ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
-					case 540:
-					{
-					if(code_seen('S')) abort_on_endstop_hit = code_value() > 0;
-					}
-					break;
-					#endif
-
-					#ifdef CUSTOM_M_CODE_SET_Z_PROBE_OFFSET
-					case CUSTOM_M_CODE_SET_Z_PROBE_OFFSET:
-					{
-					float value;
-					if (code_seen('Z'))
-					{
-					value = code_value();
-					if ((Z_PROBE_OFFSET_RANGE_MIN <= value) && (value <= Z_PROBE_OFFSET_RANGE_MAX))
-					{
-					zprobe_zoffset = -value; // compare w/ line 278 of ConfigurationStore.cpp
-					SERIAL_ECHO_START;
-					SERIAL_ECHOLNPGM(MSG_ZPROBE_ZOFFSET " " MSG_OK);
-					SERIAL_PROTOCOLLN("");
-					}
-					else
-					{
-					SERIAL_ECHO_START;
-					SERIAL_ECHOPGM(MSG_ZPROBE_ZOFFSET);
-					SERIAL_ECHOPGM(MSG_Z_MIN);
-					SERIAL_ECHO(Z_PROBE_OFFSET_RANGE_MIN);
-					SERIAL_ECHOPGM(MSG_Z_MAX);
-					SERIAL_ECHO(Z_PROBE_OFFSET_RANGE_MAX);
-					SERIAL_PROTOCOLLN("");
-					}
-					}
-					else
-					{
-					SERIAL_ECHO_START;
-					SERIAL_ECHOLNPGM(MSG_ZPROBE_ZOFFSET " : ");
-					SERIAL_ECHO(-zprobe_zoffset);
-					SERIAL_PROTOCOLLN("");
-					}
-					break;
-					}
-					#endif // CUSTOM_M_CODE_SET_Z_PROBE_OFFSET
-
-					#ifdef FILAMENTCHANGEENABLE
-					case 600: //Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
-					{
-					float target[4];
-					float lastpos[4];
-					target[X_AXIS]=current_position[X_AXIS];
-					target[Y_AXIS]=current_position[Y_AXIS];
-					target[Z_AXIS]=current_position[Z_AXIS];
-					target[E_AXIS]=current_position[E_AXIS];
-					lastpos[X_AXIS]=current_position[X_AXIS];
-					lastpos[Y_AXIS]=current_position[Y_AXIS];
-					lastpos[Z_AXIS]=current_position[Z_AXIS];
-					lastpos[E_AXIS]=current_position[E_AXIS];
-					//retract by E
-					if(code_seen('E'))
-					{
-					target[E_AXIS]+= code_value();
-					}
-					else
-					{
-					#ifdef FILAMENTCHANGE_FIRSTRETRACT
-					target[E_AXIS]+= FILAMENTCHANGE_FIRSTRETRACT ;
-					#endif
-					}
-					plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
-
-					//lift Z
-					if(code_seen('Z'))
-					{
-					target[Z_AXIS]+= code_value();
-					}
-					else
-					{
-					#ifdef FILAMENTCHANGE_ZADD
-					target[Z_AXIS]+= FILAMENTCHANGE_ZADD ;
-					#endif
-					}
-					plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
-
-					//move xy
-					if(code_seen('X'))
-					{
-					target[X_AXIS]+= code_value();
-					}
-					else
-					{
-					#ifdef FILAMENTCHANGE_XPOS
-					target[X_AXIS]= FILAMENTCHANGE_XPOS ;
-					#endif
-					}
-					if(code_seen('Y'))
-					{
-					target[Y_AXIS]= code_value();
-					}
-					else
-					{
-					#ifdef FILAMENTCHANGE_YPOS
-					target[Y_AXIS]= FILAMENTCHANGE_YPOS ;
-					#endif
-					}
-
-					plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
-
-					if(code_seen('L'))
-					{
-					target[E_AXIS]+= code_value();
-					}
-					else
-					{
-					#ifdef FILAMENTCHANGE_FINALRETRACT
-					target[E_AXIS]+= FILAMENTCHANGE_FINALRETRACT ;
-					#endif
-					}
-
-					plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
-
-					//finish moves
-					st_synchronize();
-					//disable extruder steppers so filament can be removed
-					disable_e0();
-					disable_e1();
-					disable_e2();
-					delay(100);
-					LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
-					uint8_t cnt=0;
-					while(!lcd_clicked()){
-					cnt++;
-					manage_heater();
-					manage_inactivity();
-					lcd_update();
-					if(cnt==0)
-					{
-					#if BEEPER > 0
-					SET_OUTPUT(BEEPER);
-
-					WRITE(BEEPER,HIGH);
-					delay(3);
-					WRITE(BEEPER,LOW);
-					delay(3);
-					#else
-					#if !defined(LCD_FEEDBACK_FREQUENCY_HZ) || !defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS)
-					lcd_buzz(1000/6,100);
-					#else
-					lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS,LCD_FEEDBACK_FREQUENCY_HZ);
-					#endif
-					#endif
-					}
-					}
-
-					//return to normal
-					if(code_seen('L'))
-					{
-					target[E_AXIS]+= -code_value();
-					}
-					else
-					{
-					#ifdef FILAMENTCHANGE_FINALRETRACT
-					target[E_AXIS]+=(-1)*FILAMENTCHANGE_FINALRETRACT ;
-					#endif
-					}
-					current_position[E_AXIS]=target[E_AXIS]; //the long retract of L is compensated by manual filament feeding
-					plan_set_e_position(current_position[E_AXIS]);
-					plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //should do nothing
-					plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //move xy back
-					plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //move z back
-					plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //final untretract
-					}
-					break;
-					#endif //FILAMENTCHANGEENABLE
-					#ifdef DUAL_X_CARRIAGE
-					case 605: // Set dual x-carriage movement mode:
-					//    M605 S0: Full control mode. The slicer has full control over x-carriage movement
-					//    M605 S1: Auto-park mode. The inactive head will auto park/unpark without slicer involvement
-					//    M605 S2 [Xnnn] [Rmmm]: Duplication mode. The second extruder will duplicate the first with nnn
-					//                         millimeters x-offset and an optional differential hotend temperature of
-					//                         mmm degrees. E.g., with "M605 S2 X100 R2" the second extruder will duplicate
-					//                         the first with a spacing of 100mm in the x direction and 2 degrees hotter.
-					//
-					//    Note: the X axis should be homed after changing dual x-carriage mode.
-					{
-					st_synchronize();
-
-					if (code_seen('S'))
-					dual_x_carriage_mode = code_value();
-
-					if (dual_x_carriage_mode == DXC_DUPLICATION_MODE)
-					{
-					if (code_seen('X'))
-					duplicate_extruder_x_offset = max(code_value(),X2_MIN_POS - x_home_pos(0));
-
-					if (code_seen('R'))
-					duplicate_extruder_temp_offset = code_value();
-
-					SERIAL_ECHO_START;
-					SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
-					SERIAL_ECHO(" ");
-					SERIAL_ECHO(extruder_offset[X_AXIS][0]);
-					SERIAL_ECHO(",");
-					SERIAL_ECHO(extruder_offset[Y_AXIS][0]);
-					SERIAL_ECHO(" ");
-					SERIAL_ECHO(duplicate_extruder_x_offset);
-					SERIAL_ECHO(",");
-					SERIAL_ECHOLN(extruder_offset[Y_AXIS][1]);
-					}
-					else if (dual_x_carriage_mode != DXC_FULL_CONTROL_MODE && dual_x_carriage_mode != DXC_AUTO_PARK_MODE)
-					{
-					dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
-					}
-
-					active_extruder_parked = false;
-					extruder_duplication_enabled = false;
-					delayed_move_time = 0;
-					}
-					break;
-					#endif //DUAL_X_CARRIAGE
-
-					case 907: // M907 Set digital trimpot motor current using axis codes.
-					{
-					#if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
-					for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) digipot_current(i,code_value());
-					if(code_seen('B')) digipot_current(4,code_value());
-					if(code_seen('S')) for(int i=0;i<=4;i++) digipot_current(i,code_value());
-					#endif
-					#ifdef MOTOR_CURRENT_PWM_XY_PIN
-					if(code_seen('X')) digipot_current(0, code_value());
-					#endif
-					#ifdef MOTOR_CURRENT_PWM_Z_PIN
-					if(code_seen('Z')) digipot_current(1, code_value());
-					#endif
-					#ifdef MOTOR_CURRENT_PWM_E_PIN
-					if(code_seen('E')) digipot_current(2, code_value());
-					#endif
-					#ifdef DIGIPOT_I2C
-					// this one uses actual amps in floating point
-					for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) digipot_i2c_set_current(i, code_value());
-					// for each additional extruder (named B,C,D,E..., channels 4,5,6,7...)
-					for(int i=NUM_AXIS;i<DIGIPOT_I2C_NUM_CHANNELS;i++) if(code_seen('B'+i-NUM_AXIS)) digipot_i2c_set_current(i, code_value());
-					#endif
-					}
-					break;
-					case 908: // M908 Control digital trimpot directly.
-					{
-					#if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
-					uint8_t channel,current;
-					if(code_seen('P')) channel=code_value();
-					if(code_seen('S')) current=code_value();
-					digitalPotWrite(channel, current);
-					#endif
-					}
-					break;
-					case 350: // M350 Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
-					{
-					#if defined(X_MS1_PIN) && X_MS1_PIN > -1
-					if(code_seen('S')) for(int i=0;i<=4;i++) microstep_mode(i,code_value());
-					for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) microstep_mode(i,(uint8_t)code_value());
-					if(code_seen('B')) microstep_mode(4,code_value());
-					microstep_readings();
-					#endif
-					}
-					break;
-					case 351: // M351 Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
-					{
-						#if defined(X_MS1_PIN) && X_MS1_PIN > -1
-							if(code_seen('S')) switch((int)code_value()){
-								case 1:
-								for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) microstep_ms(i,code_value(),-1);
-								if(code_seen('B')) microstep_ms(4,code_value(),-1);
-								break;
-								case 2:
-								for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) microstep_ms(i,-1,code_value());
-								if(code_seen('B')) microstep_ms(4,-1,code_value());
-								break;
-							}
-							microstep_readings();
-						#endif
-					}
-					break;
-					/*case 352:{
-						quick_guide = true;
-						Config_StoreSettings();
-					}
-					break;*/
+			case 363:  // SCARA Psi pos2
+			gcode_M363();
+			break;
 					
-					case 999: // M999: Restart after being stopped
-					Stopped = false;
-					lcd_reset_alert_level();
-					gcode_LastN = Stopped_gcode_LastN;
-					FlushSerialRequestResend();
-					break;
-					}
-					}
-
-					else if(code_seen('T'))
-					{
-						tmp_extruder = code_value();
-						if(tmp_extruder >= EXTRUDERS) {
-							SERIAL_ECHO_START;
-							SERIAL_ECHO("T");
-							SERIAL_ECHO(tmp_extruder);
-							SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
-						}
-						else {
-							boolean make_move = false;
-							if(code_seen('F')) {
-							make_move = true;
-							next_feedrate = code_value();
-							if(next_feedrate > 0.0) {
-								feedrate = next_feedrate;
-							}
-						}
-						#if EXTRUDERS > 1
+			case 364:  // SCARA Psi pos3 (90 deg to Theta)
+			gcode_M364();
+			break;
 					
-						if(tmp_extruder != active_extruder) {
-							// Save current position to return to after applying extruder offset
-							//Rapduch toolchange
-							z_restaurada = current_position[Z_AXIS]; //Save the Z position that will be restored after changing tool
-							memcpy(destination, current_position, sizeof(destination));
-								#ifdef DUAL_X_CARRIAGE
-								if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && Stopped == false && (delayed_move_time != 0 || current_position[X_AXIS] != x_home_pos(active_extruder)))
-								{
-									// Park old head: 1) raise 2) move to park position 3) lower
-									plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT, current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
-									plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT, current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);
-									plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
-									st_synchronize();					
-								}
+			case 365: // M364  Set SCARA scaling for X Y Z
+			gcode_M365();
+			break;
 					
-								if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE && current_position[X_AXIS] != x_home_pos(active_extruder)) //DUAL FULL CONTROL and NOT HOMED
-								{
-									// Park old head: 1) raise 2) move to park position 3) lower
-									plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], max_feedrate[Z_AXIS]/2, active_extruder);
-									plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], XY_SIGMA_TRAVEL_SPEED, active_extruder);
-									plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] ,current_position[E_AXIS], max_feedrate[Z_AXIS]/2, active_extruder);
-									st_synchronize();
-									//current_position[Z_AXIS]= current_position[Z_AXIS]+TOOLCHANGE_PARK_ZLIFT;
-								}
-								Serial.print("POSITION HOME: ");
-								Serial.println(x_home_pos(active_extruder));
-
-								// apply Y & Z extruder offset (x offset is already used in determining home pos)
-								//current_position[Y_AXIS] = current_position[Y_AXIS] - extruder_offset[Y_AXIS][active_extruder] + extruder_offset[Y_AXIS][tmp_extruder];
-								//current_position[Z_AXIS] = current_position[Z_AXIS] - extruder_offset[Z_AXIS][active_extruder] + extruder_offset[Z_AXIS][tmp_extruder];
-								plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS]- extruder_offset[Y_AXIS][active_extruder] + extruder_offset[Y_AXIS][tmp_extruder], current_position[Z_AXIS] - extruder_offset[Z_AXIS][tmp_extruder] + extruder_offset[Z_AXIS][active_extruder], current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);
-								active_extruder = tmp_extruder;
-
-								// This function resets the max/min values - the current position may be overwritten below.
-								axis_is_at_home(X_AXIS);
-
-								//Rapduch
-								if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE)
-								{
-									memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
-									active_extruder_parked = true;
-								}					
-								else if (dual_x_carriage_mode == DXC_FULL_CONTROL_MODE)
-								{
-									current_position[X_AXIS] = inactive_extruder_x_pos;
-									inactive_extruder_x_pos = destination[X_AXIS];
-								}
-								else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE)
-								{
-									active_extruder_parked = (active_extruder == 0); // this triggers the second extruder to move into the duplication position
-									if (active_extruder == 0 || active_extruder_parked) current_position[X_AXIS] = inactive_extruder_x_pos;
-									else current_position[X_AXIS] = destination[X_AXIS] + duplicate_extruder_x_offset;
-									inactive_extruder_x_pos = destination[X_AXIS];
-									extruder_duplication_enabled = false;
-								}
-								else
-								{
-									// record raised toolhead position for use by unpark
-									memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
-									raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT;
-									active_extruder_parked = true;
-									delayed_move_time = 0;
-								}
-							
-								#else
-								// Offset extruder (only by XY)
-								int i;
-								for(i = 0; i < 2; i++) {
-									current_position[i] = current_position[i] -	extruder_offset[i][active_extruder] + extruder_offset[i][tmp_extruder];
-								}
-								// Set the new active extruder and position
-								active_extruder = tmp_extruder;
-								#endif //else DUAL_X_CARRIAGE
-
-								plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-								//Rapduch purge
-								//Maybe we could purge here
-								//Purge line
-								//current_position[E_AXIS]+=10;
-								//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], (current_position[E_AXIS]),600/60,active_extruder);
+			case 400: // M400 finish all moves
+			gcode_M400();
+			break;
 					
+			case 401:
+			gcode_M401();
+			break;
+
+			case 402:
+			gcode_M402();
+			break;
 					
-								// Move to the old position if 'F' was in the parameters
-								if(make_move && Stopped == false) {
-									prepare_move();
-								}
-							}
-					#endif
-							SERIAL_ECHO_START;
-							SERIAL_ECHO(MSG_ACTIVE_EXTRUDER);
-							SERIAL_PROTOCOLLN((int)active_extruder);
-						}
-					}
-
-					else
-					{
-					SERIAL_ECHO_START;
-					SERIAL_ECHOPGM(MSG_UNKNOWN_COMMAND);
-					SERIAL_ECHO(cmdbuffer[bufindr]);
-					SERIAL_ECHOLNPGM("\"");
-					}
-
-					ClearToSend();
-					}
-
-
-					//Rapduch: Better hardcoded toolChange
-					#ifdef DUAL_X_CARRIAGE
-					void changeToolSigma(int tool){
-					tmp_extruder = tool;
-					z_restaurada = current_position[Z_AXIS]; //Save the Z position that will be restored after changing tool
-					memcpy(destination, current_position, sizeof(destination));
+			case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or display nominal filament width
+			gcode_M404();	
+			break;
 					
-					if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE && current_position[X_AXIS] != x_home_pos(active_extruder)) //DUAL FULL CONTROL and NOT HOMED
-					{
-					// Park old head: 1) raise 2) move to park position
-					// No need to lower the Z axis, the new tool has to move to position before lowering Z
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], max_feedrate[Z_AXIS]/2, active_extruder);
-					plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], max_feedrate[X_AXIS]/2, active_extruder);
-					st_synchronize();
-					current_position[Z_AXIS]= current_position[Z_AXIS]+TOOLCHANGE_PARK_ZLIFT;
-					}
+			case 405:  //M405 Turn on filament sensor for control
+			gcode_M405();
+			break;
 					
-					// apply Y & Z extruder offset (x offset is already used in determining home pos)
-					current_position[Y_AXIS] = current_position[Y_AXIS] -
-					extruder_offset[Y_AXIS][active_extruder] +
-					extruder_offset[Y_AXIS][tmp_extruder];
-					current_position[Z_AXIS] = current_position[Z_AXIS] -
-					extruder_offset[Z_AXIS][active_extruder] +
-					extruder_offset[Z_AXIS][tmp_extruder];
-
-					active_extruder = tmp_extruder;
-
-					// This function resets the max/min values - the current position may be overwritten below.
-					axis_is_at_home(X_AXIS);
-
-					//Rapduch
-					if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE)
-					{
-					memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
-					active_extruder_parked = true;
-					}
+			case 406:  //M406 Turn off filament sensor for control	
+			gcode_M406();
+			break;
 					
-					plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-					//Rapduch purge
-					//Maybe we could purge here
+			case 407:   //M407 Display measured filament diameter	
+			gcode_M407();
+			break;
+			
+			case 500: // M500 Store settings in EEPROM
+			gcode_M500();
+			break;
 					
-					SERIAL_ECHO_START;
-					SERIAL_ECHO(MSG_ACTIVE_EXTRUDER);
-					SERIAL_PROTOCOLLN((int)active_extruder);
-					}
-					#endif
+			case 501: // M501 Read settings from EEPROM
+			gcode_M501();
+			break;
+					
+			case 502: // M502 Revert to default settings
+			gcode_M502();
+			break;
+					
+			case 503: // M503 print settings currently in memory
+			gcode_M503();
+			break;
+					
+			case 504: //M504 Revert to default settings calibration and PID
+			gcode_M504();
+			break;
+					
+			case 505:
+			gcode_M505();
+			break;
+					
+			case 510:  //left hotend
+			gcode_M510();
+			break;
+					
+			case 520:  //right hotend
+			gcode_M520();
+			break;
+					
+			case 530:  //right hotend
+			gcode_M530();
+			break;
+					
+			case 540:
+			gcode_M540();
+			break;
+					
+			#ifdef CUSTOM_M_CODE_SET_Z_PROBE_OFFSET
+			case CUSTOM_M_CODE_SET_Z_PROBE_OFFSET:
+			gcode_M851();
+			break;
+			#endif // CUSTOM_M_CODE_SET_Z_PROBE_OFFSET
+	
+			case 600: //Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
+			gcode_M600();
+			break;
+					
+			case 605: // Set dual x-carriage movement mode:
+			gcode_M605();
+			break;	
+
+			case 907: // M907 Set digital trimpot motor current using axis codes.
+			gcode_M907();
+			break;
+			
+			case 908: // M908 Control digital trimpot directly.
+			gcode_M908();
+			break;
+			
+			case 350: // M350 Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
+			gcode_M350();
+			break;
+			
+			case 351: // M351 Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
+			gcode_M351();
+			break;
+					
+			case 999: // M999: Restart after being stopped
+			gcode_M999();
+			break;
+			
+			}
+		}
+
+		else if(code_seen('T'))
+		{
+			gcode_T0_T1();
+			
+		}
+
+		else
+		{
+		SERIAL_ECHO_START;
+		SERIAL_ECHOPGM(MSG_UNKNOWN_COMMAND);
+		SERIAL_ECHO(cmdbuffer[bufindr]);
+		SERIAL_ECHOLNPGM("\"");
+		}
+
+	ClearToSend();
+}
+
+
+//Rapduch: Better hardcoded toolChange
+#ifdef DUAL_X_CARRIAGE
+void changeToolSigma(int tool){
+	tmp_extruder = tool;
+	z_restaurada = current_position[Z_AXIS]; //Save the Z position that will be restored after changing tool
+	memcpy(destination, current_position, sizeof(destination));
+					
+	if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE && current_position[X_AXIS] != x_home_pos(active_extruder)) //DUAL FULL CONTROL and NOT HOMED
+	{
+	// Park old head: 1) raise 2) move to park position
+	// No need to lower the Z axis, the new tool has to move to position before lowering Z
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], max_feedrate[Z_AXIS]/2, active_extruder);
+	plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,current_position[E_AXIS], max_feedrate[X_AXIS]/2, active_extruder);
+	st_synchronize();
+	current_position[Z_AXIS]= current_position[Z_AXIS]+TOOLCHANGE_PARK_ZLIFT;
+	}
+					
+	// apply Y & Z extruder offset (x offset is already used in determining home pos)
+	current_position[Y_AXIS] = current_position[Y_AXIS] -
+	extruder_offset[Y_AXIS][active_extruder] +
+	extruder_offset[Y_AXIS][tmp_extruder];
+	current_position[Z_AXIS] = current_position[Z_AXIS] -
+	extruder_offset[Z_AXIS][active_extruder] +
+	extruder_offset[Z_AXIS][tmp_extruder];
+
+	active_extruder = tmp_extruder;
+
+	// This function resets the max/min values - the current position may be overwritten below.
+	axis_is_at_home(X_AXIS);
+
+	//Rapduch
+	if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE)
+	{
+	memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+	active_extruder_parked = true;
+	}
+					
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	//Rapduch purge
+	//Maybe we could purge here
+					
+	SERIAL_ECHO_START;
+	SERIAL_ECHO(MSG_ACTIVE_EXTRUDER);
+	SERIAL_PROTOCOLLN((int)active_extruder);
+}
+#endif
 
 
 
-					//Rapduch
-					//Hardcoded  function for tool change
-					#ifdef  DUAL_X_CARRIAGE
-					void changeTool(int ntool) { //ntool select the tool that will be active
-						tmp_extruder = ntool;
-						if(tmp_extruder >= EXTRUDERS) {
-							SERIAL_ECHO_START;
-							SERIAL_ECHO("T");
-							SERIAL_ECHO(tmp_extruder);
-							SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
-						}
-						else {
-							boolean make_move = false;
-							//if(code_seen('F')) {
-							//make_move = true;
-							//next_feedrate = code_value();
-							//if(next_feedrate > 0.0) {
-							//feedrate = next_feedrate;
-							//}
-							//}
-							//#if EXTRUDERS > 1
-							if(tmp_extruder != active_extruder) {
-								// Save current position to return to after applying extruder offset
-								memcpy(destination, current_position, sizeof(destination));
-								//#ifdef DUAL_X_CARRIAGE
-								//if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && Stopped == false &&
-								//(delayed_move_time != 0 || current_position[X_AXIS] != x_home_pos(active_extruder)))
-								//{
+//Rapduch
+//Hardcoded  function for tool change
+#ifdef  DUAL_X_CARRIAGE
+void changeTool(int ntool) { //ntool select the tool that will be active
+	tmp_extruder = ntool;
+	if(tmp_extruder >= EXTRUDERS) {
+		SERIAL_ECHO_START;
+		SERIAL_ECHO("T");
+		SERIAL_ECHO(tmp_extruder);
+		SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
+	}
+	else {
+		boolean make_move = false;
+		//if(code_seen('F')) {
+		//make_move = true;
+		//next_feedrate = code_value();
+		//if(next_feedrate > 0.0) {
+		//feedrate = next_feedrate;
+		//}
+		//}
+		//#if EXTRUDERS > 1
+		if(tmp_extruder != active_extruder) {
+			// Save current position to return to after applying extruder offset
+			memcpy(destination, current_position, sizeof(destination));
+			//#ifdef DUAL_X_CARRIAGE
+			//if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && Stopped == false &&
+			//(delayed_move_time != 0 || current_position[X_AXIS] != x_home_pos(active_extruder)))
+			//{
 								
-								/*
-								// Park old head: 1) raise 2) move to park position 3) lower
-								plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT+5,
-								current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
-								plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT+5,
-								current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);
-								plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS],
-								current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
-								st_synchronize();
-								//}
-								*/
+			/*
+			// Park old head: 1) raise 2) move to park position 3) lower
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT+5,
+			current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+			plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT+5,
+			current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);
+			plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS],
+			current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+			st_synchronize();
+			//}
+			*/
 								
-								// apply Y & Z extruder offset (x offset is already used in determining home pos)
-								/*current_position[Y_AXIS] = current_position[Y_AXIS] -
-								extruder_offset[Y_AXIS][active_extruder] +
-								extruder_offset[Y_AXIS][tmp_extruder];
-								current_position[Z_AXIS] = current_position[Z_AXIS] -
-								extruder_offset[Z_AXIS][active_extruder] +
-								extruder_offset[Z_AXIS][tmp_extruder];*/
+			// apply Y & Z extruder offset (x offset is already used in determining home pos)
+			/*current_position[Y_AXIS] = current_position[Y_AXIS] -
+			extruder_offset[Y_AXIS][active_extruder] +
+			extruder_offset[Y_AXIS][tmp_extruder];
+			current_position[Z_AXIS] = current_position[Z_AXIS] -
+			extruder_offset[Z_AXIS][active_extruder] +
+			extruder_offset[Z_AXIS][tmp_extruder];*/
 								
-								plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS]- extruder_offset[Y_AXIS][active_extruder] + extruder_offset[Y_AXIS][tmp_extruder], current_position[Z_AXIS] - extruder_offset[Z_AXIS][tmp_extruder] + extruder_offset[Z_AXIS][active_extruder], current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);
-								active_extruder = tmp_extruder;
-								//current_position[Y_AXIS] =  current_position[Y_AXIS]- extruder_offset[Y_AXIS][active_extruder] + extruder_offset[Y_AXIS][tmp_extruder];
-								// This function resets the max/min values - the current position may be overwritten below.
-								axis_is_at_home(X_AXIS);
+			plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS]- extruder_offset[Y_AXIS][active_extruder] + extruder_offset[Y_AXIS][tmp_extruder], current_position[Z_AXIS] - extruder_offset[Z_AXIS][tmp_extruder] + extruder_offset[Z_AXIS][active_extruder], current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);
+			active_extruder = tmp_extruder;
+			//current_position[Y_AXIS] =  current_position[Y_AXIS]- extruder_offset[Y_AXIS][active_extruder] + extruder_offset[Y_AXIS][tmp_extruder];
+			// This function resets the max/min values - the current position may be overwritten below.
+			axis_is_at_home(X_AXIS);
 
-								//if (dual_x_carriage_mode == DXC_FULL_CONTROL_MODE)
-								//{
-								//current_position[X_AXIS] = inactive_extruder_x_pos;
-								//inactive_extruder_x_pos = destination[X_AXIS];
-								//}
-								//else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE)
-								//{
-								//active_extruder_parked = (active_extruder == 0); // this triggers the second extruder to move into the duplication position
-								//if (active_extruder == 0 || active_extruder_parked)
-								//current_position[X_AXIS] = inactive_extruder_x_pos;
-								//else
-								//current_position[X_AXIS] = destination[X_AXIS] + duplicate_extruder_x_offset;
-								//inactive_extruder_x_pos = destination[X_AXIS];
-								//extruder_duplication_enabled = false;
-								//}
-								//else
-								//{
-								// record raised toolhead position for use by unpark
-								memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
-								raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT+5;
-								active_extruder_parked = true;
-								delayed_move_time = 0;	
-								//}
-								//#else
-								//// Offset extruder (only by XY)
-								//int i;
-								//for(i = 0; i < 2; i++) {
-								//current_position[i] = current_position[i] -
-								//extruder_offset[i][active_extruder] +
-								//extruder_offset[i][tmp_extruder];
-								//}
-								//// Set the new active extruder and position
-								//active_extruder = tmp_extruder;
-								//#endif //else DUAL_X_CARRIAGE
-								//#ifdef DELTA
-								//
-								//calculate_delta(current_position); // change cartesian kinematic  to  delta kinematic;
-								////sent position to plan_set_position();
-								//plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],current_position[E_AXIS]);
-								//
-								//#else
-								plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-								//Rapduch purge
-								//Maybe we could purge here
-								//Purge line
-								//current_position[E_AXIS]+=10;
-								//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], (current_position[E_AXIS]),600/60,active_extruder);
+			//if (dual_x_carriage_mode == DXC_FULL_CONTROL_MODE)
+			//{
+			//current_position[X_AXIS] = inactive_extruder_x_pos;
+			//inactive_extruder_x_pos = destination[X_AXIS];
+			//}
+			//else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE)
+			//{
+			//active_extruder_parked = (active_extruder == 0); // this triggers the second extruder to move into the duplication position
+			//if (active_extruder == 0 || active_extruder_parked)
+			//current_position[X_AXIS] = inactive_extruder_x_pos;
+			//else
+			//current_position[X_AXIS] = destination[X_AXIS] + duplicate_extruder_x_offset;
+			//inactive_extruder_x_pos = destination[X_AXIS];
+			//extruder_duplication_enabled = false;
+			//}
+			//else
+			//{
+			// record raised toolhead position for use by unpark
+			memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+			raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT+5;
+			active_extruder_parked = true;
+			delayed_move_time = 0;	
+			//}
+			//#else
+			//// Offset extruder (only by XY)
+			//int i;
+			//for(i = 0; i < 2; i++) {
+			//current_position[i] = current_position[i] -
+			//extruder_offset[i][active_extruder] +
+			//extruder_offset[i][tmp_extruder];
+			//}
+			//// Set the new active extruder and position
+			//active_extruder = tmp_extruder;
+			//#endif //else DUAL_X_CARRIAGE
+			//#ifdef DELTA
+			//
+			//calculate_delta(current_position); // change cartesian kinematic  to  delta kinematic;
+			////sent position to plan_set_position();
+			//plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],current_position[E_AXIS]);
+			//
+			//#else
+			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+			//Rapduch purge
+			//Maybe we could purge here
+			//Purge line
+			//current_position[E_AXIS]+=10;
+			//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], (current_position[E_AXIS]),600/60,active_extruder);
 					
-								//#endif
-								//// Move to the old position if 'F' was in the parameters
-								//if(make_move && Stopped == false) {
-								//prepare_move();
-								//}
-							}
-						//#endif
-						SERIAL_ECHO_START;
-						SERIAL_ECHO(MSG_ACTIVE_EXTRUDER);
-						SERIAL_PROTOCOLLN((int)active_extruder);
-						}
-					}
-					#endif //DUAL X CARRIAGE
+			//#endif
+			//// Move to the old position if 'F' was in the parameters
+			//if(make_move && Stopped == false) {
+			//prepare_move();
+			//}
+		}
+	//#endif
+	SERIAL_ECHO_START;
+	SERIAL_ECHO(MSG_ACTIVE_EXTRUDER);
+	SERIAL_PROTOCOLLN((int)active_extruder);
+	}
+}
+#endif //DUAL X CARRIAGE
 
 
-					void FlushSerialRequestResend()
-					{
-					//char cmdbuffer[bufindr][100]="Resend:";
-					MYSERIAL.flush();
-					SERIAL_PROTOCOLPGM(MSG_RESEND);
-					SERIAL_PROTOCOLLN(gcode_LastN + 1);
-					ClearToSend();
-					}
+void FlushSerialRequestResend()
+{
+	//char cmdbuffer[bufindr][100]="Resend:";
+	MYSERIAL.flush();
+	SERIAL_PROTOCOLPGM(MSG_RESEND);
+	SERIAL_PROTOCOLLN(gcode_LastN + 1);
+	ClearToSend();
+}
 
-					void ClearToSend()
-					{
-					previous_millis_cmd = millis();
-					#ifdef SDSUPPORT
-					if(fromsd[bufindr])
+void ClearToSend()
+{
+	previous_millis_cmd = millis();
+	#ifdef SDSUPPORT
+	if(fromsd[bufindr])
+	return;
+	#endif //SDSUPPORT
+	SERIAL_PROTOCOLLNPGM(MSG_OK);
+}
+
+void get_coordinates()
+{
+	bool seen[4]={false,false,false,false};
+	for(int8_t i=0; i < NUM_AXIS; i++) {
+		if(code_seen(axis_codes[i]))
+		{
+			destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
+			if(i == 0) {
+				//Serial.print("X old: ");
+				//Serial.println(destination[i]);
+				destination[i]+= 48.5;
+				//Serial.print("X new: ");
+				//Serial.println(destination[i]);
+			}
+			if(i == 1) {
+				//Serial.print("X old: ");
+				//Serial.println(destination[i]);
+				destination[i]-= 2.5;
+				//Serial.print("X new: ");
+				//Serial.println(destination[i]);
+			}
+			seen[i]=true;
+		}
+		else destination[i] = current_position[i]; //Are these else lines really needed?
+	}
+	if(code_seen('F')) {
+		next_feedrate = code_value();
+		if(next_feedrate > 0.0) feedrate = next_feedrate;
+	}
+}
+
+void get_arc_coordinates()
+{
+	#ifdef SF_ARC_FIX
+	bool relative_mode_backup = relative_mode;
+	relative_mode = true;
+	#endif
+	get_coordinates();
+	#ifdef SF_ARC_FIX
+	relative_mode=relative_mode_backup;
+	#endif
+
+	if(code_seen('I')) {
+		offset[0] = code_value();
+	}
+	else {
+		offset[0] = 0.0;
+	}
+	if(code_seen('J')) {
+		offset[1] = code_value();
+	}
+	else {
+		offset[1] = 0.0;
+	}
+}
+
+void clamp_to_software_endstops(float target[3])
+{
+	if (min_software_endstops) {
+		if (target[X_AXIS] < min_pos[X_AXIS]) target[X_AXIS] = min_pos[X_AXIS];
+		if (target[Y_AXIS] < min_pos[Y_AXIS]) target[Y_AXIS] = min_pos[Y_AXIS];
+		if (target[Z_AXIS] < min_pos[Z_AXIS]) target[Z_AXIS] = min_pos[Z_AXIS];
+	}
+
+	if (max_software_endstops) {
+		if (target[X_AXIS] > max_pos[X_AXIS]) target[X_AXIS] = max_pos[X_AXIS];
+		if (target[Y_AXIS] > max_pos[Y_AXIS]) target[Y_AXIS] = max_pos[Y_AXIS];
+		if (target[Z_AXIS] > max_pos[Z_AXIS]) target[Z_AXIS] = max_pos[Z_AXIS];
+	}
+}
+
+#ifdef DELTA
+void recalc_delta_settings(float radius, float diagonal_rod)
+{
+	delta_tower1_x= -SIN_60*radius; // front left tower
+	delta_tower1_y= -COS_60*radius;
+	delta_tower2_x=  SIN_60*radius; // front right tower
+	delta_tower2_y= -COS_60*radius;
+	delta_tower3_x= 0.0;                  // back middle tower
+	delta_tower3_y= radius;
+	delta_diagonal_rod_2= sq(diagonal_rod);
+}
+
+void calculate_delta(float cartesian[3])
+{
+	delta[X_AXIS] = sqrt(delta_diagonal_rod_2
+	- sq(delta_tower1_x-cartesian[X_AXIS])
+	- sq(delta_tower1_y-cartesian[Y_AXIS])
+	) + cartesian[Z_AXIS];
+	delta[Y_AXIS] = sqrt(delta_diagonal_rod_2
+	- sq(delta_tower2_x-cartesian[X_AXIS])
+	- sq(delta_tower2_y-cartesian[Y_AXIS])
+	) + cartesian[Z_AXIS];
+	delta[Z_AXIS] = sqrt(delta_diagonal_rod_2
+	- sq(delta_tower3_x-cartesian[X_AXIS])
+	- sq(delta_tower3_y-cartesian[Y_AXIS])
+	) + cartesian[Z_AXIS];
+	/*
+	SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
+	SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
+	SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
+
+	SERIAL_ECHOPGM("delta x="); SERIAL_ECHO(delta[X_AXIS]);
+	SERIAL_ECHOPGM(" y="); SERIAL_ECHO(delta[Y_AXIS]);
+	SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(delta[Z_AXIS]);
+	*/
+}
+#endif
+
+void prepare_move()
+{
+	clamp_to_software_endstops(destination);
+	previous_millis_cmd = millis();
+	
+	#ifdef DUAL_X_CARRIAGE
+	if (active_extruder_parked)//We recently have done a toolChange
+	{
+		//Rapduch: movements if whe have done a toolchange. It returns the new tool to the last printing position
+		if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE && current_position[E_AXIS]==destination[E_AXIS]) //Sigma mode and we are in a travel move after toolchange
+		{
+			plan_buffer_line(current_position[X_AXIS], destination[Y_AXIS], raised_parked_position[Z_AXIS],current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
+			plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], raised_parked_position[Z_AXIS],current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
+			current_position[X_AXIS]=destination[X_AXIS];
+			current_position[Y_AXIS]=destination[Y_AXIS];
+			if (current_position[Z_AXIS]==destination[Z_AXIS]) //Correct the offset
+			{
+				plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], z_restaurada, current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
+				destination[Z_AXIS]=z_restaurada;
+			}
+			st_synchronize();
+			
+			active_extruder_parked = false;
+		}
+		
+		if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0)
+		{
+			// move duplicate extruder into correct duplication position.
+			plan_set_position(inactive_extruder_x_pos, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+			plan_buffer_line(current_position[X_AXIS] + duplicate_extruder_x_offset, current_position[Y_AXIS], current_position[Z_AXIS],
+			current_position[E_AXIS], max_feedrate[X_AXIS], 1);
+			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+			st_synchronize();
+			extruder_duplication_enabled = true;
+			active_extruder_parked = false;
+		}
+		else if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE) // handle unparking of head
+		{
+			if (current_position[E_AXIS] == destination[E_AXIS])
+			{
+				// this is a travel move - skit it but keep track of current position (so that it can later
+				// be used as start of first non-travel move)
+				if (delayed_move_time != 0xFFFFFFFFUL)
+				{
+					memcpy(current_position, destination, sizeof(current_position));
+					if (destination[Z_AXIS] > raised_parked_position[Z_AXIS]) raised_parked_position[Z_AXIS] = destination[Z_AXIS];
+					delayed_move_time = millis();
 					return;
-					#endif //SDSUPPORT
-					SERIAL_PROTOCOLLNPGM(MSG_OK);
-					}
+				}
+			}
+			delayed_move_time = 0;
+			// unpark extruder: 1) raise, 2) move into starting XY position, 3) lower
+			plan_buffer_line(raised_parked_position[X_AXIS], raised_parked_position[Y_AXIS], raised_parked_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], raised_parked_position[Z_AXIS], current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]), active_extruder);
+			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+			active_extruder_parked = false;
+		}
+	}
+	#endif //DUAL_X_CARRIAGE
 
-					void get_coordinates()
-					{
-						bool seen[4]={false,false,false,false};
-						for(int8_t i=0; i < NUM_AXIS; i++) {
-						if(code_seen(axis_codes[i]))
-						{					
-							destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
-							if(i == 0) {
-								//Serial.print("X old: ");
-								//Serial.println(destination[i]);
-								destination[i]+= 48.5;
-								//Serial.print("X new: ");
-								//Serial.println(destination[i]);
-							}
-							if(i == 1) {
-								//Serial.print("X old: ");
-								//Serial.println(destination[i]);
-								destination[i]-= 2.5;
-								//Serial.print("X new: ");
-								//Serial.println(destination[i]);
-							}
-							seen[i]=true;
-						}
-						else destination[i] = current_position[i]; //Are these else lines really needed?
-					}
-					if(code_seen('F')) {
-						next_feedrate = code_value();
-						if(next_feedrate > 0.0) feedrate = next_feedrate;
-					}
-					}
+	//It is not safe now. But the idea is to add an offset here to print always inside the bed
+	//current_position[X_AXIS]+=54;
 
-					void get_arc_coordinates()
-					{
-					#ifdef SF_ARC_FIX
-					bool relative_mode_backup = relative_mode;
-					relative_mode = true;
-					#endif
-					get_coordinates();
-					#ifdef SF_ARC_FIX
-					relative_mode=relative_mode_backup;
-					#endif
+	//ACTUAL MOVE Prepared
+	// Do not use feedmultiply for E or Z only moves
+	if((current_position[X_AXIS] == destination [X_AXIS]) && (current_position[Y_AXIS] == destination [Y_AXIS])) {
+		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+	}
+	else {
+		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
+	}
 
-					if(code_seen('I')) {
-					offset[0] = code_value();
-					}
-					else {
-					offset[0] = 0.0;
-					}
-					if(code_seen('J')) {
-					offset[1] = code_value();
-					}
-					else {
-					offset[1] = 0.0;
-					}
-					}
-
-					void clamp_to_software_endstops(float target[3])
-					{
-					if (min_software_endstops) {
-					if (target[X_AXIS] < min_pos[X_AXIS]) target[X_AXIS] = min_pos[X_AXIS];
-					if (target[Y_AXIS] < min_pos[Y_AXIS]) target[Y_AXIS] = min_pos[Y_AXIS];
-					if (target[Z_AXIS] < min_pos[Z_AXIS]) target[Z_AXIS] = min_pos[Z_AXIS];
-					}
-
-					if (max_software_endstops) {
-					if (target[X_AXIS] > max_pos[X_AXIS]) target[X_AXIS] = max_pos[X_AXIS];
-					if (target[Y_AXIS] > max_pos[Y_AXIS]) target[Y_AXIS] = max_pos[Y_AXIS];
-					if (target[Z_AXIS] > max_pos[Z_AXIS]) target[Z_AXIS] = max_pos[Z_AXIS];
-					}
-					}
-
-					#ifdef DELTA
-					void recalc_delta_settings(float radius, float diagonal_rod)
-					{
-					delta_tower1_x= -SIN_60*radius; // front left tower
-					delta_tower1_y= -COS_60*radius;
-					delta_tower2_x=  SIN_60*radius; // front right tower
-					delta_tower2_y= -COS_60*radius;
-					delta_tower3_x= 0.0;                  // back middle tower
-					delta_tower3_y= radius;
-					delta_diagonal_rod_2= sq(diagonal_rod);
-					}
-
-					void calculate_delta(float cartesian[3])
-					{
-					delta[X_AXIS] = sqrt(delta_diagonal_rod_2
-					- sq(delta_tower1_x-cartesian[X_AXIS])
-					- sq(delta_tower1_y-cartesian[Y_AXIS])
-					) + cartesian[Z_AXIS];
-					delta[Y_AXIS] = sqrt(delta_diagonal_rod_2
-					- sq(delta_tower2_x-cartesian[X_AXIS])
-					- sq(delta_tower2_y-cartesian[Y_AXIS])
-					) + cartesian[Z_AXIS];
-					delta[Z_AXIS] = sqrt(delta_diagonal_rod_2
-					- sq(delta_tower3_x-cartesian[X_AXIS])
-					- sq(delta_tower3_y-cartesian[Y_AXIS])
-					) + cartesian[Z_AXIS];
-					/*
-					SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
-					SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
-					SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
-
-					SERIAL_ECHOPGM("delta x="); SERIAL_ECHO(delta[X_AXIS]);
-					SERIAL_ECHOPGM(" y="); SERIAL_ECHO(delta[Y_AXIS]);
-					SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(delta[Z_AXIS]);
-					*/
-					}
-					#endif
-
-					void prepare_move()
-					{
-						clamp_to_software_endstops(destination);
-						previous_millis_cmd = millis();
+	for(int8_t i=0; i < NUM_AXIS; i++) {
+		current_position[i] = destination[i];
+	}
+}
 					
-						#ifdef DUAL_X_CARRIAGE
-							if (active_extruder_parked)//We recently have done a toolChange
-							{
-								//Rapduch: movements if whe have done a toolchange. It returns the new tool to the last printing position
-								if (dual_x_carriage_mode == DXC_FULL_SIGMA_MODE && current_position[E_AXIS]==destination[E_AXIS]) //Sigma mode and we are in a travel move after toolchange
-								{
-									plan_buffer_line(current_position[X_AXIS], destination[Y_AXIS], raised_parked_position[Z_AXIS],current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
-									plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], raised_parked_position[Z_AXIS],current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
-									current_position[X_AXIS]=destination[X_AXIS];
-									current_position[Y_AXIS]=destination[Y_AXIS];
-									if (current_position[Z_AXIS]==destination[Z_AXIS]) //Correct the offset
-									{
-										plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], z_restaurada, current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]/2), active_extruder);
-										destination[Z_AXIS]=z_restaurada;
-									}
-									st_synchronize();
-					
-									active_extruder_parked = false;
-								}			
-					
-								if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0)
-								{
-									// move duplicate extruder into correct duplication position.
-									plan_set_position(inactive_extruder_x_pos, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-									plan_buffer_line(current_position[X_AXIS] + duplicate_extruder_x_offset, current_position[Y_AXIS], current_position[Z_AXIS],
-									current_position[E_AXIS], max_feedrate[X_AXIS], 1);
-									plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-									st_synchronize();
-									extruder_duplication_enabled = true;
-									active_extruder_parked = false;
-								}
-								else if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE) // handle unparking of head
-								{
-									if (current_position[E_AXIS] == destination[E_AXIS])
-									{
-										// this is a travel move - skit it but keep track of current position (so that it can later
-										// be used as start of first non-travel move)
-										if (delayed_move_time != 0xFFFFFFFFUL)
-										{
-											memcpy(current_position, destination, sizeof(current_position));
-											if (destination[Z_AXIS] > raised_parked_position[Z_AXIS]) raised_parked_position[Z_AXIS] = destination[Z_AXIS];
-											delayed_move_time = millis();
-											return;
-										}
-									}
-									delayed_move_time = 0;
-									// unpark extruder: 1) raise, 2) move into starting XY position, 3) lower
-									plan_buffer_line(raised_parked_position[X_AXIS], raised_parked_position[Y_AXIS], raised_parked_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
-									plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], raised_parked_position[Z_AXIS], current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]), active_extruder);
-									plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
-									active_extruder_parked = false;
-								}
-							}
-						#endif //DUAL_X_CARRIAGE
+void prepare_arc_move(char isclockwise) {
+	float r = hypot(offset[X_AXIS], offset[Y_AXIS]); // Compute arc radius for mc_arc
 
-						//It is not safe now. But the idea is to add an offset here to print always inside the bed
-						//current_position[X_AXIS]+=54;
+	// Trace the arc
+	mc_arc(current_position, destination, offset, X_AXIS, Y_AXIS, Z_AXIS, feedrate*feedmultiply/60/100.0, r, isclockwise, active_extruder);
 
-						//ACTUAL MOVE Prepared
-						// Do not use feedmultiply for E or Z only moves
-						if((current_position[X_AXIS] == destination [X_AXIS]) && (current_position[Y_AXIS] == destination [Y_AXIS])) {
-							plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
-						}
-						else {
-							plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
-						}
+	// As far as the parser is concerned, the position is now == target. In reality the
+	// motion control system might still be processing the action and the real tool position
+	// in any intermediate location.
+	for(int8_t i=0; i < NUM_AXIS; i++) {
+		current_position[i] = destination[i];
+	}
+	previous_millis_cmd = millis();
+}
 
-						for(int8_t i=0; i < NUM_AXIS; i++) {
-							current_position[i] = destination[i];
-						}
-					}
-					
-					void prepare_arc_move(char isclockwise) {
-					float r = hypot(offset[X_AXIS], offset[Y_AXIS]); // Compute arc radius for mc_arc
+#if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
 
-					// Trace the arc
-					mc_arc(current_position, destination, offset, X_AXIS, Y_AXIS, Z_AXIS, feedrate*feedmultiply/60/100.0, r, isclockwise, active_extruder);
+#if defined(FAN_PIN)
+#if CONTROLLERFAN_PIN == FAN_PIN
+#error "You cannot set CONTROLLERFAN_PIN equal to FAN_PIN"
+#endif
+#endif
 
-					// As far as the parser is concerned, the position is now == target. In reality the
-					// motion control system might still be processing the action and the real tool position
-					// in any intermediate location.
-					for(int8_t i=0; i < NUM_AXIS; i++) {
-					current_position[i] = destination[i];
-					}
-					previous_millis_cmd = millis();
-					}
+unsigned long lastMotor = 0; //Save the time for when a motor was turned on last
+unsigned long lastMotorCheck = 0;
 
-					#if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
+void controllerFan()
+{
+	if ((millis() - lastMotorCheck) >= 2500) //Not a time critical function, so we only check every 2500ms
+	{
+		lastMotorCheck = millis();
 
-					#if defined(FAN_PIN)
-					#if CONTROLLERFAN_PIN == FAN_PIN
-					#error "You cannot set CONTROLLERFAN_PIN equal to FAN_PIN"
-					#endif
-					#endif
+		if(!READ(X_ENABLE_PIN) || !READ(Y_ENABLE_PIN) || !READ(Z_ENABLE_PIN) || (soft_pwm_bed > 0)
+		#if EXTRUDERS > 2
+		|| !READ(E2_ENABLE_PIN)
+		#endif
+		#if EXTRUDER > 1
+		#if defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
+		|| !READ(X2_ENABLE_PIN)
+		#endif
+		|| !READ(E1_ENABLE_PIN)
+		#endif
+		|| !READ(E0_ENABLE_PIN)) //If any of the drivers are enabled...
+		{
+			lastMotor = millis(); //... set time to NOW so the fan will turn on
+		}
 
-					unsigned long lastMotor = 0; //Save the time for when a motor was turned on last
-					unsigned long lastMotorCheck = 0;
+		if ((millis() - lastMotor) >= (CONTROLLERFAN_SECS*1000UL) || lastMotor == 0) //If the last time any driver was enabled, is longer since than CONTROLLERSEC...
+		{
+			digitalWrite(CONTROLLERFAN_PIN, 0);
+			analogWrite(CONTROLLERFAN_PIN, 0);
+		}
+		else
+		{
+			// allows digital or PWM fan output to be used (see M42 handling)
+			digitalWrite(CONTROLLERFAN_PIN, CONTROLLERFAN_SPEED);
+			analogWrite(CONTROLLERFAN_PIN, CONTROLLERFAN_SPEED);
+		}
+	}
+}
+#endif
 
-					void controllerFan()
-					{
-					if ((millis() - lastMotorCheck) >= 2500) //Not a time critical function, so we only check every 2500ms
-					{
-					lastMotorCheck = millis();
+#ifdef SCARA
+void calculate_SCARA_forward_Transform(float f_scara[3])
+{
+	// Perform forward kinematics, and place results in delta[3]
+	// The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
+	
+	float x_sin, x_cos, y_sin, y_cos;
+	
+	//SERIAL_ECHOPGM("f_delta x="); SERIAL_ECHO(f_scara[X_AXIS]);
+	//SERIAL_ECHOPGM(" y="); SERIAL_ECHO(f_scara[Y_AXIS]);
+	
+	x_sin = sin(f_scara[X_AXIS]/SCARA_RAD2DEG) * Linkage_1;
+	x_cos = cos(f_scara[X_AXIS]/SCARA_RAD2DEG) * Linkage_1;
+	y_sin = sin(f_scara[Y_AXIS]/SCARA_RAD2DEG) * Linkage_2;
+	y_cos = cos(f_scara[Y_AXIS]/SCARA_RAD2DEG) * Linkage_2;
+	
+	//  SERIAL_ECHOPGM(" x_sin="); SERIAL_ECHO(x_sin);
+	//  SERIAL_ECHOPGM(" x_cos="); SERIAL_ECHO(x_cos);
+	//  SERIAL_ECHOPGM(" y_sin="); SERIAL_ECHO(y_sin);
+	//  SERIAL_ECHOPGM(" y_cos="); SERIAL_ECHOLN(y_cos);
+	
+	delta[X_AXIS] = x_cos + y_cos + SCARA_offset_x;  //theta
+	delta[Y_AXIS] = x_sin + y_sin + SCARA_offset_y;  //theta+phi
+	
+	//SERIAL_ECHOPGM(" delta[X_AXIS]="); SERIAL_ECHO(delta[X_AXIS]);
+	//SERIAL_ECHOPGM(" delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
+}
 
-					if(!READ(X_ENABLE_PIN) || !READ(Y_ENABLE_PIN) || !READ(Z_ENABLE_PIN) || (soft_pwm_bed > 0)
-					#if EXTRUDERS > 2
-					|| !READ(E2_ENABLE_PIN)
-					#endif
-					#if EXTRUDER > 1
-					#if defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
-					|| !READ(X2_ENABLE_PIN)
-					#endif
-					|| !READ(E1_ENABLE_PIN)
-					#endif
-					|| !READ(E0_ENABLE_PIN)) //If any of the drivers are enabled...
-					{
-					lastMotor = millis(); //... set time to NOW so the fan will turn on
-					}
+void calculate_delta(float cartesian[3]){
+	//reverse kinematics.
+	// Perform reversed kinematics, and place results in delta[3]
+	// The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
+	
+	float SCARA_pos[2];
+	static float SCARA_C2, SCARA_S2, SCARA_K1, SCARA_K2, SCARA_theta, SCARA_psi;
+	
+	SCARA_pos[X_AXIS] = cartesian[X_AXIS] * axis_scaling[X_AXIS] - SCARA_offset_x;  //Translate SCARA to standard X Y
+	SCARA_pos[Y_AXIS] = cartesian[Y_AXIS] * axis_scaling[Y_AXIS] - SCARA_offset_y;  // With scaling factor.
+	
+	#if (Linkage_1 == Linkage_2)
+	SCARA_C2 = ( ( sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) ) / (2 * (float)L1_2) ) - 1;
+	#else
+	SCARA_C2 =   ( sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) - (float)L1_2 - (float)L2_2 ) / 45000;
+	#endif
+	
+	SCARA_S2 = sqrt( 1 - sq(SCARA_C2) );
+	
+	SCARA_K1 = Linkage_1 + Linkage_2 * SCARA_C2;
+	SCARA_K2 = Linkage_2 * SCARA_S2;
+	
+	SCARA_theta = ( atan2(SCARA_pos[X_AXIS],SCARA_pos[Y_AXIS])-atan2(SCARA_K1, SCARA_K2) ) * -1;
+	SCARA_psi   =   atan2(SCARA_S2,SCARA_C2);
+	
+	delta[X_AXIS] = SCARA_theta * SCARA_RAD2DEG;  // Multiply by 180/Pi  -  theta is support arm angle
+	delta[Y_AXIS] = (SCARA_theta + SCARA_psi) * SCARA_RAD2DEG;  //       -  equal to sub arm angle (inverted motor)
+	delta[Z_AXIS] = cartesian[Z_AXIS];
+	
+	/*
+	SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
+	SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
+	SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
+	
+	SERIAL_ECHOPGM("scara x="); SERIAL_ECHO(SCARA_pos[X_AXIS]);
+	SERIAL_ECHOPGM(" y="); SERIAL_ECHOLN(SCARA_pos[Y_AXIS]);
+	
+	SERIAL_ECHOPGM("delta x="); SERIAL_ECHO(delta[X_AXIS]);
+	SERIAL_ECHOPGM(" y="); SERIAL_ECHO(delta[Y_AXIS]);
+	SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(delta[Z_AXIS]);
+	
+	SERIAL_ECHOPGM("C2="); SERIAL_ECHO(SCARA_C2);
+	SERIAL_ECHOPGM(" S2="); SERIAL_ECHO(SCARA_S2);
+	SERIAL_ECHOPGM(" Theta="); SERIAL_ECHO(SCARA_theta);
+	SERIAL_ECHOPGM(" Psi="); SERIAL_ECHOLN(SCARA_psi);
+	SERIAL_ECHOLN(" ");*/
+}
 
-					if ((millis() - lastMotor) >= (CONTROLLERFAN_SECS*1000UL) || lastMotor == 0) //If the last time any driver was enabled, is longer since than CONTROLLERSEC...
-					{
-					digitalWrite(CONTROLLERFAN_PIN, 0);
-					analogWrite(CONTROLLERFAN_PIN, 0);
-					}
-					else
-					{
-					// allows digital or PWM fan output to be used (see M42 handling)
-					digitalWrite(CONTROLLERFAN_PIN, CONTROLLERFAN_SPEED);
-					analogWrite(CONTROLLERFAN_PIN, CONTROLLERFAN_SPEED);
-					}
-					}
-					}
-					#endif
+#endif
 
-					#ifdef SCARA
-					void calculate_SCARA_forward_Transform(float f_scara[3])
-					{
-					// Perform forward kinematics, and place results in delta[3]
-					// The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
-					
-					float x_sin, x_cos, y_sin, y_cos;
-					
-					//SERIAL_ECHOPGM("f_delta x="); SERIAL_ECHO(f_scara[X_AXIS]);
-					//SERIAL_ECHOPGM(" y="); SERIAL_ECHO(f_scara[Y_AXIS]);
-					
-					x_sin = sin(f_scara[X_AXIS]/SCARA_RAD2DEG) * Linkage_1;
-					x_cos = cos(f_scara[X_AXIS]/SCARA_RAD2DEG) * Linkage_1;
-					y_sin = sin(f_scara[Y_AXIS]/SCARA_RAD2DEG) * Linkage_2;
-					y_cos = cos(f_scara[Y_AXIS]/SCARA_RAD2DEG) * Linkage_2;
-					
-					//  SERIAL_ECHOPGM(" x_sin="); SERIAL_ECHO(x_sin);
-					//  SERIAL_ECHOPGM(" x_cos="); SERIAL_ECHO(x_cos);
-					//  SERIAL_ECHOPGM(" y_sin="); SERIAL_ECHO(y_sin);
-					//  SERIAL_ECHOPGM(" y_cos="); SERIAL_ECHOLN(y_cos);
-					
-					delta[X_AXIS] = x_cos + y_cos + SCARA_offset_x;  //theta
-					delta[Y_AXIS] = x_sin + y_sin + SCARA_offset_y;  //theta+phi
-					
-					//SERIAL_ECHOPGM(" delta[X_AXIS]="); SERIAL_ECHO(delta[X_AXIS]);
-					//SERIAL_ECHOPGM(" delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
-					}
+#ifdef TEMP_STAT_LEDS
+static bool blue_led = false;
+static bool red_led = false;
+static uint32_t stat_update = 0;
 
-					void calculate_delta(float cartesian[3]){
-					//reverse kinematics.
-					// Perform reversed kinematics, and place results in delta[3]
-					// The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
-					
-					float SCARA_pos[2];
-					static float SCARA_C2, SCARA_S2, SCARA_K1, SCARA_K2, SCARA_theta, SCARA_psi;
-					
-					SCARA_pos[X_AXIS] = cartesian[X_AXIS] * axis_scaling[X_AXIS] - SCARA_offset_x;  //Translate SCARA to standard X Y
-					SCARA_pos[Y_AXIS] = cartesian[Y_AXIS] * axis_scaling[Y_AXIS] - SCARA_offset_y;  // With scaling factor.
-					
-					#if (Linkage_1 == Linkage_2)
-					SCARA_C2 = ( ( sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) ) / (2 * (float)L1_2) ) - 1;
-					#else
-					SCARA_C2 =   ( sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) - (float)L1_2 - (float)L2_2 ) / 45000;
-					#endif
-					
-					SCARA_S2 = sqrt( 1 - sq(SCARA_C2) );
-					
-					SCARA_K1 = Linkage_1 + Linkage_2 * SCARA_C2;
-					SCARA_K2 = Linkage_2 * SCARA_S2;
-					
-					SCARA_theta = ( atan2(SCARA_pos[X_AXIS],SCARA_pos[Y_AXIS])-atan2(SCARA_K1, SCARA_K2) ) * -1;
-					SCARA_psi   =   atan2(SCARA_S2,SCARA_C2);
-					
-					delta[X_AXIS] = SCARA_theta * SCARA_RAD2DEG;  // Multiply by 180/Pi  -  theta is support arm angle
-					delta[Y_AXIS] = (SCARA_theta + SCARA_psi) * SCARA_RAD2DEG;  //       -  equal to sub arm angle (inverted motor)
-					delta[Z_AXIS] = cartesian[Z_AXIS];
-					
-					/*
-					SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
-					SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
-					SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
-					
-					SERIAL_ECHOPGM("scara x="); SERIAL_ECHO(SCARA_pos[X_AXIS]);
-					SERIAL_ECHOPGM(" y="); SERIAL_ECHOLN(SCARA_pos[Y_AXIS]);
-					
-					SERIAL_ECHOPGM("delta x="); SERIAL_ECHO(delta[X_AXIS]);
-					SERIAL_ECHOPGM(" y="); SERIAL_ECHO(delta[Y_AXIS]);
-					SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(delta[Z_AXIS]);
-					
-					SERIAL_ECHOPGM("C2="); SERIAL_ECHO(SCARA_C2);
-					SERIAL_ECHOPGM(" S2="); SERIAL_ECHO(SCARA_S2);
-					SERIAL_ECHOPGM(" Theta="); SERIAL_ECHO(SCARA_theta);
-					SERIAL_ECHOPGM(" Psi="); SERIAL_ECHOLN(SCARA_psi);
-					SERIAL_ECHOLN(" ");*/
-					}
+void handle_status_leds(void) {
+	float max_temp = 0.0;
+	if(millis() > stat_update) {
+		stat_update += 500; // Update every 0.5s
+		for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
+			max_temp = max(max_temp, degHotend(cur_extruder));
+			max_temp = max(max_temp, degTargetHotend(cur_extruder));
+		}
+		#if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
+		max_temp = max(max_temp, degTargetBed());
+		max_temp = max(max_temp, degBed());
+		#endif
+		if((max_temp > 55.0) && (red_led == false)) {
+			digitalWrite(STAT_LED_RED, 1);
+			digitalWrite(STAT_LED_BLUE, 0);
+			red_led = true;
+			blue_led = false;
+		}
+		if((max_temp < 54.0) && (blue_led == false)) {
+			digitalWrite(STAT_LED_RED, 0);
+			digitalWrite(STAT_LED_BLUE, 1);
+			red_led = false;
+			blue_led = true;
+		}
+	}
+}
+#endif
 
-					#endif
+void manage_inactivity()
+{
+	if(dobloking){
+		enable_x();
+		enable_y();
+	}
+	if(buflen < (BUFSIZE-1)) get_command();
+	if( (millis() - previous_millis_cmd) >  max_inactive_time ) if(max_inactive_time) kill();
+	if(stepper_inactive_time)  {
+		if( (millis() - previous_millis_cmd) >  stepper_inactive_time )
+		{
+			
+			if(blocks_queued() == false) {
+				disable_x();
+				disable_y();
+				disable_z();
+				disable_e0();
+				disable_e1();
+				disable_e2();
+			}
+		}
+	}
+	
+	#ifdef CHDK //Check if pin should be set to LOW after M240 set it to HIGH
+	if (chdkActive && (millis() - chdkHigh > CHDK_DELAY))
+	{
+		chdkActive = false;
+		WRITE(CHDK, LOW);
+	}
+	#endif
+	
+	#if defined(KILL_PIN) && KILL_PIN > -1
+	if( 0 == READ(KILL_PIN) ) kill();
+	#endif
+	#if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
+	controllerFan(); //Check if fan should be turned on to cool stepper drivers down
+	#endif
+	#ifdef EXTRUDER_RUNOUT_PREVENT
+	if( (millis() - previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 )
+	if(degHotend(active_extruder)>EXTRUDER_RUNOUT_MINTEMP)
+	{
+		bool oldstatus=READ(E0_ENABLE_PIN);
+		enable_e0();
+		float oldepos=current_position[E_AXIS];
+		float oldedes=destination[E_AXIS];
+		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS],
+		destination[E_AXIS]+EXTRUDER_RUNOUT_EXTRUDE*EXTRUDER_RUNOUT_ESTEPS/axis_steps_per_unit[E_AXIS],
+		EXTRUDER_RUNOUT_SPEED/60.*EXTRUDER_RUNOUT_ESTEPS/axis_steps_per_unit[E_AXIS], active_extruder);
+		current_position[E_AXIS]=oldepos;
+		destination[E_AXIS]=oldedes;
+		plan_set_e_position(oldepos);
+		previous_millis_cmd=millis();
+		st_synchronize();
+		WRITE(E0_ENABLE_PIN,oldstatus);
+	}
+	#endif
+	#if defined(DUAL_X_CARRIAGE)
+	// handle delayed move timeout
+	if (delayed_move_time != 0 && (millis() - delayed_move_time) > 1000 && Stopped == false)
+	{
+		// travel moves have been received so enact them
+		delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
+		memcpy(destination,current_position,sizeof(destination));
+		prepare_move();
+	}
+	#endif
+	#ifdef TEMP_STAT_LEDS
+	handle_status_leds();
+	#endif
+	check_axes_activity();
+}
 
-					#ifdef TEMP_STAT_LEDS
-					static bool blue_led = false;
-					static bool red_led = false;
-					static uint32_t stat_update = 0;
+void kill()
+{
+	cli(); // Stop interrupts
+	disable_heater();
 
-					void handle_status_leds(void) {
-					float max_temp = 0.0;
-					if(millis() > stat_update) {
-					stat_update += 500; // Update every 0.5s
-					for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
-					max_temp = max(max_temp, degHotend(cur_extruder));
-					max_temp = max(max_temp, degTargetHotend(cur_extruder));
-					}
-					#if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
-					max_temp = max(max_temp, degTargetBed());
-					max_temp = max(max_temp, degBed());
-					#endif
-					if((max_temp > 55.0) && (red_led == false)) {
-					digitalWrite(STAT_LED_RED, 1);
-					digitalWrite(STAT_LED_BLUE, 0);
-					red_led = true;
-					blue_led = false;
-					}
-					if((max_temp < 54.0) && (blue_led == false)) {
-					digitalWrite(STAT_LED_RED, 0);
-					digitalWrite(STAT_LED_BLUE, 1);
-					red_led = false;
-					blue_led = true;
-					}
-					}
-					}
-					#endif
+	disable_x();
+	disable_y();
+	disable_z();
+	disable_e0();
+	disable_e1();
+	disable_e2();
 
-					void manage_inactivity()
-					{
-						if(dobloking){
-							enable_x();
-							enable_y();
-						}
-						if(buflen < (BUFSIZE-1)) get_command();
-						if( (millis() - previous_millis_cmd) >  max_inactive_time ) if(max_inactive_time) kill();
-						if(stepper_inactive_time)  {
-							if( (millis() - previous_millis_cmd) >  stepper_inactive_time )
-							{
-								
-								if(blocks_queued() == false) {
-									disable_x();
-									disable_y();
-									disable_z();
-									disable_e0();
-									disable_e1();
-									disable_e2();
-								}
-							}
-						}
-					
-						#ifdef CHDK //Check if pin should be set to LOW after M240 set it to HIGH
-							if (chdkActive && (millis() - chdkHigh > CHDK_DELAY))
-							{
-								chdkActive = false;
-								WRITE(CHDK, LOW);
-							}
-						#endif
-					
-						#if defined(KILL_PIN) && KILL_PIN > -1
-							if( 0 == READ(KILL_PIN) ) kill();
-						#endif
-						#if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
-							controllerFan(); //Check if fan should be turned on to cool stepper drivers down
-						#endif
-						#ifdef EXTRUDER_RUNOUT_PREVENT
-							if( (millis() - previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 ) 
-								if(degHotend(active_extruder)>EXTRUDER_RUNOUT_MINTEMP)
-								{
-									bool oldstatus=READ(E0_ENABLE_PIN);
-									enable_e0();
-									float oldepos=current_position[E_AXIS];
-									float oldedes=destination[E_AXIS];
-									plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS],
-									destination[E_AXIS]+EXTRUDER_RUNOUT_EXTRUDE*EXTRUDER_RUNOUT_ESTEPS/axis_steps_per_unit[E_AXIS],
-									EXTRUDER_RUNOUT_SPEED/60.*EXTRUDER_RUNOUT_ESTEPS/axis_steps_per_unit[E_AXIS], active_extruder);
-									current_position[E_AXIS]=oldepos;
-									destination[E_AXIS]=oldedes;
-									plan_set_e_position(oldepos);
-									previous_millis_cmd=millis();
-									st_synchronize();
-									WRITE(E0_ENABLE_PIN,oldstatus);
-								}
-						#endif
-						#if defined(DUAL_X_CARRIAGE)
-							// handle delayed move timeout
-							if (delayed_move_time != 0 && (millis() - delayed_move_time) > 1000 && Stopped == false)
-							{
-								// travel moves have been received so enact them
-								delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
-								memcpy(destination,current_position,sizeof(destination));
-								prepare_move();
-							}
-						#endif
-						#ifdef TEMP_STAT_LEDS
-							handle_status_leds();
-						#endif
-						check_axes_activity();
-					}
+	#if defined(PS_ON_PIN) && PS_ON_PIN > -1
+	pinMode(PS_ON_PIN,INPUT);
+	#endif
+	SERIAL_ERROR_START;
+	SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
+	LCD_ALERTMESSAGEPGM(MSG_KILLED);
+	suicide();
+	while(1) { /* Intentionally left empty */ } // Wait for reset
+}
 
-					void kill()
-					{
-					cli(); // Stop interrupts
-					disable_heater();
+void Stop()
+{
+	disable_heater();
+	if(Stopped == false) {
+		Stopped = true;
+		Stopped_gcode_LastN = gcode_LastN; // Save last g_code for restart
+		SERIAL_ERROR_START;
+		SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
+		LCD_MESSAGEPGM(MSG_STOPPED);
+	}
+}
 
-					disable_x();
-					disable_y();
-					disable_z();
-					disable_e0();
-					disable_e1();
-					disable_e2();
+bool IsStopped(){
+	return Stopped;
+};
 
-					#if defined(PS_ON_PIN) && PS_ON_PIN > -1
-					pinMode(PS_ON_PIN,INPUT);
-					#endif
-					SERIAL_ERROR_START;
-					SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
-					LCD_ALERTMESSAGEPGM(MSG_KILLED);
-					suicide();
-					while(1) { /* Intentionally left empty */ } // Wait for reset
-					}
+#ifdef FAST_PWM_FAN
+void setPwmFrequency(uint8_t pin, int val)
+{
+	val &= 0x07;
+	switch(digitalPinToTimer(pin))
+	{
 
-					void Stop()
-					{
-						disable_heater();
-						if(Stopped == false) {
-							Stopped = true;
-							Stopped_gcode_LastN = gcode_LastN; // Save last g_code for restart
-							SERIAL_ERROR_START;
-							SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
-							LCD_MESSAGEPGM(MSG_STOPPED);
-						}
-					}
+		#if defined(TCCR0A)
+		case TIMER0A:
+		case TIMER0B:
+		//         TCCR0B &= ~(_BV(CS00) | _BV(CS01) | _BV(CS02));
+		//         TCCR0B |= val;
+		break;
+		#endif
 
-					bool IsStopped() { return Stopped; };
+		#if defined(TCCR1A)
+		case TIMER1A:
+		case TIMER1B:
+		//         TCCR1B &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
+		//         TCCR1B |= val;
+		break;
+		#endif
 
-					#ifdef FAST_PWM_FAN
-					void setPwmFrequency(uint8_t pin, int val)
-					{
-					val &= 0x07;
-					switch(digitalPinToTimer(pin))
-					{
+		#if defined(TCCR2)
+		case TIMER2:
+		case TIMER2:
+		TCCR2 &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
+		TCCR2 |= val;
+		break;
+		#endif
 
-					#if defined(TCCR0A)
-					case TIMER0A:
-					case TIMER0B:
-					//         TCCR0B &= ~(_BV(CS00) | _BV(CS01) | _BV(CS02));
-					//         TCCR0B |= val;
-					break;
-					#endif
+		#if defined(TCCR2A)
+		case TIMER2A:
+		case TIMER2B:
+		TCCR2B &= ~(_BV(CS20) | _BV(CS21) | _BV(CS22));
+		TCCR2B |= val;
+		break;
+		#endif
 
-					#if defined(TCCR1A)
-					case TIMER1A:
-					case TIMER1B:
-					//         TCCR1B &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
-					//         TCCR1B |= val;
-					break;
-					#endif
+		#if defined(TCCR3A)
+		case TIMER3A:
+		case TIMER3B:
+		case TIMER3C:
+		TCCR3B &= ~(_BV(CS30) | _BV(CS31) | _BV(CS32));
+		TCCR3B |= val;
+		break;
+		#endif
 
-					#if defined(TCCR2)
-					case TIMER2:
-					case TIMER2:
-					TCCR2 &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
-					TCCR2 |= val;
-					break;
-					#endif
+		#if defined(TCCR4A)
+		case TIMER4A:
+		case TIMER4B:
+		case TIMER4C:
+		TCCR4B &= ~(_BV(CS40) | _BV(CS41) | _BV(CS42));
+		TCCR4B |= val;
+		break;
+		#endif
 
-					#if defined(TCCR2A)
-					case TIMER2A:
-					case TIMER2B:
-					TCCR2B &= ~(_BV(CS20) | _BV(CS21) | _BV(CS22));
-					TCCR2B |= val;
-					break;
-					#endif
+		#if defined(TCCR5A)
+		case TIMER5A:
+		case TIMER5B:
+		case TIMER5C:
+		TCCR5B &= ~(_BV(CS50) | _BV(CS51) | _BV(CS52));
+		TCCR5B |= val;
+		break;
+		#endif
 
-					#if defined(TCCR3A)
-					case TIMER3A:
-					case TIMER3B:
-					case TIMER3C:
-					TCCR3B &= ~(_BV(CS30) | _BV(CS31) | _BV(CS32));
-					TCCR3B |= val;
-					break;
-					#endif
+	}
+}
+#endif //FAST_PWM_FAN
 
-					#if defined(TCCR4A)
-					case TIMER4A:
-					case TIMER4B:
-					case TIMER4C:
-					TCCR4B &= ~(_BV(CS40) | _BV(CS41) | _BV(CS42));
-					TCCR4B |= val;
-					break;
-					#endif
+bool setTargetedHotend(int code){
+	tmp_extruder = active_extruder;
+	if(code_seen('T')) {
+		tmp_extruder = code_value();
+		if(tmp_extruder >= EXTRUDERS) {
+			SERIAL_ECHO_START;
+			switch(code){
+				case 104:
+				SERIAL_ECHO(MSG_M104_INVALID_EXTRUDER);
+				break;
+				case 105:
+				SERIAL_ECHO(MSG_M105_INVALID_EXTRUDER);
+				break;
+				case 109:
+				SERIAL_ECHO(MSG_M109_INVALID_EXTRUDER);
+				break;
+				case 218:
+				SERIAL_ECHO(MSG_M218_INVALID_EXTRUDER);
+				break;
+				case 221:
+				SERIAL_ECHO(MSG_M221_INVALID_EXTRUDER);
+				break;
+			}
+			SERIAL_ECHOLN(tmp_extruder);
+			return true;
+		}
+	}
+	return false;
+}
 
-					#if defined(TCCR5A)
-					case TIMER5A:
-					case TIMER5B:
-					case TIMER5C:
-					TCCR5B &= ~(_BV(CS50) | _BV(CS51) | _BV(CS52));
-					TCCR5B |= val;
-					break;
-					#endif
 
-					}
-					}
-					#endif //FAST_PWM_FAN
+void left_test_print_code(){
+	////////////////////
+	//LEFT Z TEST PRINT/
+	////////////////////
+	dobloking = true;
+	if (active_extruder != LEFT_EXTRUDER) changeTool(LEFT_EXTRUDER);
+	
+	current_position[E_AXIS]+=15;  //0.5 + 0.15 per ajustar una bona alçada
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
+	st_synchronize();
+	current_position[Z_AXIS]=0.4; //0.5 + 0.15 per ajustar una bona alçada
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+	st_synchronize();
+	current_position[E_AXIS]-=4;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
+	
+	
+	//SKIRT_v2
+	//Positioning
+	current_position[Y_AXIS] = 187.5;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
+	st_synchronize();
+	current_position[X_AXIS] = 125.5;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
+	st_synchronize();
+	current_position[Z_AXIS] = 0.2;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+	st_synchronize();
+	current_position[E_AXIS]+=3;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
+	st_synchronize();
+	//start print the skirt
+	current_position[Y_AXIS] = 107.5; current_position[E_AXIS] += ((187.5-107.5)*0.33*current_position[Z_AXIS]*10/55.119)*1.5;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+	st_synchronize();
+	current_position[X_AXIS] = 149.5; current_position[E_AXIS] += ((149.5-125.5)*0.33*current_position[Z_AXIS]*10/55.119)*1.5;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+	st_synchronize();
+	current_position[Y_AXIS] = 187.5; current_position[E_AXIS] += ((187.5-107.5)*0.33*current_position[Z_AXIS]*10/55.119)*1.5;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+	st_synchronize();
+	current_position[X_AXIS] = 125.5; current_position[E_AXIS] += ((149.5-125.5)*0.33*current_position[Z_AXIS]*10/55.119)*1.5;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+	st_synchronize();
+	current_position[E_AXIS]-=4;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,active_extruder);
+	st_synchronize();
+	
+	int	  distance_x = 4;
+	int	  distance_y = 72;
+	float initial_x_pos = 129.5;
+	float initial_y_pos = 183.5;
+	float initial_z_pos = 0.1;
+	float z_layer_test = 0.15;
+	
+	current_position[X_AXIS] = initial_x_pos; current_position[Y_AXIS] = initial_y_pos;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
+	st_synchronize();
+	
+	current_position[Z_AXIS]= initial_z_pos;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],10,active_extruder);
+	st_synchronize();
+	
+	for(int i = 1; i<=5;i++){
+		
+		current_position[E_AXIS]+= 4;
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],100,active_extruder);
+		st_synchronize();
+		
+		current_position[Y_AXIS] = initial_y_pos-distance_y;  current_position[E_AXIS]+=((distance_y)*0.33*0.15*10/55.119);
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+		st_synchronize();
+		
+		current_position[E_AXIS]-=4;
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,active_extruder);
+		st_synchronize();
+		
+		if(i != 5){
+			current_position[X_AXIS] = initial_x_pos+(distance_x*i); current_position[Y_AXIS] = initial_y_pos;
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
+			st_synchronize();
+			
+			current_position[Z_AXIS]+= 0.05;
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],10,active_extruder);
+			st_synchronize();
+		}
+	}
+	
+	
+	//RETIRE HOTEND
+	current_position[Z_AXIS]+= 2;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+	st_synchronize();
+	
+	home_axis_from_code(true,true,false);
+	
+	current_position[Z_AXIS]-= 2;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+	st_synchronize();
+	
+	dobloking = false;
+	//SELECT LINES SCREEN
+	genie.WriteObject(GENIE_OBJ_FORM,FORM_LEFT_Z_TEST,0);
+}
 
-					bool setTargetedHotend(int code){
-					tmp_extruder = active_extruder;
-					if(code_seen('T')) {
-					tmp_extruder = code_value();
-					if(tmp_extruder >= EXTRUDERS) {
-					SERIAL_ECHO_START;
-					switch(code){
-					case 104:
-					SERIAL_ECHO(MSG_M104_INVALID_EXTRUDER);
-					break;
-					case 105:
-					SERIAL_ECHO(MSG_M105_INVALID_EXTRUDER);
-					break;
-					case 109:
-					SERIAL_ECHO(MSG_M109_INVALID_EXTRUDER);
-					break;
-					case 218:
-					SERIAL_ECHO(MSG_M218_INVALID_EXTRUDER);
-					break;
-					case 221:
-					SERIAL_ECHO(MSG_M221_INVALID_EXTRUDER);
-					break;
-					}
-					SERIAL_ECHOLN(tmp_extruder);
-					return true;
-					}
-					}
-					return false;
-					}
-					
+void right_test_print_code(){
+	dobloking = true;
+	if (active_extruder != RIGHT_EXTRUDER) changeTool(RIGHT_EXTRUDER);
+	
+	current_position[E_AXIS]+=15;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
+	st_synchronize();
+	current_position[Z_AXIS]=0.4;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],6000/60,active_extruder);
+	st_synchronize();
+	current_position[E_AXIS]-=4; //0.5 + 0.15 per ajustar una bona alçada
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],12000/60,active_extruder);
+	st_synchronize();
+	
+	
+	//SKIRT v2
+	current_position[Y_AXIS] = 187.5;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
+	st_synchronize();
+	current_position[X_AXIS] = 157.5 ;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
+	st_synchronize();
+	current_position[Z_AXIS]= 0.2;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+	
+	current_position[E_AXIS]+=3;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
+	st_synchronize();
+	
+	current_position[X_AXIS] = 181.5; current_position[E_AXIS] += ((181.5-157.5)*0.33*current_position[Z_AXIS]*10/55.119)*1.5;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+	st_synchronize();
+	current_position[Y_AXIS] = 107.5; current_position[E_AXIS] += ((187.5-107.5)*0.33*current_position[Z_AXIS]*10/55.119)*1.5;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+	st_synchronize();
+	current_position[X_AXIS] = 157.5; current_position[E_AXIS] += ((181.5-157.5)*0.33*current_position[Z_AXIS]*10/55.119)*1.5;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+	st_synchronize();
+	current_position[Y_AXIS] = 187.5; current_position[E_AXIS] += ((187.5-107.5)*0.33*current_position[Z_AXIS]*10/55.119)*1.5;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+	st_synchronize();
+	
+	current_position[E_AXIS]-=4;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED,active_extruder);
+	st_synchronize();
+	
+	int distance_x = 4;
+	int distance_y = 72;
+	float initial_x_pos = 161.5;
+	float initial_y_pos = 183.5;
+	float initial_z_pos = 0.1;
+	float z_layer_test = 0.15;
+	
+	current_position[X_AXIS] = initial_x_pos; current_position[Y_AXIS] = initial_y_pos;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
+	st_synchronize();
+	
+	current_position[Z_AXIS]= initial_z_pos;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],10,active_extruder);
+	st_synchronize();
+	
+	for(int i = 1; i<=5;i++){
+		
+		current_position[E_AXIS]+= 4;
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],100,active_extruder);
+		st_synchronize();
+		
+		current_position[Y_AXIS] = initial_y_pos-distance_y;  current_position[E_AXIS]+=((distance_y)*0.33*0.15*10/55.119);
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+		st_synchronize();
+		
+		current_position[E_AXIS]-=4;
+		plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,active_extruder);
+		st_synchronize();
+		
+		if(i != 5){
+			current_position[X_AXIS] = initial_x_pos+(distance_x*i); current_position[Y_AXIS] = initial_y_pos;
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
+			st_synchronize();
+			
+			current_position[Z_AXIS]+= 0.05;
+			plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],10,active_extruder);
+			st_synchronize();
+		}
+	}
+	
+	//RETIRE HOTEND
+	current_position[Z_AXIS]+= 2;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+	st_synchronize();
+	
+	home_axis_from_code(true,true,false);
+	st_synchronize();
+	
+	current_position[Z_AXIS]+= 2;
+	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
+	st_synchronize();
+	dobloking = false;
+	//SELECT LINES SCREEN
+	genie.WriteObject(GENIE_OBJ_FORM,FORM_RIGHT_Z_TEST,0);
+}
 
-					void left_test_print_code(){
-						////////////////////
-						//LEFT Z TEST PRINT/
-						////////////////////
-						dobloking = true;
-						if (active_extruder != LEFT_EXTRUDER) changeTool(LEFT_EXTRUDER);
-						
-						current_position[E_AXIS]+=15;  //0.5 + 0.15 per ajustar una bona alçada
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
-						st_synchronize();
-						current_position[Z_AXIS]=0.4; //0.5 + 0.15 per ajustar una bona alçada
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-						st_synchronize();
-						current_position[E_AXIS]-=4;  
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);					
-						
-						
-						//SKIRT_v2
-						//Positioning
-						current_position[Y_AXIS] = 187.5;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
-						st_synchronize();					
-						current_position[X_AXIS] = 125.5;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
-						st_synchronize();
-						current_position[Z_AXIS] = 0.2;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-						st_synchronize();
-						current_position[E_AXIS]+=3;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
-						st_synchronize();
-						//start print the skirt
-						current_position[Y_AXIS] = 107.5; current_position[E_AXIS] += ((187.5-107.5)*0.33*current_position[Z_AXIS]*10/55.119)*1.5;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-						st_synchronize();						
-						current_position[X_AXIS] = 149.5; current_position[E_AXIS] += ((149.5-125.5)*0.33*current_position[Z_AXIS]*10/55.119)*1.5;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-						st_synchronize();
-						current_position[Y_AXIS] = 187.5; current_position[E_AXIS] += ((187.5-107.5)*0.33*current_position[Z_AXIS]*10/55.119)*1.5;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-						st_synchronize();
-						current_position[X_AXIS] = 125.5; current_position[E_AXIS] += ((149.5-125.5)*0.33*current_position[Z_AXIS]*10/55.119)*1.5;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-						st_synchronize();
-						current_position[E_AXIS]-=4;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,active_extruder);
-						st_synchronize();
-						
-						int	  distance_x = 4;
-						int	  distance_y = 72;
-						float initial_x_pos = 129.5;
-						float initial_y_pos = 183.5;
-						float initial_z_pos = 0.1;
-						float z_layer_test = 0.15;		
-									
-						current_position[X_AXIS] = initial_x_pos; current_position[Y_AXIS] = initial_y_pos;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
-						st_synchronize();
-						
-						current_position[Z_AXIS]= initial_z_pos;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],10,active_extruder);
-						st_synchronize();												
-											
-						for(int i = 1; i<=5;i++){
-							
-							current_position[E_AXIS]+= 4;
-							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],100,active_extruder);
-							st_synchronize();
-							
-							current_position[Y_AXIS] = initial_y_pos-distance_y;  current_position[E_AXIS]+=((distance_y)*0.33*0.15*10/55.119);
-							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-							st_synchronize();
-							
-							current_position[E_AXIS]-=4;
-							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,active_extruder);
-							st_synchronize();
-							
-							if(i != 5){
-								current_position[X_AXIS] = initial_x_pos+(distance_x*i); current_position[Y_AXIS] = initial_y_pos;
-								plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
-								st_synchronize();
-								
-								current_position[Z_AXIS]+= 0.05;
-								plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],10,active_extruder);
-								st_synchronize();
-							}
-						}
-						
-						
-						//RETIRE HOTEND						
-						current_position[Z_AXIS]+= 2; 
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-						st_synchronize();
-						
-						home_axis_from_code(true,true,false);
-						
-						current_position[Z_AXIS]-= 2;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-						st_synchronize();					
-									
-						dobloking = false;
-						//SELECT LINES SCREEN						
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_LEFT_Z_TEST,0);
-					}
-					void right_test_print_code(){	
-						dobloking = true;
-						if (active_extruder != RIGHT_EXTRUDER) changeTool(RIGHT_EXTRUDER);
-						
-						current_position[E_AXIS]+=15; 
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
-						st_synchronize();
-						current_position[Z_AXIS]=0.4; 
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],6000/60,active_extruder);
-						st_synchronize();
-						current_position[E_AXIS]-=4; //0.5 + 0.15 per ajustar una bona alçada
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],12000/60,active_extruder);
-						st_synchronize();			
-									
-						
-						//SKIRT v2
-						current_position[Y_AXIS] = 187.5; 
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
-						st_synchronize();
-						current_position[X_AXIS] = 157.5 ;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
-						st_synchronize();	
-						current_position[Z_AXIS]= 0.2;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-						
-						current_position[E_AXIS]+=3;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_SLOW_SPEED/60,active_extruder);
-						st_synchronize();	
-						
-						current_position[X_AXIS] = 181.5; current_position[E_AXIS] += ((181.5-157.5)*0.33*current_position[Z_AXIS]*10/55.119)*1.5;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-						st_synchronize();
-						current_position[Y_AXIS] = 107.5; current_position[E_AXIS] += ((187.5-107.5)*0.33*current_position[Z_AXIS]*10/55.119)*1.5;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-						st_synchronize();
-						current_position[X_AXIS] = 157.5; current_position[E_AXIS] += ((181.5-157.5)*0.33*current_position[Z_AXIS]*10/55.119)*1.5;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-						st_synchronize();
-						current_position[Y_AXIS] = 187.5; current_position[E_AXIS] += ((187.5-107.5)*0.33*current_position[Z_AXIS]*10/55.119)*1.5;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-						st_synchronize();
-						
-						current_position[E_AXIS]-=4;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED,active_extruder);
-						st_synchronize();
-						
-						int distance_x = 4;
-						int distance_y = 72;
-						float initial_x_pos = 161.5;		
-						float initial_y_pos = 183.5;
-						float initial_z_pos = 0.1;	
-						float z_layer_test = 0.15;		
-									
-						current_position[X_AXIS] = initial_x_pos; current_position[Y_AXIS] = initial_y_pos;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
-						st_synchronize();
-						
-						current_position[Z_AXIS]= initial_z_pos;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],10,active_extruder);
-						st_synchronize();												
-											
-						for(int i = 1; i<=5;i++){
-							
-							current_position[E_AXIS]+= 4;
-							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],100,active_extruder);
-							st_synchronize();
-							
-							current_position[Y_AXIS] = initial_y_pos-distance_y;  current_position[E_AXIS]+=((distance_y)*0.33*0.15*10/55.119);
-							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-							st_synchronize();
-							
-							current_position[E_AXIS]-=4;
-							plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],INSERT_FAST_SPEED/60,active_extruder);
-							st_synchronize();
-							
-							if(i != 5){
-								current_position[X_AXIS] = initial_x_pos+(distance_x*i); current_position[Y_AXIS] = initial_y_pos;
-								plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],3000/60,active_extruder);
-								st_synchronize();
-								
-								current_position[Z_AXIS]+= 0.05;
-								plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],10,active_extruder);
-								st_synchronize();
-							}
-						}						
-						
-						//RETIRE HOTEND						
-						current_position[Z_AXIS]+= 2; 
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-						st_synchronize();
-						
-						home_axis_from_code(true,true,false);
-						st_synchronize();
-									
-						current_position[Z_AXIS]+= 2;
-						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],1500/60,active_extruder);
-						st_synchronize();
-						dobloking = false;						
-						//SELECT LINES SCREEN						
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_RIGHT_Z_TEST,0);
-					}
-					
-					
-					
-					void home_axis_from_code(bool x_c, bool y_c, bool z_c)
-					{
-						
-						#ifdef ENABLE_AUTO_BED_LEVELING
-							plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
-						#endif //ENABLE_AUTO_BED_LEVELING
 
-						#ifdef Z_SIGMA_HOME
-							int saved_active_extruder = active_extruder;
-							Serial.print("Extruder active: ");
-							Serial.println(saved_active_extruder);
-						#endif
-					
-						saved_feedrate = feedrate;
-						saved_feedmultiply = feedmultiply;
-						feedmultiply = 100;
-						previous_millis_cmd = millis();
 
-						enable_endstops(true); //Activate endstops
+void home_axis_from_code(bool x_c, bool y_c, bool z_c)
+{
+	
+	#ifdef ENABLE_AUTO_BED_LEVELING
+	plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
+	#endif //ENABLE_AUTO_BED_LEVELING
 
-						for(int8_t i=0; i < NUM_AXIS; i++) {
-							destination[i] = current_position[i];
-						}
-						feedrate = 0.0;
+	#ifdef Z_SIGMA_HOME
+	int saved_active_extruder = active_extruder;
+	Serial.print("Extruder active: ");
+	Serial.println(saved_active_extruder);
+	#endif
+	
+	saved_feedrate = feedrate;
+	saved_feedmultiply = feedmultiply;
+	feedmultiply = 100;
+	previous_millis_cmd = millis();
 
-						home_all_axis = !(x_c || y_c || z_c);
+	enable_endstops(true); //Activate endstops
 
-						#if Z_HOME_DIR > 0                      // If homing away from BED do Z first. WE ARE NOT USING THIS IN SIGMA
-							if((home_all_axis) || (z_c) {
-								HOMEAXIS(Z);
-							}
-						#endif
+	for(int8_t i=0; i < NUM_AXIS; i++) {
+		destination[i] = current_position[i];
+	}
+	feedrate = 0.0;
 
-						#ifdef QUICK_HOME
-							if((home_all_axis)||( x_c) && (y_c))  //first diagonal move
-							{
-								current_position[X_AXIS] = 0;current_position[Y_AXIS] = 0;
+	home_all_axis = !(x_c || y_c || z_c);
 
-								#ifndef DUAL_X_CARRIAGE
-									int x_axis_home_dir = home_dir(X_AXIS); //Set X directions
-								#else
-									int x_axis_home_dir = x_home_dir(active_extruder);
-									extruder_duplication_enabled = false;
-								#endif
+	#if Z_HOME_DIR > 0                      // If homing away from BED do Z first. WE ARE NOT USING THIS IN SIGMA
+	if((home_all_axis) || (z_c) {
+		HOMEAXIS(Z);
+	}
+	#endif
 
-								plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-					
-								destination[X_AXIS] = 1.5 * max_length(X_AXIS) * x_axis_home_dir;
-								destination[Y_AXIS] = 1.5 * max_length(Y_AXIS) * home_dir(Y_AXIS);
-					
-								feedrate = homing_feedrate[X_AXIS];
-					
-								if(homing_feedrate[Y_AXIS]<feedrate) feedrate = homing_feedrate[Y_AXIS];
-					
-								if (max_length(X_AXIS) > max_length(Y_AXIS)) {
-									feedrate *= sqrt(pow(max_length(Y_AXIS) / max_length(X_AXIS), 2) + 1);
-								} else {
-									feedrate *= sqrt(pow(max_length(X_AXIS) / max_length(Y_AXIS), 2) + 1);
-								}
-					
-								plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
-								st_synchronize();
+	#ifdef QUICK_HOME
+	if((home_all_axis)||( x_c) && (y_c))  //first diagonal move
+	{
+		current_position[X_AXIS] = 0;current_position[Y_AXIS] = 0;
 
-								axis_is_at_home(X_AXIS);
-								axis_is_at_home(Y_AXIS);
-					
-								plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-								destination[X_AXIS] = current_position[X_AXIS];
-								destination[Y_AXIS] = current_position[Y_AXIS];
-								plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
-								feedrate = 0.0;
-								st_synchronize();
-								endstops_hit_on_purpose();
+		#ifndef DUAL_X_CARRIAGE
+		int x_axis_home_dir = home_dir(X_AXIS); //Set X directions
+		#else
+		int x_axis_home_dir = x_home_dir(active_extruder);
+		extruder_duplication_enabled = false;
+		#endif
 
-								current_position[X_AXIS] = destination[X_AXIS];
-								current_position[Y_AXIS] = destination[Y_AXIS];
-								current_position[Z_AXIS] = destination[Z_AXIS];
-							}
-						#endif
+		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		
+		destination[X_AXIS] = 1.5 * max_length(X_AXIS) * x_axis_home_dir;
+		destination[Y_AXIS] = 1.5 * max_length(Y_AXIS) * home_dir(Y_AXIS);
+		
+		feedrate = homing_feedrate[X_AXIS];
+		
+		if(homing_feedrate[Y_AXIS]<feedrate) feedrate = homing_feedrate[Y_AXIS];
+		
+		if (max_length(X_AXIS) > max_length(Y_AXIS)) {
+			feedrate *= sqrt(pow(max_length(Y_AXIS) / max_length(X_AXIS), 2) + 1);
+			} else {
+			feedrate *= sqrt(pow(max_length(X_AXIS) / max_length(Y_AXIS), 2) + 1);
+		}
+		
+		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+		st_synchronize();
 
-						if((home_all_axis) || (x_c)) // First do X
-						{
-							#ifdef DUAL_X_CARRIAGE
-								#ifdef Z_SIGMA_HOME
-									if(saved_active_extruder == RIGHT_EXTRUDER)
-									{
-										//active_extruder=LEFT_EXTRUDER; //Always use the same routine (left extruder probes)
-									}
-								#endif
-								int tmp_extruder = active_extruder;
-								extruder_duplication_enabled = false;
-								active_extruder = !active_extruder;
-								HOMEAXIS(X);
-								inactive_extruder_x_pos = current_position[X_AXIS];
-								active_extruder = tmp_extruder;
-								HOMEAXIS(X);
-								// reset state used by the different modes
-								memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
-								delayed_move_time = 0;
-								active_extruder_parked = true;
-							#else
-								HOMEAXIS(X);
-							#endif
-						}
+		axis_is_at_home(X_AXIS);
+		axis_is_at_home(Y_AXIS);
+		
+		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		destination[X_AXIS] = current_position[X_AXIS];
+		destination[Y_AXIS] = current_position[Y_AXIS];
+		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+		feedrate = 0.0;
+		st_synchronize();
+		endstops_hit_on_purpose();
 
-						if((home_all_axis) || (y_c)) {
-							HOMEAXIS(Y);
-						}
+		current_position[X_AXIS] = destination[X_AXIS];
+		current_position[Y_AXIS] = destination[Y_AXIS];
+		current_position[Z_AXIS] = destination[Z_AXIS];
+	}
+	#endif
 
-						
+	if((home_all_axis) || (x_c)) // First do X
+	{
+		#ifdef DUAL_X_CARRIAGE
+		#ifdef Z_SIGMA_HOME
+		if(saved_active_extruder == RIGHT_EXTRUDER)
+		{
+			//active_extruder=LEFT_EXTRUDER; //Always use the same routine (left extruder probes)
+		}
+		#endif
+		int tmp_extruder = active_extruder;
+		extruder_duplication_enabled = false;
+		active_extruder = !active_extruder;
+		HOMEAXIS(X);
+		inactive_extruder_x_pos = current_position[X_AXIS];
+		active_extruder = tmp_extruder;
+		HOMEAXIS(X);
+		// reset state used by the different modes
+		memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+		delayed_move_time = 0;
+		active_extruder_parked = true;
+		#else
+		HOMEAXIS(X);
+		#endif
+	}
 
-						#if Z_HOME_DIR < 0   // If homing towards BED do Z last
-							//Rapduch
-							#ifdef Z_SIGMA_HOME
-								if((home_all_axis) || (z_c)) {
-					
-					
-									if (saved_active_extruder == RIGHT_EXTRUDER){
-										active_extruder=LEFT_EXTRUDER;
-										axis_is_at_home(X_AXIS);
-										plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
-									}
-					
-									destination[X_AXIS] = round(Z_SIGMA_HOME_X_POINT-X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
-									destination[Y_AXIS] = round(Z_SIGMA_HOME_Y_POINT-Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
-									destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
-									feedrate = SIGMA_Z_HOME_TRAVEL_SPEED;
-									current_position[Z_AXIS] = 0;
-					
-									plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-									plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);//Left Extruder
-									st_synchronize();
-									
-									current_position[X_AXIS] = destination[X_AXIS];
-									current_position[Y_AXIS] = destination[Y_AXIS];
-									HOMEAXIS(Z);
-					
-									Serial.println("Z SIGMA Homed");
-									home_made_Z = true;
-									//At this point our probe is homed, no offset is added.
+	if((home_all_axis) || (y_c)) {
+		HOMEAXIS(Y);
+	}
 
-									//Now lets home with the second extruder:
-									//st_synchronize();
-									//
-									//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+10, current_position[E_AXIS], feedrate, 1);
-									////plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS]+10, current_position[E_AXIS], feedrate, 1);
-									//destination[X_AXIS] = round(Z_SIGMA_HOME_SECOND_X_POINT);
-									//destination[Y_AXIS] = round(Z_SIGMA_HOME_SECOND_Y_POINT);
-									//destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
-									//feedrate = XY_SIGMA_TRAVEL_SPEED;
-									//current_position[Z_AXIS] = 0;
-									//SERIAL_ECHO("Z SIGMA Homed");
-									//
-									//plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-									//plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, tmp_extruder); //Second extruder(temporal)
-									//current_position[X_AXIS] = destination[X_AXIS];
-									//current_position[Y_AXIS] = destination[Y_AXIS];
-									//HOMEAXIS(Z);
-					
-								}
-							#else
-					
-								#ifndef Z_SAFE_HOMING
-									if((home_all_axis) || (z_c)) {
-										#if defined (Z_RAISE_BEFORE_HOMING) && (Z_RAISE_BEFORE_HOMING > 0)
-											destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
-											feedrate = max_feedrate[Z_AXIS];
-											plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
-											st_synchronize();
-										#endif
-										HOMEAXIS(Z);
-									}
-								#else                   // Z Safe mode activated.
-									if(home_all_axis) {
-										destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT - X_PROBE_OFFSET_FROM_EXTRUDER);
-										destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT - Y_PROBE_OFFSET_FROM_EXTRUDER);
-										destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
-										feedrate = XY_TRAVEL_SPEED;
-										current_position[Z_AXIS] = 0;
+	
 
-										plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-										plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
-										st_synchronize();
-										current_position[X_AXIS] = destination[X_AXIS];
-										current_position[Y_AXIS] = destination[Y_AXIS];
+	#if Z_HOME_DIR < 0   // If homing towards BED do Z last
+	//Rapduch
+	#ifdef Z_SIGMA_HOME
+	if((home_all_axis) || (z_c)) {
+		
+		
+		if (saved_active_extruder == RIGHT_EXTRUDER){
+			active_extruder=LEFT_EXTRUDER;
+			axis_is_at_home(X_AXIS);
+			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS]);
+		}
+		
+		destination[X_AXIS] = round(Z_SIGMA_HOME_X_POINT-X_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
+		destination[Y_AXIS] = round(Z_SIGMA_HOME_Y_POINT-Y_SIGMA_PROBE_OFFSET_FROM_EXTRUDER);
+		destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+		feedrate = SIGMA_Z_HOME_TRAVEL_SPEED;
+		current_position[Z_AXIS] = 0;
+		
+		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);//Left Extruder
+		st_synchronize();
+		
+		current_position[X_AXIS] = destination[X_AXIS];
+		current_position[Y_AXIS] = destination[Y_AXIS];
+		HOMEAXIS(Z);
+		
+		Serial.println("Z SIGMA Homed");
+		home_made_Z = true;
+		//At this point our probe is homed, no offset is added.
 
-										HOMEAXIS(Z);
-									}
-					
-									//Let's see if X and Y are homed and probe is inside bed area.
-									if(z_c) {
-										if ( (axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]) \
-										&& (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER >= X_MIN_POS) \
-										&& (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER <= X_MAX_POS) \
-										&& (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER >= Y_MIN_POS) \
-										&& (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER <= Y_MAX_POS)){
-					
-											current_position[Z_AXIS] = 0;
-											plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-											destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
-											feedrate = max_feedrate[Z_AXIS];
-											plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
-											st_synchronize();
+		//Now lets home with the second extruder:
+		//st_synchronize();
+		//
+		//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+10, current_position[E_AXIS], feedrate, 1);
+		////plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS]+10, current_position[E_AXIS], feedrate, 1);
+		//destination[X_AXIS] = round(Z_SIGMA_HOME_SECOND_X_POINT);
+		//destination[Y_AXIS] = round(Z_SIGMA_HOME_SECOND_Y_POINT);
+		//destination[Z_AXIS] = Z_SIGMA_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+		//feedrate = XY_SIGMA_TRAVEL_SPEED;
+		//current_position[Z_AXIS] = 0;
+		//SERIAL_ECHO("Z SIGMA Homed");
+		//
+		//plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		//plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, tmp_extruder); //Second extruder(temporal)
+		//current_position[X_AXIS] = destination[X_AXIS];
+		//current_position[Y_AXIS] = destination[Y_AXIS];
+		//HOMEAXIS(Z);
+		
+	}
+	#else
+	
+	#ifndef Z_SAFE_HOMING
+	if((home_all_axis) || (z_c)) {
+		#if defined (Z_RAISE_BEFORE_HOMING) && (Z_RAISE_BEFORE_HOMING > 0)
+		destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+		feedrate = max_feedrate[Z_AXIS];
+		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+		st_synchronize();
+		#endif
+		HOMEAXIS(Z);
+	}
+	#else                   // Z Safe mode activated.
+	if(home_all_axis) {
+		destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT - X_PROBE_OFFSET_FROM_EXTRUDER);
+		destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT - Y_PROBE_OFFSET_FROM_EXTRUDER);
+		destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+		feedrate = XY_TRAVEL_SPEED;
+		current_position[Z_AXIS] = 0;
 
-											HOMEAXIS(Z);
-										} else if (!((axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]))) {
-											LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
-											SERIAL_ECHO_START;
-											SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
-										} else {
-											LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
-											SERIAL_ECHO_START;
-											SERIAL_ECHOLNPGM(MSG_ZPROBE_OUT);
-										}
-									}
-								#endif
-					
-							#endif
-					
-						#endif						
-					
-						//Rapduch
-						#ifdef Z_SIGMA_HOME
-							if((home_all_axis) || (z_c)) {
-								current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
-							}
-						#else
-							#ifdef ENABLE_AUTO_BED_LEVELING  //ADDING the Z offset
-								//if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
-								//current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
-								//}
-							#endif
-						#endif
+		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+		st_synchronize();
+		current_position[X_AXIS] = destination[X_AXIS];
+		current_position[Y_AXIS] = destination[Y_AXIS];
 
-						plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		HOMEAXIS(Z);
+	}
+	
+	//Let's see if X and Y are homed and probe is inside bed area.
+	if(z_c) {
+		if ( (axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]) \
+		&& (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER >= X_MIN_POS) \
+		&& (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER <= X_MAX_POS) \
+		&& (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER >= Y_MIN_POS) \
+		&& (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER <= Y_MAX_POS)){
+			
+			current_position[Z_AXIS] = 0;
+			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+			destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+			feedrate = max_feedrate[Z_AXIS];
+			plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+			st_synchronize();
 
-						#ifdef ENDSTOPS_ONLY_FOR_HOMING
-							enable_endstops(false);
-						#endif
+			HOMEAXIS(Z);
+			} else if (!((axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]))) {
+			LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
+			SERIAL_ECHO_START;
+			SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
+			} else {
+			LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
+			SERIAL_ECHO_START;
+			SERIAL_ECHOLNPGM(MSG_ZPROBE_OUT);
+		}
+	}
+	#endif
+	
+	#endif
+	
+	#endif
+	
+	//Rapduch
+	#ifdef Z_SIGMA_HOME
+	if((home_all_axis) || (z_c)) {
+		current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
+	}
+	#else
+	#ifdef ENABLE_AUTO_BED_LEVELING  //ADDING the Z offset
+	//if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+	//current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
+	//}
+	#endif
+	#endif
 
-						feedrate = saved_feedrate;
-						feedmultiply = saved_feedmultiply;
-						previous_millis_cmd = millis();
-						endstops_hit_on_purpose();
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
-						//Rapduch
-						#ifdef Z_SIGMA_HOME  //This to return the left extruder at Xhome position
-							if((home_all_axis) || (z_c)) {
-							saved_feedrate = homing_feedrate[Z_AXIS];
-							homing_feedrate[Z_AXIS] = CALIB_FEEDRATE_ZAXIS;
-							feedrate = homing_feedrate[Z_AXIS];
-							current_position[Z_AXIS]+=Z_SIGMA_RAISE_AFTER_HOMING;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-							current_position[X_AXIS] = x_home_pos(active_extruder);
-							feedrate = homing_feedrate[X_AXIS];
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-							current_position[Z_AXIS] = 0;
-							feedrate = homing_feedrate[Z_AXIS];
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-							st_synchronize();
-							
-							homing_feedrate[Z_AXIS]= saved_feedrate;
-								if(saved_active_extruder==RIGHT_EXTRUDER)
-								{
-									changeToolSigma(RIGHT_EXTRUDER); //Get again the same tool
-									Serial.print("Extruder released active: ");
-									Serial.println(saved_active_extruder);
-								}
-								////Activate Probing sequence
-								//setup_for_endstop_move();
-								//feedrate = homing_feedrate[Z_AXIS];
-								//active_extruder=1; //extruder1(right) instead of extruder0(left)
-								////tmp_extruder=active_extruder;
-								//probe_pt(Z_SIGMA_HOME_SECOND_X_POINT,Z_SIGMA_HOME_SECOND_Y_POINT, Z_SIGMA_RAISE_BEFORE_HOMING);
-								//clean_up_after_endstop_move();
-							}
-						#endif
-						home_made = true;
-					}
+	#ifdef ENDSTOPS_ONLY_FOR_HOMING
+	enable_endstops(false);
+	#endif
+
+	feedrate = saved_feedrate;
+	feedmultiply = saved_feedmultiply;
+	previous_millis_cmd = millis();
+	endstops_hit_on_purpose();
+
+	//Rapduch
+	#ifdef Z_SIGMA_HOME  //This to return the left extruder at Xhome position
+	if((home_all_axis) || (z_c)) {
+		saved_feedrate = homing_feedrate[Z_AXIS];
+		homing_feedrate[Z_AXIS] = CALIB_FEEDRATE_ZAXIS;
+		feedrate = homing_feedrate[Z_AXIS];
+		current_position[Z_AXIS]+=Z_SIGMA_RAISE_AFTER_HOMING;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		current_position[X_AXIS] = x_home_pos(active_extruder);
+		feedrate = homing_feedrate[X_AXIS];
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		current_position[Z_AXIS] = 0;
+		feedrate = homing_feedrate[Z_AXIS];
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+		st_synchronize();
+		
+		homing_feedrate[Z_AXIS]= saved_feedrate;
+		if(saved_active_extruder==RIGHT_EXTRUDER)
+		{
+			changeToolSigma(RIGHT_EXTRUDER); //Get again the same tool
+			Serial.print("Extruder released active: ");
+			Serial.println(saved_active_extruder);
+		}
+		////Activate Probing sequence
+		//setup_for_endstop_move();
+		//feedrate = homing_feedrate[Z_AXIS];
+		//active_extruder=1; //extruder1(right) instead of extruder0(left)
+		////tmp_extruder=active_extruder;
+		//probe_pt(Z_SIGMA_HOME_SECOND_X_POINT,Z_SIGMA_HOME_SECOND_Y_POINT, Z_SIGMA_RAISE_BEFORE_HOMING);
+		//clean_up_after_endstop_move();
+	}
+	#endif
+	home_made = true;
+}
 
