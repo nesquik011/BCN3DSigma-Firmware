@@ -35,11 +35,12 @@ class Listfiles
 	char comandline2[25];
 	
 	private:
-	int dias, horas, minutos;
+	int dias, horas, minutos, simplify3D;
 	int filmetros1, filmetros2;
 	int filgramos1, filgramos2;
 	void extract_data(void);
 	void extract_data1(void);
+	int extract_data_Symplify(void);
 };
 	
 extern Listfiles listsd;	

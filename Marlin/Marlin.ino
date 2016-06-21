@@ -908,44 +908,55 @@ int getBuflen ()
 inline void ListFilesUpfunc(){
 	if (card.cardOK){
 		uint16_t fileCnt = card.getnrfilenames();
-		
-		if (filepointer == card.getnrfilenames()-LISTNUMSDFILES)
-		{
-			filepointer=LISTNUMSDFILES -LISTNUMSDFILES; //First SD file
+		if(fileCnt > LISTNUMSDFILES){
+			if (filepointer == card.getnrfilenames()-LISTNUMSDFILES)
+			{
+				filepointer=LISTNUMSDFILES -LISTNUMSDFILES; //First SD file
+			}
+			#if LISTNUMSDFILES > 1
+			else if (filepointer == card.getnrfilenames()-LISTNUMSDFILES+1)
+			{
+				filepointer=LISTNUMSDFILES -LISTNUMSDFILES+1; //First SD file
+			}
+			#endif
+			#if LISTNUMSDFILES > 2
+			else if (filepointer == card.getnrfilenames()-LISTNUMSDFILES+2)
+			{
+				filepointer=LISTNUMSDFILES -LISTNUMSDFILES+2; //First SD file
+			}
+			#endif
+			#if LISTNUMSDFILES > 3
+			else if (filepointer == card.getnrfilenames()-LISTNUMSDFILES+3)
+			{
+				filepointer=LISTNUMSDFILES -LISTNUMSDFILES+3; //First SD file
+			}
+			#endif
+			#if LISTNUMSDFILES > 4
+			else if (filepointer == card.getnrfilenames()-LISTNUMSDFILES+4)
+			{
+				filepointer=LISTNUMSDFILES -LISTNUMSDFILES+4; //First SD file
+			}
+			#endif
+			#if LISTNUMSDFILES > 5
+			else if (filepointer == card.getnrfilenames()-LISTNUMSDFILES+5)
+			{
+				filepointer=LISTNUMSDFILES -LISTNUMSDFILES+5; //First SD file
+			}
+			#endif
+			else
+			{
+				filepointer+=LISTNUMSDFILES;
+			}
 		}
-		#if LISTNUMSDFILES > 1
-		else if (filepointer == card.getnrfilenames()-LISTNUMSDFILES+1)
-		{
-			filepointer=LISTNUMSDFILES -LISTNUMSDFILES+1; //First SD file
-		}
-		#endif
-		#if LISTNUMSDFILES > 2
-		else if (filepointer == card.getnrfilenames()-LISTNUMSDFILES+2)
-		{
-			filepointer=LISTNUMSDFILES -LISTNUMSDFILES+2; //First SD file
-		}
-		#endif
-		#if LISTNUMSDFILES > 3
-		else if (filepointer == card.getnrfilenames()-LISTNUMSDFILES+3)
-		{
-			filepointer=LISTNUMSDFILES -LISTNUMSDFILES+3; //First SD file
-		}
-		#endif
-		#if LISTNUMSDFILES > 4
-		else if (filepointer == card.getnrfilenames()-LISTNUMSDFILES+4)
-		{
-			filepointer=LISTNUMSDFILES -LISTNUMSDFILES+4; //First SD file
-		}
-		#endif
-		#if LISTNUMSDFILES > 5
-		else if (filepointer == card.getnrfilenames()-LISTNUMSDFILES+5)
-		{
-			filepointer=LISTNUMSDFILES -LISTNUMSDFILES+5; //First SD file
-		}
-		#endif
-		else
-		{
-			filepointer+=LISTNUMSDFILES;
+		else{
+			
+			if (filepointer == card.getnrfilenames()-1)
+			{
+				filepointer=0; //Last SD file
+				}else{
+				filepointer++;
+			}
+			
 		}
 		
 		int vecto = 0;
