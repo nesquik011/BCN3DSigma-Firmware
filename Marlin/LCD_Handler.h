@@ -385,8 +385,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_PLA){
 					if (which_extruder == 1) // Need to pause
 					{
-						
-					
 					
 					print_temp_r = PLA_PRINT_TEMP;
 					insert_temp_r = PLA_INSERT_TEMP;
@@ -1344,8 +1342,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						setTargetHotend1(0);
 						log_prints++;
 						Config_StoreSettings();
-						/*enquecommand_P(PSTR("T0"));
-						st_synchronize();*/
+						//gcode_T0_T1_auto(0);
+						//st_synchronize();
 						
 						if (!card.filenameIsDir){ //If the filename is a gcode we start printing
 							char cmd[30];
@@ -1475,71 +1473,86 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					filament_mode = 'R';
 					flag_nylon_clean_metode = true;
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_LEFT, 0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_RIGHT, 0);
+					genie.WriteObject(GENIE_OBJ_USERIMAGES, IMAG_NYLON_SELECT_TEXT, 0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_SKIP, 0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_GO, 0);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_SELECT,0);
-					which_extruder = -1;
+				
+					which_extruder = 255;
+					
 				}
 				#pragma region Nylon
 				else if (Event.reportObject.index == BUTTON_NYLON_SELECT_BACKMENU ){
 					
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_MAINTENANCE, 0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_LEFT, 0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_RIGHT, 0);
+					genie.WriteObject(GENIE_OBJ_USERIMAGES, IMAG_NYLON_SELECT_TEXT, 0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_SKIP, 0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_GO, 0);
 					flag_nylon_clean_metode = false;
 				}
 				else if (Event.reportObject.index == BUTTON_NYLON_SELECT_LEFT ){
 					
 					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_LEFT, 1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_RIGHT, 0);
-					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_TEXT, 1);
+					genie.WriteObject(GENIE_OBJ_USERIMAGES, IMAG_NYLON_SELECT_TEXT, 1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_SKIP, 1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_GO, 1);
 					which_extruder = 0;
+					
 				}
 				else if (Event.reportObject.index == BUTTON_NYLON_SELECT_RIGHT ){
 					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_LEFT, 0);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_RIGHT, 1);
-					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_TEXT, 1);
+					genie.WriteObject(GENIE_OBJ_USERIMAGES, IMAG_NYLON_SELECT_TEXT, 1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_SKIP, 1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_GO, 1);
 					which_extruder = 1;
+					
 				}
 				else if (Event.reportObject.index == BUTTON_NYLON_SELECT_GO ){
-					if(which_extruder != -1){
+					
+					if(which_extruder != 255){
 						
-					if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
-					else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);
-					
-					
-					processing = true;
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-					
-					if (home_made_Z){
-						home_axis_from_code(true,true,false);
-					}
-					else{
-						home_axis_from_code(true,true,true);
-					}
-					
-					current_position[Z_AXIS]=Z_MAX_POS-15;
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
-					
-					current_position[Y_AXIS]=10;
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS], active_extruder); //check speed
-					st_synchronize();
-					
-					
-					processing = false;
-					
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
-					
-					processing_adjusting = true;
-					
-					is_changing_filament=true; //We are changing filament
-					
-					
+						if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
+						else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);
+						
+						
+						processing = true;
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						
+						if (home_made_Z){
+							home_axis_from_code(true,true,false);
+						}
+						else{
+							home_axis_from_code(true,true,true);
+						}
+						
+						current_position[Z_AXIS]=Z_MAX_POS-15;
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
+						
+						current_position[Y_AXIS]=10;
+						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS], active_extruder); //check speed
+						st_synchronize();
+						
+						
+						processing = false;
+						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+						
+						processing_adjusting = true;
+						
+						is_changing_filament=true; //We are changing filament
+						
+						
 					}
 				}
 				else if (Event.reportObject.index == BUTTON_NYLON_SELECT_SKIP ){
 					
-					if(which_extruder != -1){
+					if(which_extruder != 255){
 						
 						setTargetHotend(260.0,which_extruder);
 						processing = true;

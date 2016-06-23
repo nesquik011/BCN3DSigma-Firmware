@@ -353,6 +353,7 @@ extern bool screen_change_nozz2down;
 extern bool screen_change_beddown;
 extern bool screen_change_speeddown;
 extern void checkMaxTemps();
+extern void gcode_T0_T1_auto(int code);
 extern void Config_Reset_Statistics(int data);
 extern void Change_ConfigTemp_LeftHotend(int i_temp_l, int remove_temp_l, int p_temp_r, int b_temp_l);
 extern void Change_ConfigTemp_RightHotend(int i_temp_r, int r_temp_r, int p_temp_r, int b_temp_r);

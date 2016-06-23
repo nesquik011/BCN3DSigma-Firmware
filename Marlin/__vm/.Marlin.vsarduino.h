@@ -184,6 +184,7 @@ inline void gcode_M351();
 inline void gcode_M999();
 inline void gcode_M851();
 inline void gcode_T0_T1();
+inline void gcode_T0_T1_auto(int code);
 void process_commands();
 void changeToolSigma(int tool);
 void changeTool(int ntool);
