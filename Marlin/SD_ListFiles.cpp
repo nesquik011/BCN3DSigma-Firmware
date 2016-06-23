@@ -182,6 +182,9 @@ void Listfiles::extract_data(void){
 	else if (simplify3D == 1){
 		dias = 0;
 		sscanf( comandline, ";   Build time: %d hours %d minutes", &horas, &minutos);
+		if(minutos==-1){
+			sscanf( comandline, ";   Build time: %d hour %d minutes", &horas, &minutos);
+		}
 		//Serial.println("simplify3D");
 	}
 	//Serial.println(comandline);

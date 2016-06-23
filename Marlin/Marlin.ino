@@ -2359,8 +2359,7 @@ void update_screen_printing(){
 		
 		enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
 		st_synchronize();
-		enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
-		st_synchronize();
+		
 		
 		setTargetHotend0(0);
 		setTargetHotend1(0);
@@ -2389,6 +2388,8 @@ void update_screen_printing(){
 	surfing_temps = false;
 	
 	print_print_stop = false;
+	enquecommand_P(PSTR("T0")); //The default states is Left Extruder active
+	st_synchronize();
 }
 if (surfing_utilities)
 {
@@ -2413,18 +2414,18 @@ if (surfing_utilities)
 		sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
 		//Serial.println(buffer);
 		genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
-		
-		if (degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-5) {
+		/*
+		if (degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10) {
 			
 			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,0);
 			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,0);
-			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,0);
+			//genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,0);
 		}
 		else{
 			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,1);
 			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,1);
-			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,1);
-		}
+			//genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,1);
+		}*/
 		
 		#if EXTRUDERS > 1
 		// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
@@ -2444,7 +2445,7 @@ if (surfing_utilities)
 			{
 				heatting = false;
 				genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL,0);
 				genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
 				
 			}
@@ -2662,7 +2663,7 @@ void update_screen_noprinting(){
 			sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
-			
+			/*
 			if (degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10) {
 				
 				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,0);
@@ -2673,7 +2674,7 @@ void update_screen_noprinting(){
 				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,1);
 				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,1);
 				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,1);
-			}
+			}*/
 			
 			#if EXTRUDERS > 1
 			// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
