@@ -88,9 +88,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				if (Event.reportObject.index == BUTTON_PRINT_SETTINGS )
 				{
 					
-					char buffer[256];
-					
-					is_on_printing_screen=false;
 					
 					print_setting_refresh = true;
 					
@@ -98,29 +95,81 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				
 				
+				else if (Event.reportObject.index == BUTTON_PRINTING_BACK_STATE )
+				{
+					if(screen_printing_pause_form ==screen_printing_pause_form2){
+						screen_printing_pause_form = screen_printing_pause_form1;
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PRINT_SETTINGS,1);
+						surfing_utilities = false;
+					}
+				}
 				
 				else if (Event.reportObject.index == BUTTON_STOP_YES )
 				{
 					is_on_printing_screen=false;
 					print_print_stop = true;
 				}
-				
-				else if (Event.reportObject.index == BUTTON_PAUSE_RESUME && card.sdprinting)
+				else if (Event.reportObject.index == BUTTON_STOP_SCREEN && (screen_printing_pause_form == screen_printing_pause_form0 || screen_printing_pause_form == screen_printing_pause_form1))
 				{
-					int value = genie.GetEventData(&Event);
-					if (value == 1) // Need to pause
-					{
-						print_print_pause = true;
-					}
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_STOP_PRINT,0);
+					
+					is_on_printing_screen=false;
+				}
+				else if (Event.reportObject.index == BUTTON_STOP_SCREEN && (screen_printing_pause_form == screen_printing_pause_form2))
+				{
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_REMOVE_MENU_FILAMENT,1);
+					filament_mode = 'R';
+					surfing_utilities = true;
+					is_on_printing_screen=false;
+				}
+				
+				else if (Event.reportObject.index == BUTTON_PAUSE_RESUME && card.sdprinting && screen_printing_pause_form == screen_printing_pause_form0)
+				{
+					
+					print_print_pause = true;
+					
 					
 				}
 				//We need to Resume/Enter Printing Settings/Stop printing
-				else if (Event.reportObject.index == BUTTON_PAUSE_RESUME && card.sdispaused)
+				else if (Event.reportObject.index == BUTTON_PAUSE_RESUME && card.sdispaused && screen_printing_pause_form == screen_printing_pause_form1)
 				{
 					//I believe it is a really unsafe way to do it
 					//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]-20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
 					//st_synchronize();
 					print_print_resume = true;
+				}
+				else if (Event.reportObject.index == BUTTON_PAUSE_RESUME && card.sdispaused && screen_printing_pause_form == screen_printing_pause_form2)
+				{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_MENU,1);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE,0);
+					surfing_utilities = true;
+					
+					Serial.println("Enter in purge mode");
+					setTargetHotend0(print_temp_l);
+					setTargetHotend1(print_temp_r);
+					if(purge_extruder_selected == 0) {
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,0);
+						
+					}
+					else {
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,1);
+					}
+					
+					char buffer[256];
+					sprintf(buffer, "%3d %cC",int(degHotend(0)),0x00B0);
+					genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);	Serial.println(buffer);
+					sprintf(buffer, "%3d %cC",int(degHotend(1)),0x00B0);
+					genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);	Serial.println(buffer);
+					sprintf(buffer, "%3d %cC",int(target_temperature[purge_extruder_selected]),0x00B0);
+					genie.WriteStr(STRING_PURGE_SELECTED,buffer);	Serial.println(buffer);
+					
+					is_on_printing_screen = false;
 				}
 				#pragma endregion Printing_screen
 				
@@ -205,12 +254,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_REMOVE_MENU_FILAMENT,1);
 					filament_mode = 'R';
 				}
-				else if ((Event.reportObject.index == BUTTON_REMOVE_BACK_FILAMENT ))
+				else if (Event.reportObject.index == BUTTON_REMOVE_BACK_FILAMENT)
 				{
 					
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_PRINT,0);
-					
-					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+					is_on_printing_screen = true;
+					surfing_utilities = false;
+					genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
+					data_refresh_flag = true;
 				}
 				
 				#pragma region Insert_Remove_Fil
@@ -987,7 +1038,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				
 				else if(Event.reportObject.index	== BUTTON_PURGE_BACK){
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_PRINT,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_MENU,0);
+					is_on_printing_screen = true;
+					surfing_utilities = false;
+					genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
+					data_refresh_flag = true;
+					
 				/*	
 				current_position[E_AXIS] = saved_position[E_AXIS]-2;
 						plan_set_e_position(current_position[E_AXIS]);*/
@@ -1057,7 +1114,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						
 						
-						genie.WriteObject(GENIE_OBJ_FORM, FORM_UTILITIES_PRINT,0);
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+						is_on_printing_screen = true;
+						surfing_utilities = false;
+						genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
+						data_refresh_flag = true;
 					}
 					
 					
@@ -1344,7 +1405,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						Config_StoreSettings();
 						//gcode_T0_T1_auto(0);
 						//st_synchronize();
-						
+						screen_printing_pause_form = screen_printing_pause_form0;
 						if (!card.filenameIsDir){ //If the filename is a gcode we start printing
 							char cmd[30];
 							char* c;

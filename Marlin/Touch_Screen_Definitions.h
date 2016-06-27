@@ -13,6 +13,8 @@
 #pragma region FORMS
 //Form
 //without form declared///////////////////////////////
+#define FORM_STOP_PRINT								1
+
 #define BUTTON_STOP_YES						1
 #define BUTTON_COOLDOWN_OK					34
 #define BUTTON_COOLDOWN_OK					34
@@ -102,7 +104,8 @@
 	#define STRING_PRINTING_BED				9
 	#define BUTTON_PRINT_SETTINGS			16
 	#define BUTTON_PAUSE_RESUME				18
-
+	#define BUTTON_STOP_SCREEN				19
+	#define BUTTON_PRINTING_BACK_STATE     68
 #define FORM_CLEAN_BED								10
 	#define	BUTTON_CLEAN_BED				71
 #define FORM_WAITING_ROOM							8
@@ -145,8 +148,8 @@
 	#define BUTTON_CAL_FULL					141
 	#define BACKBUTTON_CALIBRATION			138
 	#define BUTTON_Z_CAL_WIZARD				140
-#define FORM_CAL_WIZARD_DONE_GOOD					24
-	#define BUTTON_BED_CALIB_SUCCESS		69
+#define FORM_CAL_WIZARD_DONE_GOOD					23//24  --23
+	#define BUTTON_BED_CALIB_SUCCESS		66			////69 ----66
 #define FORM_LEFT_Z_TEST							25
 	#define BUTTON_REDO_LEFT				131
 	#define BUTTON_Z_LEFT_SELECT4			23

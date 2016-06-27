@@ -62,6 +62,9 @@
 //#else
   //#define MYSERIAL MSerial
 //#endif
+#define screen_printing_pause_form0		'A'
+#define screen_printing_pause_form1		'B'
+#define screen_printing_pause_form2		'C'
 
 #define SERIAL_PROTOCOL(x) (MYSERIAL.print(x))
 #define SERIAL_PROTOCOL_F(x,y) (MYSERIAL.print(x,y))
@@ -344,6 +347,7 @@ extern int log_max_bed;
 extern int dateresetday;
 extern int dateresetmonth;
 extern int dateresetyear;
+extern char screen_printing_pause_form;
 extern bool screen_change_nozz1up;
 extern bool screen_change_nozz2up;
 extern bool screen_change_bedup;
