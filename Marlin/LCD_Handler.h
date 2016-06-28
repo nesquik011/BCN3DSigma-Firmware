@@ -94,18 +94,30 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 				}
 				
-				
+				/*
 				else if (Event.reportObject.index == BUTTON_PRINTING_BACK_STATE )
 				{
 					if(screen_printing_pause_form ==screen_printing_pause_form2){
 						screen_printing_pause_form = screen_printing_pause_form1;
-						/*genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_STOP_SCREEN, 1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_STOP_SCREEN, 1);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PAUSE_RESUME, 1);
-						genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PRINT_SETTINGS, 1);*/
+						genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PRINT_SETTINGS, 1);
 						surfing_utilities = false;
 					}
-				}
+				}*/
 				
+				
+				else if (Event.reportObject.index == BUTTON_UTILITIES_PRINT_BACK )
+				{
+					
+					screen_printing_pause_form = screen_printing_pause_form1;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+					is_on_printing_screen = true;
+					genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
+					data_refresh_flag = true;
+					surfing_utilities = false;
+					
+				}
 				else if (Event.reportObject.index == BUTTON_STOP_YES )
 				{
 					is_on_printing_screen=false;
@@ -250,18 +262,29 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma region Printing_UTILITIES
 				
 				else if (Event.reportObject.index == BUTTON_UTILITIES_PRINT_FILAMENT){
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_REMOVE_MENU_FILAMENT,1);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
+					
 					filament_mode = 'R';
 				}
-				else if (Event.reportObject.index == BUTTON_REMOVE_BACK_FILAMENT)
+				
+				else if (Event.reportObject.index == BUTTON_PRINT_SET_BACK)
 				{
-					
+					if (screen_printing_pause_form != screen_printing_pause_form2){
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
 					is_on_printing_screen = true;
 					surfing_utilities = false;
 					genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
 					data_refresh_flag = true;
+					}
+					else{
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_PRINT,0);
+					}
+				}
+				else if (Event.reportObject.index == BUTTON_UTILITIES_PRINT_SETTINGS)
+				{
+					
+					print_setting_refresh = true;
 				}
 				
 				#pragma region Insert_Remove_Fil
@@ -1038,12 +1061,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				
 				else if(Event.reportObject.index	== BUTTON_PURGE_BACK){
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_MENU,0);
-					is_on_printing_screen = true;
-					surfing_utilities = false;
-					genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
-					data_refresh_flag = true;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_PRINT,0);
 					
 				/*	
 				current_position[E_AXIS] = saved_position[E_AXIS]-2;

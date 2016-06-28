@@ -230,6 +230,7 @@ Rapduch
 
 //Rapduch
 #ifdef SIGMA_TOUCH_SCREEN
+	bool waiting_temps = false;
 	bool screen_sdcard = false;
 	bool surfing_utilities = false;
 	bool surfing_temps = false;
@@ -2188,15 +2189,15 @@ void update_screen_printing(){
 		
 		if(card.sdispaused && (screen_printing_pause_form == screen_printing_pause_form1)){
 			
-			//genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_PRINT,0);
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_PRINT,0);
 			screen_printing_pause_form = screen_printing_pause_form2;
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,2);
+			/*genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,2);
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,2);
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PRINT_SETTINGS,2);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PRINT_SETTINGS,2);*/
 			surfing_utilities = true;
 			
 		}
-		else if((screen_printing_pause_form == screen_printing_pause_form0 || screen_printing_pause_form == screen_printing_pause_form2 )&& card.sdispaused){
+		else if(screen_printing_pause_form == screen_printing_pause_form0 || (screen_printing_pause_form == screen_printing_pause_form2 )&& card.sdispaused){
 			char buffer[25];
 			
 			memset(buffer, '\0', sizeof(buffer) );
@@ -2334,33 +2335,38 @@ void update_screen_printing(){
 		screen_change_speeddown = false;
 	}
 	if(print_print_pause){
-		////I believe it is a really unsafe way to do it
-		////plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
-		////st_synchronize();
-		card.pauseSDPrint();
-		Serial.println("PAUSE!");
-		flag_pause = true;
-		screen_printing_pause_form = screen_printing_pause_form1;
-		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,1);
-		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,1);
-		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PRINT_SETTINGS,1);
+		if(!waiting_temps){
+			////I believe it is a really unsafe way to do it
+			////plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
+			////st_synchronize();
+			card.pauseSDPrint();
+			Serial.println("PAUSE!");
+			flag_pause = true;
+		
+			/*genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,1);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,1);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PRINT_SETTINGS,1);*/
+		
+			}
 		print_print_pause = false;
 		
 	}
 	if(print_print_resume){
-		card.startFileprint();
-		Serial.println("RESUME!");
-		flag_pause = false;
-		flag_resume = true;
-		if(flag_resume){
-			enquecommand_P(((PSTR("G70"))));
-			flag_resume = false;
-			Serial.println("resume detected");
+		if(!waiting_temps){
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+			processing = true;
+			card.startFileprint();
+			Serial.println("RESUME!");
+			flag_pause = false;
+			flag_resume = true;
+			if(flag_resume){
+				enquecommand_P(((PSTR("G70"))));
+				flag_resume = false;
+				Serial.println("resume detected");
+			}
+			
+			
 		}
-		screen_printing_pause_form = screen_printing_pause_form0;
-		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,0);
-		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,0);
-		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PRINT_SETTINGS,0);
 		print_print_resume = false;
 	}
 	if(print_print_stop == true){
@@ -5454,7 +5460,11 @@ inline void gcode_G69(){
 					flag_pause = false;
 					
 					processing = false;
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,1);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,1);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PRINT_SETTINGS,1);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+					screen_printing_pause_form = screen_printing_pause_form1;
 					genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
 					data_refresh_flag = true;
 #endif //ENABLE_AUTO_BED_LEVELING					
@@ -5544,7 +5554,14 @@ inline void gcode_G70(){
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					st_synchronize();
 					//*********************************//
-					
+					processing = false;
+					screen_printing_pause_form = screen_printing_pause_form0;
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PRINT_SETTINGS,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+					genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
+					data_refresh_flag = true;
 					flag_resume = false;
 	
 #endif //ENABLE_AUTO_BED_LEVELING
@@ -6417,6 +6434,7 @@ inline void gcode_M105(){
 }
 inline void gcode_M190(){
 	unsigned long codenum;
+	waiting_temps = true;
 	#if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
 	LCD_MESSAGEPGM(MSG_BED_HEATING);
 	if (code_seen('S')) {
@@ -6457,6 +6475,7 @@ inline void gcode_M190(){
 			return; //Break if we are trying to heat when the fileprinting has been stopped and is not paused
 		}*/
 	}
+	waiting_temps = false;
 	Serial.println("Bed Heated");
 	LCD_MESSAGEPGM(MSG_BED_DONE);
 	previous_millis_cmd = millis();
@@ -6518,6 +6537,7 @@ inline void gcode_M129(){
 	#endif
 }
 inline void gcode_M109(){
+	waiting_temps = true;
 	unsigned long codenum;
 
 	if(setTargetedHotend(109)){
@@ -6667,6 +6687,7 @@ inline void gcode_M109(){
 		#endif //TEMP_RESIDENCY_TIME
 	}
 	#endif //TEMP_RESIDENCY_TIME
+	waiting_temps = false;
 	Serial.println("Extruder Heated");
 	LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
 	starttime=millis();

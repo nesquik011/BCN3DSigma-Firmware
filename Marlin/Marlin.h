@@ -278,6 +278,7 @@ void touchscreen_update();
 extern uint16_t filepointer;
 extern int8_t saved_active_extruder;
 extern String screen_status;
+extern bool waiting_temps;
 extern bool surfing_utilities;
 extern bool screen_sdcard;
 extern bool surfing_temps;
