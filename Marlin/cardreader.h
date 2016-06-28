@@ -42,7 +42,7 @@ public:
   int chdir(const char * relpath);
   int updir();
   void setroot();
-
+  FORCE_INLINE bool isEndFile() { if(filesize > file.curPosition()) return 0; else return 1;}
   FORCE_INLINE void sdfinalline() {file.seekEnd(); file.seekSet(file.curPosition()-300);};    ////Go to the end for Simplify extraction	
   FORCE_INLINE bool isFileOpen() { return file.isOpen(); }
   FORCE_INLINE bool eof() { return sdpos>=filesize ;};

@@ -2196,7 +2196,7 @@ void update_screen_printing(){
 			surfing_utilities = true;
 			
 		}
-		else if(screen_printing_pause_form == screen_printing_pause_form0 || (screen_printing_pause_form == screen_printing_pause_form2 && card.sdispaused)){
+		else if((screen_printing_pause_form == screen_printing_pause_form0 || screen_printing_pause_form == screen_printing_pause_form2 )&& card.sdispaused){
 			char buffer[25];
 			
 			memset(buffer, '\0', sizeof(buffer) );
@@ -2415,10 +2415,10 @@ if (surfing_utilities)
 		memset(buffer, '\0', sizeof(buffer) );
 		//Rapduch
 		//Edit for final TouchScreen
-		
+		/*
 		genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, current_position[X_AXIS]);
 		genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);
+		genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);*/
 		
 		sprintf(buffer, "%3d %cC",tHotend,0x00B0);
 		//Serial.println(buffer);
@@ -2664,10 +2664,10 @@ void update_screen_noprinting(){
 			memset(buffer, '\0', sizeof(buffer) );
 			//Rapduch
 			//Edit for final TouchScreen
-			
+			/*
 			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, current_position[X_AXIS]);
 			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
-			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);
+			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);*/
 			
 			sprintf(buffer, "%3d %cC",tHotend,0x00B0);
 			//Serial.println(buffer);
@@ -2691,7 +2691,7 @@ void update_screen_noprinting(){
 			
 			#if EXTRUDERS > 1
 			// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
-			if ((degHotend(0) >= (degTargetHotend0()-10)) && (degHotend(1) >= (degTargetHotend1()-10)) && is_changing_filament){
+			if ((degHotend(0) >= (degTargetHotend0()-CHANGE_FIL_TEMP_HYSTERESIS)) && (degHotend(1) >= (degTargetHotend1()-CHANGE_FIL_TEMP_HYSTERESIS)) && is_changing_filament){
 				// if we want to add user setting temp, we should control if is heating
 				Serial.println("temp ok");
 				

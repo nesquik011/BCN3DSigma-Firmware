@@ -34,12 +34,12 @@ void Listfiles::get_lineduration(void){
 	int posi = 0;
 	int linecomepoint=0;
 	simplify3D=-1;
-	while(linecomepoint < 3){
+	while(linecomepoint < 3 && !card.isEndFile()){
 		memset(comandline, '\0', sizeof(comandline) );
-		while(comandline[0]!=';'){
+		while(comandline[0]!=';' && !card.isEndFile()){
 			serial_char='\0';
 			posi = 0;
-			while(serial_char != '\n' && posi < 49){
+			while(serial_char != '\n' && posi < 49 && !card.isEndFile()){
 				
 				int16_t n=card.get();
 				serial_char = (char)n;
@@ -72,7 +72,7 @@ void Listfiles::get_lineduration(void){
 		posi = 0;
 		serial_char='\0';
 		
-		while(serial_char != '\n' && posi < 49){
+		while(serial_char != '\n' && posi < 49 && !card.isEndFile()){
 			
 			int16_t n=card.get();
 			serial_char = (char)n;
@@ -93,12 +93,12 @@ void Listfiles::get_lineduration(void){
 		
 		
 		linecomepoint=0;
-		while(linecomepoint < 2){
+		while(linecomepoint < 2 && !card.isEndFile()){
 			memset(comandline, '\0', sizeof(comandline) );
-			while(comandline[0]!=';'){
+			while(comandline[0]!=';' && !card.isEndFile()){
 				serial_char='\0';
 				posi = 0;
-				while(serial_char != '\n' && posi < 49){
+				while(serial_char != '\n' && posi < 49 && !card.isEndFile()){
 					
 					int16_t n=card.get();
 					serial_char = (char)n;
@@ -117,12 +117,12 @@ void Listfiles::get_lineduration(void){
 		posi = 0;
 		serial_char='\0';
 		linecomepoint = 0;
-		while(linecomepoint < 3){
+		while(linecomepoint < 3 && !card.isEndFile()){
 			memset(comandline, '\0', sizeof(comandline) );
-			while(comandline[0]!=';'){
+			while(comandline[0]!=';' && !card.isEndFile()){
 				serial_char='\0';
 				posi = 0;
-				while(serial_char != '\n' && posi < 49){
+				while(serial_char != '\n' && posi < 49 && !card.isEndFile()){
 					
 					int16_t n=card.get();
 					serial_char = (char)n;

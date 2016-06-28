@@ -99,9 +99,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					if(screen_printing_pause_form ==screen_printing_pause_form2){
 						screen_printing_pause_form = screen_printing_pause_form1;
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,1);
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,1);
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PRINT_SETTINGS,1);
+						/*genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_STOP_SCREEN, 1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PAUSE_RESUME, 1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PRINT_SETTINGS, 1);*/
 						surfing_utilities = false;
 					}
 				}
@@ -792,7 +792,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 						processing_adjusting = true;
 						
-						while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-10)){ //Waiting to heat the extruder
+						while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
 							manage_heater();
 							touchscreen_update();
 						}
@@ -813,7 +813,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 						processing_adjusting = true;
 						
-						while (degHotend(which_extruder)>(degTargetHotend(which_extruder)+10)){ //Waiting to heat the extruder
+						while (degHotend(which_extruder)>(degTargetHotend(which_extruder)+NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
 							manage_heater();
 							touchscreen_update();
 						}
@@ -828,7 +828,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 						processing_adjusting = true;
 						
-						while (degHotend(which_extruder)>(degTargetHotend(which_extruder)+10)){ //Waiting to heat the extruder
+						while (degHotend(which_extruder)>(degTargetHotend(which_extruder)+NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
 							manage_heater();
 							touchscreen_update();
 						}
@@ -843,7 +843,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 						processing_adjusting = true;
 						
-						while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-10)){ //Waiting to heat the extruder
+						while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
 							manage_heater();
 							touchscreen_update();
 						}
@@ -982,7 +982,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//***MOVING
 				else if(Event.reportObject.index == BUTTON_PURGE_RETRACK){
 					if (millis() >= waitPeriod_purge){
-						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 							current_position[E_AXIS]-=5;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retrack
 						}
@@ -991,7 +991,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if(Event.reportObject.index == BUTTON_PURGE_INSERT){
 					if (millis() >= waitPeriod_purge){
-						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 							current_position[E_AXIS]+=15;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
 						}
@@ -1000,7 +1000,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if(Event.reportObject.index == BUTTON_PURGE_INSERTX3){
 					if (millis() >= waitPeriod_purge){
-						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 							current_position[E_AXIS]+=15;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
 						}
@@ -1782,7 +1782,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//***MOVING
 				else if(Event.reportObject.index == BUTTON_PURGE_RETRACK){
 					if (millis() >= waitPeriod_purge){
-						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 							current_position[E_AXIS]-=5;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retrack
 						}
@@ -1791,7 +1791,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if(Event.reportObject.index == BUTTON_PURGE_INSERT){
 					if (millis() >= waitPeriod_purge){
-						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 							current_position[E_AXIS]+=15;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
 						}
@@ -1800,7 +1800,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if(Event.reportObject.index == BUTTON_PURGE_INSERTX3){
 					if (millis() >= waitPeriod_purge){
-						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10){
+						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 							current_position[E_AXIS]+=15;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
 						}
@@ -2567,7 +2567,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 						processing_adjusting = true;
 						
-						while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-10)){ //Waiting to heat the extruder
+						while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
 							manage_heater();
 							touchscreen_update();
 						}
@@ -2588,7 +2588,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 						processing_adjusting = true;
 						
-						while (degHotend(which_extruder)>(degTargetHotend(which_extruder)+10)){ //Waiting to heat the extruder
+						while (degHotend(which_extruder)>(degTargetHotend(which_extruder)+NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
 							manage_heater();
 							touchscreen_update();
 						}
@@ -2603,7 +2603,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 						processing_adjusting = true;
 						
-						while (degHotend(which_extruder)>(degTargetHotend(which_extruder)+10)){ //Waiting to heat the extruder
+						while (degHotend(which_extruder)>(degTargetHotend(which_extruder)+NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
 							manage_heater();
 							touchscreen_update();
 						}
@@ -2618,7 +2618,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 						processing_adjusting = true;
 						
-						while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-10)){ //Waiting to heat the extruder
+						while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
 							manage_heater();
 							touchscreen_update();
 						}
@@ -2633,7 +2633,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 					processing_adjusting = true;
 					
-					while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-10)){ //Waiting to heat the extruder
+					while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
 						manage_heater();
 						touchscreen_update();
 					}
