@@ -1680,7 +1680,7 @@ inline void ListFileListINITSD(){
 		uint16_t fileCnt = card.getnrfilenames();
 		//Declare filepointer
 		card.getWorkDirName();
-		genie.WriteStr(STRING_FOLDER_NAME,card.getWorkDirName());//Printing form
+		//genie.WriteStr(STRING_FOLDER_NAME,card.getWorkDirName());//Printing form
 		//Text index starts at 0
 		//for(jint = 0; jint < 4; jint++){//
 			
@@ -1942,7 +1942,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 	card.getWorkDirName();
 	//Text index starts at 0
 	//for(jint = 0; jint < 4; jint++){//
-	genie.WriteStr(STRING_FOLDER_NAME,card.getWorkDirName());//Printing form
+	//genie.WriteStr(STRING_FOLDER_NAME,card.getWorkDirName());//Printing form
 	
 	if (fileCnt != 0){
 		
@@ -2189,12 +2189,12 @@ void update_screen_printing(){
 		
 		if(card.sdispaused && (screen_printing_pause_form == screen_printing_pause_form1)){
 			
-			genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_PRINT,0);
+			//genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_PRINT,0);
 			screen_printing_pause_form = screen_printing_pause_form2;
-			/*genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,2);
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,2);
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PRINT_SETTINGS,2);*/
-			surfing_utilities = true;
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN_PAUSE,1);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME_PAUSE,1);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PRINT_SETTINGS_PAUSE,1);
+			//surfing_utilities = true;
 			
 		}
 		else if(screen_printing_pause_form == screen_printing_pause_form0 || (screen_printing_pause_form == screen_printing_pause_form2 )&& card.sdispaused){
@@ -2513,38 +2513,43 @@ if(is_on_printing_screen){
 			memset(buffer7, '\0', sizeof(buffer7) );
 			sprintf(buffer7, "%3d %cC",tHotend,0x00B0);
 			//Serial.println(buffer);
-			genie.WriteStr(STRING_PRINTING_NOZZ1,buffer7);
+			if(!card.sdispaused)genie.WriteStr(STRING_PRINTING_NOZZ1,buffer7);
+			else genie.WriteStr(STRING_PRINTING_NOZZ1_PAUSE,buffer7);
 		}
 		if (tHotend1 !=int(degHotend(1)) || data_refresh_flag == true ){
 			tHotend1=int(degHotend(1));
 			sprintf(buffer7, "%3d %cC",tHotend1,0x00B0);
 			//Serial.println(buffer);
-			genie.WriteStr(STRING_PRINTING_NOZZ2,buffer7);
-			
+			if(!card.sdispaused)genie.WriteStr(STRING_PRINTING_NOZZ2,buffer7);
+			else genie.WriteStr(STRING_PRINTING_NOZZ2_PAUSE,buffer7);
 		}
 		if (tBed !=int(degBed() + 0.5) || data_refresh_flag == true ){
 			tBed=int(degBed() + 0.5);
 			sprintf(buffer7, "%2d %cC",tBed,0x00B0);
 			//Serial.println(buffer);
-			genie.WriteStr(STRING_PRINTING_BED,buffer7);
+			if(!card.sdispaused)genie.WriteStr(STRING_PRINTING_BED,buffer7);
+			else genie.WriteStr(STRING_PRINTING_BED_PAUSE,buffer7);
 		}
 		if (percentDone != card.percentDone() || data_refresh_flag == true ){
 			percentDone = card.percentDone();
 			sprintf(buffer7, "% 3d %%",card.percentDone());
 			//Serial.println(buffer);
-			genie.WriteStr(STRING_PRINTING_PERCENT,buffer7);
+			if(!card.sdispaused)genie.WriteStr(STRING_PRINTING_PERCENT,buffer7);
+			else genie.WriteStr(STRING_PRINTING_PERCENT_PAUSE,buffer7);
 		}
 		if ( minuteremaning != listsd.get_minutesremanig() || data_refresh_flag == true ){
 			minuteremaning = listsd.get_minutesremanig();
 			sprintf(buffer7, "%d h %d m",listsd.get_hoursremaning(), listsd.get_minutesremanig());
-			genie.WriteStr(STRING_PRINTING_TIMEREMANING,buffer7);
+			if(!card.sdispaused)genie.WriteStr(STRING_PRINTING_TIMEREMANING,buffer7);
+			else genie.WriteStr(STRING_PRINTING_TIMEREMANING_PAUSE,buffer7);
 		}
 		
 		if(feedmultiply != feedmultiply1 || data_refresh_flag == true ){
 			feedmultiply1 = feedmultiply;
 			sprintf(buffer7, "% 3d %%",feedmultiply1);
 			//Serial.println(buffer);
-			genie.WriteStr(STRINGS_PRINTING_FEED,buffer7);
+			if(!card.sdispaused)genie.WriteStr(STRINGS_PRINTING_FEED,buffer7);
+			else genie.WriteStr(STRINGS_PRINTING_FEED_PAUSE,buffer7);
 		}
 		
 		data_refresh_flag = false;
@@ -5460,12 +5465,12 @@ inline void gcode_G69(){
 					flag_pause = false;
 					
 					processing = false;
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,1);
+					/*genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,1);
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PRINT_SETTINGS,1);
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PRINT_SETTINGS,1);*/
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_PAUSE,0);
 					screen_printing_pause_form = screen_printing_pause_form1;
-					genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
+					genie.WriteStr(STRINGS_PRINTING_GCODE_PAUSE,namefilegcode);
 					data_refresh_flag = true;
 #endif //ENABLE_AUTO_BED_LEVELING					
 }

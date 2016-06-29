@@ -93,18 +93,26 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					
 				}
+				else if (Event.reportObject.index == BUTTON_PRINT_SETTINGS_PAUSE )
+				{
+					
+					print_setting_refresh = true;
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PRINTING_BACK_STATE_PAUSE, 1);
+					
+				}
 				
-				/*
-				else if (Event.reportObject.index == BUTTON_PRINTING_BACK_STATE )
+				
+				else if (Event.reportObject.index == BUTTON_PRINTING_BACK_STATE_PAUSE )
 				{
 					if(screen_printing_pause_form ==screen_printing_pause_form2){
 						screen_printing_pause_form = screen_printing_pause_form1;
-						genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_STOP_SCREEN, 1);
-						genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PAUSE_RESUME, 1);
-						genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PRINT_SETTINGS, 1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_STOP_SCREEN_PAUSE, 0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PAUSE_RESUME_PAUSE, 0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PRINT_SETTINGS_PAUSE, 0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PRINTING_BACK_STATE_PAUSE, 0);
 						surfing_utilities = false;
 					}
-				}*/
+				}
 				
 				
 				else if (Event.reportObject.index == BUTTON_UTILITIES_PRINT_BACK )
@@ -123,13 +131,20 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					is_on_printing_screen=false;
 					print_print_stop = true;
 				}
-				else if (Event.reportObject.index == BUTTON_STOP_SCREEN && (screen_printing_pause_form == screen_printing_pause_form0 || screen_printing_pause_form == screen_printing_pause_form1))
+				else if (Event.reportObject.index == BUTTON_STOP_SCREEN && (screen_printing_pause_form == screen_printing_pause_form0))
 				{
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_STOP_PRINT,0);
 					
 					is_on_printing_screen=false;
 				}
-				else if (Event.reportObject.index == BUTTON_STOP_SCREEN && (screen_printing_pause_form == screen_printing_pause_form2))
+				else if (Event.reportObject.index == BUTTON_STOP_SCREEN_PAUSE && (screen_printing_pause_form == screen_printing_pause_form1))
+				{
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_STOP_PRINT,0);
+					
+					is_on_printing_screen=false;
+				}
+				else if (Event.reportObject.index == BUTTON_STOP_SCREEN_PAUSE && (screen_printing_pause_form == screen_printing_pause_form2))
 				{
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL,0);
@@ -147,14 +162,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 				}
 				//We need to Resume/Enter Printing Settings/Stop printing
-				else if (Event.reportObject.index == BUTTON_PAUSE_RESUME && card.sdispaused && screen_printing_pause_form == screen_printing_pause_form1)
+				else if (Event.reportObject.index == BUTTON_PAUSE_RESUME_PAUSE && card.sdispaused && screen_printing_pause_form == screen_printing_pause_form1)
 				{
 					//I believe it is a really unsafe way to do it
 					//plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]-20, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, RIGHT_EXTRUDER);
 					//st_synchronize();
 					print_print_resume = true;
 				}
-				else if (Event.reportObject.index == BUTTON_PAUSE_RESUME && card.sdispaused && screen_printing_pause_form == screen_printing_pause_form2)
+				else if (Event.reportObject.index == BUTTON_PAUSE_RESUME_PAUSE && card.sdispaused && screen_printing_pause_form == screen_printing_pause_form2)
 				{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_MENU,1);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE,0);
@@ -278,7 +293,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					data_refresh_flag = true;
 					}
 					else{
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_PRINT,0);
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_PAUSE,0);
+						is_on_printing_screen = true;
+						surfing_utilities = false;
+						genie.WriteStr(STRINGS_PRINTING_GCODE_PAUSE,namefilegcode);
+						data_refresh_flag = true;
 					}
 				}
 				else if (Event.reportObject.index == BUTTON_UTILITIES_PRINT_SETTINGS)
@@ -319,9 +338,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if ((Event.reportObject.index == BUTTON_REMOVE_BACK_FILAMENT ))
 				{
 					
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_PRINT,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_PAUSE,0);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_REMOVE_MENU_FILAMENT,0);
-					
+					is_on_printing_screen = true;
+					surfing_utilities = false;
+					genie.WriteStr(STRINGS_PRINTING_GCODE_PAUSE,namefilegcode);
+					data_refresh_flag = true;
 				}
 				
 				
@@ -1061,7 +1083,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				
 				else if(Event.reportObject.index	== BUTTON_PURGE_BACK){
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES_PRINT,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_PAUSE,0);
+					is_on_printing_screen = true;
+					surfing_utilities = false;
+					genie.WriteStr(STRINGS_PRINTING_GCODE_PAUSE,namefilegcode);
+					data_refresh_flag = true;
 					
 				/*	
 				current_position[E_AXIS] = saved_position[E_AXIS]-2;
@@ -1132,10 +1158,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						
 						
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_PAUSE,0);
 						is_on_printing_screen = true;
 						surfing_utilities = false;
-						genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
+						genie.WriteStr(STRINGS_PRINTING_GCODE_PAUSE,namefilegcode);
 						data_refresh_flag = true;
 					}
 					
