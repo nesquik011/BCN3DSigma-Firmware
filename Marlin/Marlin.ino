@@ -997,7 +997,7 @@ inline void ListFilesUpfunc(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+				sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -1040,7 +1040,7 @@ inline void ListFilesUpfunc(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1091,7 +1091,7 @@ inline void ListFilesUpfunc(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1145,7 +1145,7 @@ inline void ListFilesUpfunc(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1201,7 +1201,7 @@ inline void ListFilesUpfunc(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1257,7 +1257,7 @@ inline void ListFilesUpfunc(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1369,7 +1369,7 @@ inline void ListFilesDownx3func(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+				sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -1412,7 +1412,7 @@ inline void ListFilesDownx3func(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1463,7 +1463,7 @@ inline void ListFilesDownx3func(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1518,7 +1518,7 @@ inline void ListFilesDownx3func(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1574,7 +1574,7 @@ inline void ListFilesDownx3func(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1631,7 +1631,7 @@ inline void ListFilesDownx3func(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1711,7 +1711,7 @@ inline void ListFileListINITSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+				sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -1749,7 +1749,7 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1788,7 +1788,7 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1828,7 +1828,7 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1866,7 +1866,7 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1903,7 +1903,7 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1969,7 +1969,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 			}else{
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 			listsd.get_lineduration();
-			sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+			sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 			//Serial.println(listsd.comandline);
 			setfilenames(jint);
 			
@@ -2006,7 +2006,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+				sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -2045,7 +2045,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+				sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -2085,7 +2085,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+				sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -2123,7 +2123,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+				sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -2160,7 +2160,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%dh %dm & %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+				sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -2229,7 +2229,25 @@ void update_screen_printing(){
 		
 		print_setting_refresh = false;
 	}
-	
+	if (print_setting_back){
+		if (screen_printing_pause_form != screen_printing_pause_form2){
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
+			is_on_printing_screen = true;
+			surfing_utilities = false;
+			genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
+			data_refresh_flag = true;
+		}
+		else{
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_PAUSE,0);
+			is_on_printing_screen = true;
+			surfing_utilities = false;
+			genie.WriteStr(STRINGS_PRINTING_GCODE_PAUSE,namefilegcode);
+			data_refresh_flag = true;
+		}
+		waitPeriod=5000+millis();	//Every 5s
+		print_setting_back = false;
+		
+	}
 	if(screen_change_nozz1up){
 		char buffer[25];
 		memset(buffer, '\0', sizeof(buffer) );
@@ -2456,22 +2474,22 @@ if (surfing_utilities)
 			//We have preheated correctly
 			if (filament_mode =='I'){
 				heatting = false;
-				genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL,0);
-				genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
+				//genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PLACE_FIL,0);
+				//genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
 			}
 			else if (filament_mode =='R')
 			{
 				heatting = false;
-				genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL,0);
-				genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
+				//genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
+				genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL_PLACE_FIL,0);
+				//genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
 				
 			}
 			else
 			{
 				heatting = false;
-				genie.WriteStr(STRING_FILAMENT,"Press GO to Purge Filament");
+				//genie.WriteStr(STRING_FILAMENT,"Press GO to Purge Filament");
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
 			}
 			processing_adjusting = false;
@@ -2710,22 +2728,22 @@ void update_screen_noprinting(){
 				//We have preheated correctly
 				if (filament_mode =='I'){
 					heatting = false;
-					genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL,0);
-					genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
+					//genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PLACE_FIL,0);
+					//genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
 				}
 				else if (filament_mode =='R')
 				{
 					heatting = false;
-					genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL,0);
-					genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
+					//genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL_PLACE_FIL,0);
+					//genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
 					
 				}
 				else
 				{
 					heatting = false;
-					genie.WriteStr(STRING_FILAMENT,"Press GO to Purge Filament");
+					//genie.WriteStr(STRING_FILAMENT,"Press GO to Purge Filament");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
 				}
 				processing_adjusting = false;

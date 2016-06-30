@@ -45,6 +45,7 @@
 	#define BUTTON_SD_LEFTx3				37
 	#define BUTTON_SD_RIGHT					5
 	#define BUTTON_FOLDER_BACK				55
+	#define USERIMAGE_FOLDER_FILE           1
 #define FORM_SDFILE_CONFIRMATION			15
 	#define STRING_NAME_FILE6				27
 	#define STRING_NAME_FILE_DUR6			28
@@ -137,11 +138,12 @@
 	#define BUTTON_SKIP_BED					158
 	#define BUTTON_INFO_TURN_SCREWS			41
 #define	FORM_INFO_Z_PRINT							17
-#define FORM_INFO_PLACE_FIL							19
-	#define STRING_FILAMENT					11
-	#define	BUTTON_INSERT					52
-	#define	BUTTON_REMOVE					52
-#define FORM_INSERT_FIL								19
+
+
+#define FORM_REMOVE_FIL_PLACE_FIL					19
+	#define	BUTTON_REMOVE					52	
+#define FORM_INSERT_FIL_PLACE_FIL					43
+	#define	BUTTON_INSERT					68
 #define FORM_PURGE_FIL								19
 #define FORM_NYLON_STEP2							19
 #define FORM_SELECT_EXTRUDER						20

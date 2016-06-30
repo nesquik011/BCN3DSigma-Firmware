@@ -626,7 +626,9 @@ int CardReader::updir()
     for (int d = 0; d < workDirDepth; d++)
       workDirParents[d] = workDirParents[d+1];
 	  
-	  
+	if(workDirDepth == 0){
+		return 1;
+	}
 	return 0;
   }
   else{
