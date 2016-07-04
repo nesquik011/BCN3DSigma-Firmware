@@ -54,7 +54,7 @@ bool data_refresh_flag =  false;
 int  print_setting_tool = 2;
 float offset_x_calib = 0;
 float offset_y_calib = 0;
-int  purge_extruder_selected = 0;
+int  purge_extruder_selected = -1;
 int  previous_state = FORM_MAIN_SCREEN;
 int custom_insert_temp = 210;
 int custom_remove_temp = 210;
@@ -175,11 +175,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_MENU,1);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE,0);
 					surfing_utilities = true;
-					
+					purge_extruder_selected = -1;
 					Serial.println("Enter in purge mode");
-					setTargetHotend0(print_temp_l);
-					setTargetHotend1(print_temp_r);
-					if(purge_extruder_selected == 0) {
+					/*setTargetHotend0(print_temp_l);
+					setTargetHotend1(print_temp_r);*/
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,0);
+					/*if(purge_extruder_selected == 0) {
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,1);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,0);
 						
@@ -187,14 +189,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else {
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,1);
-					}
+					}*/
 					
 					char buffer[256];
 					sprintf(buffer, "%3d %cC",int(degHotend(0)),0x00B0);
 					genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);	Serial.println(buffer);
 					sprintf(buffer, "%3d %cC",int(degHotend(1)),0x00B0);
 					genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);	Serial.println(buffer);
-					sprintf(buffer, "%3d %cC",int(target_temperature[purge_extruder_selected]),0x00B0);
+					sprintf(buffer, "%3d %cC",0,0x00B0);
 					genie.WriteStr(STRING_PURGE_SELECTED,buffer);	Serial.println(buffer);
 					
 					is_on_printing_screen = false;
@@ -296,7 +298,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				
 				#pragma region Insert_Remove_Fil
-				else if (Event.reportObject.index == BUTTON_UTILITIES_PRINT_PURGE)
+				/*else if (Event.reportObject.index == BUTTON_UTILITIES_PRINT_PURGE)
 				{
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE,0);
 					
@@ -322,7 +324,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					sprintf(buffer, "%3d %cC",int(target_temperature[purge_extruder_selected]),0x00B0);
 					genie.WriteStr(STRING_PURGE_SELECTED,buffer);	Serial.println(buffer);
 					
-				}
+				}*/
 				
 				else if ((Event.reportObject.index == BUTTON_REMOVE_BACK_FILAMENT ))
 				{
@@ -878,6 +880,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_PURGE_LEFT ){
 					if (purge_extruder_selected == 1){
 						purge_extruder_selected = 0;
+						setTargetHotend0(print_temp_l);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,1);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,0);
 						char buffer[256];
@@ -890,8 +893,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else{
 						char buffer[256];
 						purge_extruder_selected = 0;
+						setTargetHotend0(print_temp_l);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,1);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,0);
+						sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
+						genie.WriteStr(STRING_PURGE_SELECTED,buffer);
 						sprintf(buffer, "%3d %cC",int(degHotend(0)),0x00B0);
 						genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
 					}
@@ -899,6 +905,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_PURGE_RIGHT ){
 					if (purge_extruder_selected == 0){
 						purge_extruder_selected = 1;
+						setTargetHotend1(print_temp_r);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,1);
 						char buffer[256];
@@ -909,10 +916,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
 					}
 					else{
-						purge_extruder_selected = 0;
+						purge_extruder_selected = 1;
+						setTargetHotend1(print_temp_r);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,1);
 						char buffer[256];
+						sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
+						genie.WriteStr(STRING_PURGE_SELECTED,buffer);
 						sprintf(buffer, "%3d %cC",int(degHotend(1)),0x00B0);
 						genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
 					}
@@ -939,7 +949,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				//***MOVING
-				else if(Event.reportObject.index == BUTTON_PURGE_RETRACK){
+				else if(Event.reportObject.index == BUTTON_PURGE_RETRACK && purge_extruder_selected != -1){
 					if (millis() >= waitPeriod_purge){
 						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 							current_position[E_AXIS]-=5;
@@ -948,7 +958,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						waitPeriod_purge=millis()+2500;
 					}
 				}
-				else if(Event.reportObject.index == BUTTON_PURGE_INSERT){
+				else if(Event.reportObject.index == BUTTON_PURGE_INSERT && purge_extruder_selected != -1){
 					if (millis() >= waitPeriod_purge){
 						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 							current_position[E_AXIS]+=15;
@@ -957,7 +967,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						waitPeriod_purge=millis()+7500;
 					}
 				}
-				else if(Event.reportObject.index == BUTTON_PURGE_INSERTX3){
+				else if(Event.reportObject.index == BUTTON_PURGE_INSERTX3 && purge_extruder_selected != -1){
 					if (millis() >= waitPeriod_purge){
 						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 							current_position[E_AXIS]+=15;
@@ -997,6 +1007,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				
 				else if(Event.reportObject.index	== BUTTON_PURGE_BACK){
+					quickStop();
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_PAUSE,0);
 					is_on_printing_screen = true;
 					surfing_utilities = false;
@@ -1695,6 +1706,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_PURGE_LEFT ){
 					if (purge_extruder_selected == 1){
 						purge_extruder_selected = 0;
+						setTargetHotend0(print_temp_l);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,1);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,0);
 						char buffer[256];
@@ -1707,8 +1719,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else{
 						char buffer[256];
 						purge_extruder_selected = 0;
+						setTargetHotend0(print_temp_l);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,1);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,0);
+						sprintf(buffer, "%d %cC",target_temperature[0],0x00B0);
+						genie.WriteStr(STRING_PURGE_SELECTED,buffer);
 						sprintf(buffer, "%3d %cC",int(degHotend(0)),0x00B0);
 						genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
 					}
@@ -1716,6 +1731,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_PURGE_RIGHT ){
 					if (purge_extruder_selected == 0){
 						purge_extruder_selected = 1;
+						setTargetHotend1(print_temp_r);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,1);
 						char buffer[256];
@@ -1726,10 +1742,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
 					}
 					else{
-						purge_extruder_selected = 0;
+						purge_extruder_selected = 1;
+						setTargetHotend1(print_temp_r);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,1);
 						char buffer[256];
+						sprintf(buffer, "%3d %cC",target_temperature[1],0x00B0);
+						genie.WriteStr(STRING_PURGE_SELECTED,buffer);
 						sprintf(buffer, "%3d %cC",int(degHotend(1)),0x00B0);
 						genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
 					}
@@ -1756,7 +1775,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				//***MOVING
-				else if(Event.reportObject.index == BUTTON_PURGE_RETRACK){
+				else if(Event.reportObject.index == BUTTON_PURGE_RETRACK && purge_extruder_selected != -1){
 					if (millis() >= waitPeriod_purge){
 						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 							current_position[E_AXIS]-=5;
@@ -1765,7 +1784,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						waitPeriod_purge=millis()+2500;
 					}
 				}
-				else if(Event.reportObject.index == BUTTON_PURGE_INSERT){
+				else if(Event.reportObject.index == BUTTON_PURGE_INSERT && purge_extruder_selected != -1){
 					if (millis() >= waitPeriod_purge){
 						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 							current_position[E_AXIS]+=15;
@@ -1774,7 +1793,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						waitPeriod_purge=millis()+7500;
 					}
 				}
-				else if(Event.reportObject.index == BUTTON_PURGE_INSERTX3){
+				else if(Event.reportObject.index == BUTTON_PURGE_INSERTX3 && purge_extruder_selected != -1){
 					if (millis() >= waitPeriod_purge){
 						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 							current_position[E_AXIS]+=15;
@@ -1783,44 +1802,18 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						waitPeriod_purge=millis()+7500;
 					}
 				}
-				//***************************************
-				//********CHANGE NEW FILAMENT
-				/*else if(Event.reportObject.index == BUTTON_PURGE_NEW_FILAMENT){
-				
-				
-				genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
-				
-				if (purge_extruder_selected == 0) setTargetHotend0(INSERT_FIL_TEMP);
-				else setTargetHotend1(INSERT_FIL_TEMP);
-				
-				if (!home_made) home_axis_from_code(true,true,true);
-				home_axis_from_code(true,true,false);
-				st_synchronize();
-				current_position[Z_AXIS]=Z_MAX_POS-15;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, active_extruder);
-				
-				while (degHotend(purge_extruder_selected)<=(degTargetHotend(purge_extruder_selected)-5)){ //Waiting to heat the extruder
-				manage_heater();
-				}
-				filament_mode = 'C';
-				genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
-				genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL,0);
-				genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
-				
-				}*/
-				
-				//****************************************
 				
 				else if(Event.reportObject.index == BUTTON_PURGE){
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE,0);
 					
-					
+					purge_extruder_selected = -1;
 					Serial.println("Enter in purge mode");
-					setTargetHotend0(print_temp_l);
-					setTargetHotend1(print_temp_r);
-					if(purge_extruder_selected == 0) {
+					/*setTargetHotend0(print_temp_l);
+					setTargetHotend1(print_temp_r);*/
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,0);
+					/*if(purge_extruder_selected == 0) {
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,1);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,0);
 						
@@ -1828,26 +1821,27 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else {
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,1);
-					}
+					}*/
 					
 					char buffer[256];
 					sprintf(buffer, "%3d %cC",int(degHotend(0)),0x00B0);
 					genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);	Serial.println(buffer);
 					sprintf(buffer, "%3d %cC",int(degHotend(1)),0x00B0);
 					genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);	Serial.println(buffer);
-					sprintf(buffer, "%3d %cC",int(target_temperature[purge_extruder_selected]),0x00B0);
+					sprintf(buffer, "%3d %cC",0,0x00B0);
 					genie.WriteStr(STRING_PURGE_SELECTED,buffer);	Serial.println(buffer);
 					
 					
 				}
 				else if(Event.reportObject.index	== BUTTON_PURGE_BACK){
+					quickStop();
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_FILAMENT,0);
 					//setTargetHotend0(0);
 					//setTargetHotend1(0);
 					
 				}
 				else if(Event.reportObject.index	== BUTTON_PURGE_MENU){
-					
+					quickStop();
 					screen_sdcard = false;
 					surfing_utilities=false;
 					surfing_temps = false;
