@@ -310,6 +310,7 @@ extern float x_home_pos(int extruder);
 extern int bed_calibration_times;
 extern bool processing;
 extern bool processing_adjusting;
+extern bool processing_test;
 extern bool back_home;
 //extern int quick_guide_step;
 extern void right_test_print_code();
