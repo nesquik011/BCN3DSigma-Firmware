@@ -52,6 +52,8 @@ bool z_adjust_50down = false;
 bool z_adjust_10down = false;
 bool data_refresh_flag =  false;
 int  print_setting_tool = 2;
+float offset_calib_manu[4] = {0.0,0.0,0.0,0.0};
+unsigned int calib_value_selected;
 float offset_x_calib = 0;
 float offset_y_calib = 0;
 int  purge_extruder_selected = -1;
@@ -460,9 +462,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					
 					processing = false;
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CHANGE_FILAMENT_TEMPS,0);
 					
-					processing_adjusting = true;
+					processing_change_filament_temps = true;
 					
 					is_changing_filament=true; //We are changing filament
 					
@@ -697,10 +699,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					//ATTENTION : Order here is important
 					
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CHANGE_FILAMENT_TEMPS,0);
 					//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
 					//genie.WriteStr(STRING_ADVISE_FILAMENT,"Insert the filament until you feel it stops, \n then while you keep inserting around \n 10 mm of filament, press the clip");
-					processing_adjusting = true;
+					processing_change_filament_temps = true;
 					
 					if (which_extruder==0) setTargetHotend(max(insert_temp_l,old_insert_temp_l),which_extruder);
 					else setTargetHotend(max(insert_temp_r,old_insert_temp_r),which_extruder);
@@ -1545,9 +1547,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						processing = false;
 						
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CHANGE_FILAMENT_TEMPS,0);
 						
-						processing_adjusting = true;
+						processing_change_filament_temps = true;
 						
 						is_changing_filament=true; //We are changing filament
 						
@@ -1577,7 +1579,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						st_synchronize();
 						
 						
-						processing = false;
+						
 						
 						Serial.println("Filament Removed, GOING TO CLEAN THE NOZZEL");
 						
@@ -1586,8 +1588,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						current_position[Y_AXIS] = 100;
 						current_position[X_AXIS] = 155;
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-						processing = true;
+						
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
 						st_synchronize();
 						processing = false;
@@ -2005,9 +2006,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					
 					processing = false;
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CHANGE_FILAMENT_TEMPS,0);
 					
-					processing_adjusting = true;
+					processing_change_filament_temps = true;
 					
 					is_changing_filament=true; //We are changing filament
 					
@@ -2114,7 +2115,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing = false;
 						
 						//genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CHANGE_FILAMENT_TEMPS,0);
 						//genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
 						/****************************************************/
 						
@@ -2126,7 +2127,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						/*if (filament_mode == 'I') genie.WriteObject(GENIE_OBJ_USERIMAGES,10,0);
 						else if (filament_mode == 'R') genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);
 						else genie.WriteObject(GENIE_OBJ_USERIMAGES,10,1);*/
-						processing_adjusting = true;
+						processing_change_filament_temps = true;
 						//delay(3500);
 						/*if(which_extruder == 0) setTargetHotend(max(remove_temp_l,old_remove_temp_l),which_extruder);
 						else setTargetHotend(max(remove_temp_r,old_remove_temp_r),which_extruder);*/
@@ -2361,10 +2362,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					//ATTENTION : Order here is important
 					
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_CHANGE_FILAMENT_TEMPS,0);
 					//genie.WriteStr(STRING_ADVISE_FILAMENT,"");
 					//genie.WriteStr(STRING_ADVISE_FILAMENT,"Insert the filament until you feel it stops, \n then while you keep inserting around \n 10 mm of filament, press the clip");
-					processing_adjusting = true;
+					processing_change_filament_temps = true;
 					
 					if (which_extruder==0) setTargetHotend(max(insert_temp_l,old_insert_temp_l),which_extruder);
 					else setTargetHotend(max(insert_temp_r,old_insert_temp_r),which_extruder);
@@ -2429,92 +2430,77 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							old_print_temp_r  = print_temp_r;
 						}
 					}
-					
-					else if (filament_mode == 'N'){ //Step1
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
-						processing_adjusting = true;
-						
-						while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
-							manage_heater();
-							touchscreen_update();
-						}
-						processing_adjusting = false;
-						
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP2,0);
-						//genie.WriteStr(STRING_FILAMENT,"STEP 1");
-						filament_mode = 'M';//Step 2
-					}
-					else if (filament_mode == 'M'){ //Step2
-						
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP2,0);
-						//genie.WriteStr(STRING_FILAMENT,"STEP 2");
-						filament_mode = 'L';//Step 2
-					}
-					else if (filament_mode == 'L'){ //Step3
-						setTargetHotend(170.0,which_extruder);
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
-						processing_adjusting = true;
-						
-						while (degHotend(which_extruder)>(degTargetHotend(which_extruder)+NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
-							manage_heater();
-							touchscreen_update();
-						}
-						processing_adjusting = false;
-						
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP2,0);
-						//genie.WriteStr(STRING_FILAMENT,"STEP 3");
-						filament_mode = 'Q';//Step 2
-					}
-					else if (filament_mode == 'Q'){ //Step4
-						setTargetHotend(50.0,which_extruder);
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
-						processing_adjusting = true;
-						
-						while (degHotend(which_extruder)>(degTargetHotend(which_extruder)+NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
-							manage_heater();
-							touchscreen_update();
-						}
-						processing_adjusting = false;
-						
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP2,0);
-						//genie.WriteStr(STRING_FILAMENT,"STEP 4");
-						filament_mode = 'P';//Step 2
-					}
-					else if (filament_mode == 'P'){ //Step4
-						setTargetHotend(105.0,which_extruder);
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
-						processing_adjusting = true;
-						
-						while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
-							manage_heater();
-							touchscreen_update();
-						}
-						processing_adjusting = false;
-						
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
-						flag_nylon_clean_metode = false;
-					}
 				}
 				else if (Event.reportObject.index == BUTTON_NYLON_STEP0)
 				{
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
-					processing_adjusting = true;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_TEMPS,0);
+					processing_nylon_temps = true;
 					
 					while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
 						manage_heater();
 						touchscreen_update();
 					}
-					processing_adjusting = false;
+					processing_nylon_temps = false;
 					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP1,0);
-					//genie.WriteStr(STRING_FILAMENT,"STEP 1");
-					filament_mode = 'M';//Step 1
+					
 				}
 				else if (Event.reportObject.index == BUTTON_NYLON_STEP1)
 				{
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP2,0);
-					//genie.WriteStr(STRING_FILAMENT,"STEP 2");
-					filament_mode = 'L';//Step 2
+					
+				}
+				else if (Event.reportObject.index == BUTTON_NYLON_STEP2)
+				{
+					setTargetHotend(170.0,which_extruder);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP3,0);
+					processing_nylon_temps = true;
+					
+					while (degHotend(which_extruder)>(degTargetHotend(which_extruder)+NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
+						manage_heater();
+						touchscreen_update();
+					}
+					processing_nylon_temps = false;
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP4,0);
+					
+				}
+				else if (Event.reportObject.index == BUTTON_NYLON_STEP4)
+				{
+					setTargetHotend(40.0,which_extruder);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_TEMPS,0);
+					processing_nylon_temps = true;
+					
+					while (degHotend(which_extruder)>(degTargetHotend(which_extruder)+15)){ //Waiting to heat the extruder
+						manage_heater();
+						touchscreen_update();
+					}
+					Serial.println("50 grados");
+					setTargetHotend(105.0,which_extruder);
+					
+					while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
+						manage_heater();
+						touchscreen_update();
+					}
+					Serial.println("50 grados");
+					processing_nylon_temps = false;
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP5,0);
+					
+				}
+				else if (Event.reportObject.index == BUTTON_NYLON_STEP5)
+				{
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP6,0);
+				}
+				else if (Event.reportObject.index == BUTTON_NYLON_REPEAT)
+				{
+					setTargetHotend(260.0,which_extruder);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP0,0);
+				}
+				else if (Event.reportObject.index == BUTTON_NYLON_SUCCESS)
+				{
+					setTargetHotend(0.0,which_extruder);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAINTENANCE,0);
+					flag_nylon_clean_metode = false;
 				}
 				
 				#pragma endregion Insert_Remove_Fil
@@ -2584,6 +2570,26 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_CAL_FULL)
 					{
 						genie.WriteObject(GENIE_OBJ_FORM, FORM_CALL_FULL_SURE,0);
+					}
+					else if (Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB)
+					{
+						
+						offset_calib_manu[0]=0.0;
+						offset_calib_manu[1]=0.0;
+						offset_calib_manu[2]=0.0;
+						offset_calib_manu[3]=0.0;
+						calib_value_selected = 0;
+						char buffer[25];
+						memset(buffer, '\0', sizeof(buffer) );
+						sprintf(buffer, "0.000");
+						
+						
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZR,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZL,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_X,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_Y,0);
+						genie.WriteObject(GENIE_OBJ_FORM, FORM_MANUAL_FINE_CALIB,0);
+						genie.WriteStr(STRING_MANUAL_FINE_CALIB,buffer); 
 					}
 					
 					/*
@@ -2837,7 +2843,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							st_synchronize();
 							processing = false;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP0,0);
-							filament_mode = 'N';
 						}
 						filament_accept_ok = false;
 					}
@@ -3866,6 +3871,161 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					*/
 					//*****END QUICK GUIDE
 					#pragma endregion QUICK START
+					
+					
+					#pragma region Manual Fine Calibration
+					
+					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_BACK){
+						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
+						offset_calib_manu[0]=0.0;
+						offset_calib_manu[1]=0.0;
+						offset_calib_manu[2]=0.0;
+						offset_calib_manu[3]=0.0;
+						calib_value_selected = 0;
+					}
+					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_MENU){
+						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
+						offset_calib_manu[0]=0.0;
+						offset_calib_manu[1]=0.0;
+						offset_calib_manu[2]=0.0;
+						offset_calib_manu[3]=0.0;
+						calib_value_selected = 0;
+						screen_sdcard = false;
+						surfing_utilities=false;
+						surfing_temps = false;
+						Serial.println("Surfing 0");
+					}
+					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_OK){
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_MANUAL_FINE_CALIB_SAVE,0);
+					}
+					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_X){
+						calib_value_selected = 0;
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZR,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZL,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_X,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_Y,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_RIGHT,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_LEFT,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_UP,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_DOWN,1);	
+						genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3); 
+					}
+					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_Y){
+						calib_value_selected = 1;
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZR,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZL,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_X,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_Y,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_RIGHT,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_LEFT,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_UP,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_DOWN,0);
+						genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3); 
+						
+					}
+					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_ZL){
+						calib_value_selected = 2;
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZR,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZL,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_X,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_Y,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_RIGHT,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_LEFT,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_UP,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_DOWN,0);
+						genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3); 
+					}
+					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_ZR){
+						calib_value_selected = 3;
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZR,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZL,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_X,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_Y,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_RIGHT,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_LEFT,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_UP,0);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_DOWN,0);
+							
+						genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3); 
+					}
+					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_UP && calib_value_selected!=0){
+						
+						if(calib_value_selected == 1){
+							if(offset_calib_manu[calib_value_selected] < 1.975) offset_calib_manu[calib_value_selected] += 0.025;
+						}
+						else{
+							if(offset_calib_manu[calib_value_selected] < 0.200) offset_calib_manu[calib_value_selected] += 0.025;
+						}
+						
+						
+						
+						genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3);
+					}
+					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_DOWN && calib_value_selected!=0){
+						
+					
+						if(calib_value_selected == 1){
+							if(offset_calib_manu[calib_value_selected] > -1.975) offset_calib_manu[calib_value_selected] -= 0.025;
+						}
+						else{
+							if(offset_calib_manu[calib_value_selected] > -0.200) offset_calib_manu[calib_value_selected] -= 0.025;
+						}
+						
+							
+						genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3);
+					}
+					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_LEFT && calib_value_selected==0){
+						
+						
+						if(offset_calib_manu[calib_value_selected] > -1.975) offset_calib_manu[calib_value_selected] -= 0.025;
+						
+						
+						genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3); 
+					}
+					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_RIGHT && calib_value_selected==0){
+						
+						
+					if(offset_calib_manu[calib_value_selected] < 1.975) offset_calib_manu[calib_value_selected] += 0.025;
+						
+						
+						
+						genie.WriteStr(STRING_MANUAL_FINE_CALIB,offset_calib_manu[calib_value_selected],3); 
+						
+					}
+					
+					
+					///save
+					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_SAVE_OK){
+						
+						 extruder_offset[X_AXIS][RIGHT_EXTRUDER]+= offset_calib_manu[0];
+						 extruder_offset[Y_AXIS][RIGHT_EXTRUDER]+= offset_calib_manu[1];
+						 zprobe_zoffset += offset_calib_manu[2];
+						 extruder_offset[Z_AXIS][RIGHT_EXTRUDER]+= offset_calib_manu[3];
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
+						offset_calib_manu[0]=0.0;
+						offset_calib_manu[1]=0.0;
+						offset_calib_manu[2]=0.0;
+						offset_calib_manu[3]=0.0;
+						calib_value_selected = 0;
+						Config_PrintSettings();
+					}
+					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_SAVE_NOT){
+						
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIBRATION,0);
+						offset_calib_manu[0]=0.0;
+						offset_calib_manu[1]=0.0;
+						offset_calib_manu[2]=0.0;
+						offset_calib_manu[3]=0.0;
+						calib_value_selected = 0;
+					}
+					
+					
+					#pragma endregion Manual Fine Calibration
+					
+					
+					
 					
 					
 					//***** Info Screens *****

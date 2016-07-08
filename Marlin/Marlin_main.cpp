@@ -330,7 +330,10 @@ float zprobe_zoffset;
 
 //bools to control which kind of process are actually running
 bool processing = false;
+bool processing_change_filament_temps = false;
 bool processing_adjusting = false;
+bool processing_nylon_temps = false;
+
 bool processing_test = false;
 bool heatting = false;
 bool back_home = false;
@@ -2493,7 +2496,7 @@ if (surfing_utilities)
 				//genie.WriteStr(STRING_FILAMENT,"Press GO to Purge Filament");
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
 			}
-			processing_adjusting = false;
+			processing_change_filament_temps = false;
 			is_changing_filament=false; //Reset changing filament control
 		}
 		#endif //Extruders > 1
@@ -2747,7 +2750,7 @@ void update_screen_noprinting(){
 					//genie.WriteStr(STRING_FILAMENT,"Press GO to Purge Filament");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
 				}
-				processing_adjusting = false;
+				processing_change_filament_temps = false;
 				is_changing_filament=false; //Reset changing filament control
 			}
 			#endif //Extruders > 1
@@ -2892,14 +2895,29 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			
 			
 			
-			if(processing_state<44){
+			if(processing_state<45){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
-			waitPeriod_p=90+millis();
+			waitPeriod_p=40+millis();
+		}
+	}
+	if (processing_change_filament_temps){
+		if (millis() >= waitPeriod_p){
+			
+			
+			
+			if(processing_state<44){
+				processing_state++;
+			}
+			else{
+				processing_state=0;
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_CHANGE_FILAMENT_TEMPS,processing_state);
+			waitPeriod_p=40+millis();
 		}
 	}
 	if (processing_adjusting){
@@ -2912,20 +2930,34 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ADJUSTING_TEMPERATURES,processing_state);
-			waitPeriod_p=90+millis();
+			waitPeriod_p=40+millis();
+		}
+	}
+	if (processing_nylon_temps){
+		if (millis() >= waitPeriod_p){
+			
+			if(processing_state<44){
+				processing_state++;
+			}
+			else{
+				Serial.println(degHotend(which_extruder));
+				processing_state=0;
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_TEMPS,processing_state);
+			waitPeriod_p=40+millis();
 		}
 	}
 	if (processing_test){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<42){
+			if(processing_state<34){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PRINTING_TEST,processing_state);
-			waitPeriod_p=90+millis();
+			waitPeriod_p=40+millis();
 		}
 	}
 	
@@ -2934,14 +2966,14 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			if(home_made == false){
 				
 				if (millis() >= waitPeriod_pbackhome){
-					if(processing_state<44){
+					if(processing_state<45){
 						processing_state++;
 					}
 					else{
 						processing_state=0;
 					}
 					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
-					waitPeriod_p=90+millis();
+					waitPeriod_p=40+millis();
 				}
 				
 			}
@@ -4166,9 +4198,10 @@ inline void gcode_G40(){
 	while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-10) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-10)&& degBed()<(max(bed_temp_l,bed_temp_r)-15)){ //Waiting to heat the extruder
 	
 		manage_heater();
+		touchscreen_update();
 	}
 
-	delay(5000);
+	//delay(5000);
 	//Raise for a layer of Z=0.2
 	current_position[Z_AXIS]=0.4;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 10 , active_extruder);
@@ -4371,8 +4404,9 @@ inline void gcode_G41(){
 	while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-10) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-10) || degBed()<(max(bed_temp_l,bed_temp_r)-15)){ //Waiting to heat the extruder
 						
 		manage_heater();
+		touchscreen_update();
 	}
-	delay(5000);
+	//delay(5000);
 					
 	//Raise for a layer of Z=0.2
 	current_position[Z_AXIS]=0.4;
