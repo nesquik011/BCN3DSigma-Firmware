@@ -333,7 +333,8 @@ bool processing = false;
 bool processing_change_filament_temps = false;
 bool processing_adjusting = false;
 bool processing_nylon_temps = false;
-
+bool processing_bed = false;
+bool processing_bed_first = false;
 bool processing_test = false;
 bool heatting = false;
 bool back_home = false;
@@ -2607,15 +2608,15 @@ void update_screen_noprinting(){
 			//Rapduch
 			//Edit for final TouchScreen
 			
-			sprintf(buffer, "%3d %cC",tHotend,0x00B0);
+			sprintf(buffer, "%3d%cC / %3d%cC",tHotend,0x00B0,(int)degTargetHotend0(),0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_NOZZ1,buffer);
 			
-			sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
+			sprintf(buffer, "%3d%cC / %3d%cC",tHotend1,0x00B0,(int)degTargetHotend1(),0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_NOZZ2,buffer);
 			
-			sprintf(buffer, "%2d %cC",tBed,0x00B0);
+			sprintf(buffer, "%3d%cC / %3d%cC",tBed,0x00B0,(int)degTargetBed(),0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_BED,buffer);
 			
@@ -2625,23 +2626,23 @@ void update_screen_noprinting(){
 			}
 			else if(target_temperature[0]!=0){
 				gifhotent0_flag = false;
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,1);
+				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,1);//<GIFF
 			}
 			else{
 				gifhotent0_flag = false;
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,0);
+				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,0);//<GIFF
 			}
 			if ((tHotend1 <= target_temperature[1]-10 || tHotend1 >= target_temperature[1]+10) && target_temperature[1]!=0)  {
-				gifhotent1_flag = true;
+				gifhotent1_flag = true;//<GIFF
 				
 			}
 			else if(target_temperature[1]!=0){
 				gifhotent1_flag = false;
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,1);
+				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,1); //<GIFF
 			}
 			else{
 				gifhotent1_flag = false;
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,0);
+				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,0);//<GIFF
 			}
 			if (( tBed <= target_temperature_bed-10 ||  tBed >= target_temperature_bed+10) && target_temperature_bed!=0)  {
 				gifbed_flag = true;
@@ -2649,11 +2650,11 @@ void update_screen_noprinting(){
 			}
 			else if(target_temperature_bed!=0){
 				gifbed_flag = false;
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,1);
+				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,1);//<GIFF
 			}
 			else{
 				gifbed_flag = false;
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,0);
+				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,0);//<GIFF
 			}
 			
 			
@@ -2950,13 +2951,39 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	if (processing_test){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<34){
+			if(processing_state<42){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PRINTING_TEST,processing_state);
+			waitPeriod_p=40+millis();
+		}
+	}
+	if (processing_bed_first){
+		if (millis() >= waitPeriod_p){
+			
+			if(processing_state<42){
+				processing_state++;
+			}
+			else{
+				processing_state=0;
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_INFO_TURN_SCREWS_FIRST,processing_state);
+			waitPeriod_p=40+millis();
+		}
+	}
+	if (processing_bed){
+		if (millis() >= waitPeriod_p){
+			
+			if(processing_state<42){
+				processing_state++;
+			}
+			else{
+				processing_state=0;
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_INFO_TURN_SCREWS,processing_state);
 			waitPeriod_p=40+millis();
 		}
 	}
@@ -4604,7 +4631,7 @@ inline void gcode_G41(){
 }
 inline void gcode_G43(){
 #ifdef EXTRUDER_CALIBRATION_WIZARD
-	
+	processing =  true;
 	Serial.println("Starting Z Calibration Wizard");
 	//Raise to correct
 		
@@ -4631,6 +4658,7 @@ inline void gcode_G43(){
 		}else{
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_Z_EXTRUDER2,0);
 	}
+	processing =  false;
 	
 	
 #endif //EXTRUDER_CALIBRATION_WIZARD
@@ -5391,8 +5419,14 @@ if (aprox1==0 && aprox2==0 && aprox3==0) //If the calibration it's ok
 	bed_calibration_times++;
 								
 	#ifdef SIGMA_TOUCH_SCREEN	
-	if (bed_calibration_times >= 2) genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_TURN_SCREWS,0);
-	else genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_TURN_SCREWS_FIRST,0);			
+	if (bed_calibration_times >= 2) {
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_TURN_SCREWS,0);
+		processing_bed = true;
+	}
+	else{ 
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_TURN_SCREWS_FIRST,0);
+		processing_bed_first = true;		
+	}
 	/*		 //char buffer[256];
 	//
 	//
