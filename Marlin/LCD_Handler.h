@@ -75,6 +75,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 	genieFrame Event;
 	genie.DequeueEvent(&Event);
 	//static long waitPeriod = millis();
+	static long waitPeriod_s = millis();
 	static long waitPeriod_purge = millis(); // This waitperiod avoid some spamming pressing on purging buttons which can block the machine
 	int move_mm = 10;
 	//If the cmd received is from a Reported Event (Events triggered from the Events tab of Workshop4 objects)
@@ -838,7 +839,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_PURGE_LEFT ){
 					if (purge_extruder_selected == 1){
 						purge_extruder_selected = 0;
-						setTargetHotend0(print_temp_l);
+						if(target_temperature[0] == 0){
+							setTargetHotend0(print_temp_l);
+						}
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,1);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,0);
 						char buffer[256];
@@ -851,7 +854,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else{
 						char buffer[256];
 						purge_extruder_selected = 0;
-						setTargetHotend0(print_temp_l);
+						if(target_temperature[0] == 0){
+							setTargetHotend0(print_temp_l);
+						}
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,1);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,0);
 						sprintf(buffer, "%3d %cC",target_temperature[0],0x00B0);
@@ -863,7 +868,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_PURGE_RIGHT ){
 					if (purge_extruder_selected == 0){
 						purge_extruder_selected = 1;
-						setTargetHotend1(print_temp_r);
+						if(target_temperature[1] == 0){
+							setTargetHotend1(print_temp_r);
+						}
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,1);
 						char buffer[256];
@@ -875,7 +882,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else{
 						purge_extruder_selected = 1;
-						setTargetHotend1(print_temp_r);
+						if(target_temperature[1] == 0){
+							setTargetHotend1(print_temp_r);
+						}
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,1);
 						char buffer[256];
@@ -1346,6 +1355,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						setTargetBed(0);
 						setTargetHotend0(0);
 						setTargetHotend1(0);
+						feedmultiply = 100;
 						log_prints++;
 						Config_StoreSettings();
 						//gcode_T0_T1_auto(0);
@@ -1683,7 +1693,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_PURGE_LEFT ){
 					if (purge_extruder_selected == 1){
 						purge_extruder_selected = 0;
-						setTargetHotend0(print_temp_l);
+						if(target_temperature[0] == 0){
+							setTargetHotend0(print_temp_l);
+						}
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,1);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,0);
 						char buffer[256];
@@ -1696,7 +1708,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else{
 						char buffer[256];
 						purge_extruder_selected = 0;
-						setTargetHotend0(print_temp_l);
+						if(target_temperature[0] == 0){
+							setTargetHotend0(print_temp_l);
+						}
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,1);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,0);
 						sprintf(buffer, "%d %cC",target_temperature[0],0x00B0);
@@ -1708,7 +1722,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_PURGE_RIGHT ){
 					if (purge_extruder_selected == 0){
 						purge_extruder_selected = 1;
-						setTargetHotend1(print_temp_r);
+						
+						if(target_temperature[1] == 0){
+							setTargetHotend1(print_temp_r);
+						}
+						
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,1);
 						char buffer[256];
@@ -1720,7 +1738,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else{
 						purge_extruder_selected = 1;
-						setTargetHotend1(print_temp_r);
+						if(target_temperature[1] == 0){
+							setTargetHotend1(print_temp_r);
+						}
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_LEFT,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RIGHT,1);
 						char buffer[256];
@@ -2455,8 +2475,20 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_TEMPS,0);
 					processing_nylon_temps = true;
-					
+					int Tref = (int)degHotend(which_extruder);
+					int Tfinal = (int)(degTargetHotend(which_extruder)-NYLON_TEMP_HYSTERESIS);
+					int percentage = 0;
 					while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
+						if (millis() >= waitPeriod_s){
+							char buffer[25];
+							memset(buffer, '\0', sizeof(buffer) );
+							
+							percentage = Tfinal-Tref;
+							percentage = 100*((int)degHotend(which_extruder)-Tref)/percentage;
+							sprintf(buffer, "%d%%", percentage);
+							genie.WriteStr(STRING_NYLON_TEMPS,buffer);
+							waitPeriod_s=2000+millis();
+						}
 						manage_heater();
 						touchscreen_update();
 					}
@@ -2472,11 +2504,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == BUTTON_NYLON_STEP2)
 				{
-					setTargetHotend(170.0,which_extruder);
+					setTargetHotend(0.0,which_extruder);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP3,0);
 					processing_nylon_temps = true;
 					
-					while (degHotend(which_extruder)>(degTargetHotend(which_extruder)+NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
+					while (degHotend(which_extruder)>160.0){ //Waiting to heat the extruder
+						
 						manage_heater();
 						touchscreen_update();
 					}
@@ -2487,22 +2520,49 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == BUTTON_NYLON_STEP4)
 				{
-					setTargetHotend(40.0,which_extruder);
+					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_TEMPS,0);
 					processing_nylon_temps = true;
-					
-					while (degHotend(which_extruder)>(degTargetHotend(which_extruder)+15)){ //Waiting to heat the extruder
+					int Tref = (int)degHotend(which_extruder);
+					int Tfinal = 40;
+					int percentage = 0;
+					while (degHotend(which_extruder)>40){ //Waiting to heat the extruder
+						if (millis() >= waitPeriod_s){
+							char buffer[25];
+							memset(buffer, '\0', sizeof(buffer) );
+							
+							percentage = ((Tref-Tfinal)-((int)degHotend(which_extruder)-Tfinal))*100;
+							percentage = percentage/(Tref-Tfinal);
+							sprintf(buffer, "%d%%", percentage);
+							genie.WriteStr(STRING_NYLON_TEMPS,buffer);
+							waitPeriod_s=2000+millis();
+						}
 						manage_heater();
 						touchscreen_update();
+												
 					}
 					Serial.println("50 grados");
 					setTargetHotend(105.0,which_extruder);
-					
+					Tref = (int)degHotend(which_extruder);
+					Tfinal = 105-NYLON_TEMP_HYSTERESIS;
+					percentage = 0;
 					while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
+						
+						if (millis() >= waitPeriod_s){
+							char buffer[25];
+							memset(buffer, '\0', sizeof(buffer) );
+							
+							percentage = Tfinal-Tref;
+							percentage = 100*((int)degHotend(which_extruder)-Tref)/percentage;
+							sprintf(buffer, "%d%%", percentage);
+							genie.WriteStr(STRING_NYLON_TEMPS,buffer);
+							waitPeriod_s=2000+millis();
+						}
 						manage_heater();
 						touchscreen_update();
+						
 					}
-					Serial.println("50 grados");
+					Serial.println("40 grados");
 					processing_nylon_temps = false;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP5,0);
 					
@@ -2514,7 +2574,29 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_NYLON_REPEAT)
 				{
 					setTargetHotend(260.0,which_extruder);
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP0,0);
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_TEMPS,0);
+					processing_nylon_temps = true;
+					int Tref = (int)degHotend(which_extruder);
+					int Tfinal = (int)(degTargetHotend(which_extruder)-NYLON_TEMP_HYSTERESIS);
+					int percentage = 0;
+					while (degHotend(which_extruder)<(degTargetHotend(which_extruder)-NYLON_TEMP_HYSTERESIS)){ //Waiting to heat the extruder
+						if (millis() >= waitPeriod_s){
+							char buffer[25];
+							memset(buffer, '\0', sizeof(buffer) );
+							
+							percentage = Tfinal-Tref;
+							percentage = 100*((int)degHotend(which_extruder)-Tref)/percentage;
+							sprintf(buffer, "%d%%", percentage);
+							genie.WriteStr(STRING_NYLON_TEMPS,buffer);
+							waitPeriod_s=2000+millis();
+						}
+						manage_heater();
+						touchscreen_update();
+					}
+					processing_nylon_temps = false;
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP1,0);
 				}
 				else if (Event.reportObject.index == BUTTON_NYLON_SUCCESS)
 				{
@@ -3714,7 +3796,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						//enquecommand_P(PSTR("T0"));
 						if(!flag_bed_calib_done){  //Do g34
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_BED_CAL_WAIT,0);
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+							processing = true;
 							home_axis_from_code(true,true,true);
 							enquecommand_P(PSTR("G34"));	//Start BED Calibration Wizard
 							changeTool(0);
@@ -4232,6 +4315,22 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					sprintf(buffer, "%3d%cC",tBed,0x00B0);
 					//Serial.println(buffer);
 					genie.WriteStr(STRING_PREHEAT_SET_BED,buffer);
+					
+				}
+				else if (Event.reportObject.index == FORM_INFO_PRINTINGTIME)
+				{
+					
+					char buffer[256];
+					
+					sprintf(buffer, "%d h",log_hours_print);
+					//Serial.println(buffer);
+					genie.WriteStr(STRING_INFO_PRINTINGTIME,buffer);
+					
+				}
+				else if (Event.reportObject.index == FORM_INFO_UI)
+				{
+					
+					genie.WriteStr(STRING_INFO_UI_VERSION,VERSION_STRING);
 					
 				}
 			}

@@ -2659,7 +2659,7 @@ void update_screen_noprinting(){
 			
 			
 			
-			waitPeriodno=1000+millis(); // Every Second
+			waitPeriodno=3000+millis(); // Every Second
 		}
 		if (millis() >= waitPeriod_p && (gifhotent0_flag || gifhotent1_flag || gifbed_flag ))
 		{
@@ -2874,6 +2874,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	//static keyword specifies that the variable retains its state between calls to the function
 
 	static uint32_t waitPeriod_p = millis();
+	
 	static uint32_t waitPeriod_pbackhome = millis(); //Processing back home
 	static int8_t processing_state = 0;
 	static int count5s = 0;
@@ -2947,6 +2948,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_TEMPS,processing_state);
 			waitPeriod_p=40+millis();
 		}
+		
 	}
 	if (processing_test){
 		if (millis() >= waitPeriod_p){
@@ -5391,8 +5393,8 @@ if (aprox1==0 && aprox2==0 && aprox3==0) //If the calibration it's ok
 							*/
 							
 							active_extruder = LEFT_EXTRUDER;
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-							processing = true;
+							//genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+							//processing = true;
 							setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
 							setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
 							setTargetBed(max(bed_temp_l,bed_temp_r));
