@@ -1126,6 +1126,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define PURGE_TEMP_HYSTERESIS 10
 #define CHANGE_FIL_TEMP_HYSTERESIS 10
 #define NYLON_TEMP_HYSTERESIS 5
+#define SETUP_G70 0
 //#define SCREENTEST
 
 

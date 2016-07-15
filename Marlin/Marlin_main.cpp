@@ -5585,9 +5585,14 @@ inline void gcode_G70(){
 					//*********************************//
 					active_extruder = saved_active_extruder;
 					
+					#if SETUP_G70 == 0
 					
-					
-					
+					current_position[Z_AXIS] = saved_position[Z_AXIS];
+					feedrate=homing_feedrate[Z_AXIS];
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+					destination[Z_AXIS] = current_position[Z_AXIS];
+					st_synchronize();
+					#endif
 					
 					current_position[E_AXIS]+=10;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
@@ -5597,15 +5602,13 @@ inline void gcode_G70(){
 					
 					
 					current_position[Y_AXIS] = saved_position[Y_AXIS];
-					////******PURGE   -->> Purge to clean the extruder, retrack to avoid the trickle
-				/*	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] += 2, 400, active_extruder);
+					feedrate=homing_feedrate[Y_AXIS];
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
 					st_synchronize();
-					delay(300);
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] -= 4, 2400, active_extruder);
-					st_synchronize();*/
-					//*********************************//
 					
-					//********MOVE TO ORIGINAL POSITION X
+					#if SETUP_G70 == 1
+					
+					
 					if (!active_extruder){
 					current_position[X_AXIS] = current_position[X_AXIS]+30;
 					feedrate=homing_feedrate[X_AXIS];
@@ -5637,17 +5640,14 @@ inline void gcode_G70(){
 					st_synchronize();
 					delay(1000);
 					
+					#endif
+					
 					current_position[X_AXIS] = saved_position[X_AXIS];
 					feedrate=homing_feedrate[X_AXIS];
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					st_synchronize();
-					//*********************************//
 					
-					//*********************************//
-					
-					//********MOVE TO ORIGINAL POSITION Z
-					//if(current_position[Z_AXIS]>=extruder_offset[Z_AXIS]) += 20;
-					
+					#if SETUP_G70 == 1
 					current_position[Z_AXIS] = saved_position[Z_AXIS];
 					feedrate=homing_feedrate[Z_AXIS];
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
@@ -5657,10 +5657,13 @@ inline void gcode_G70(){
 					
 					
 					//********EXTRACK to keep ready to the new instruction
+					
 					current_position[E_AXIS]+=0; //2
 					feedrate=20*60;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					st_synchronize();
+					#endif
+					
 					//*********************************//
 					processing = false;
 					screen_printing_pause_form = screen_printing_pause_form0;

@@ -780,12 +780,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					if (filament_mode =='R')
 					{ //Removing...
+						processing = true;
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						current_position[E_AXIS] -= (BOWDEN_LENGTH + EXTRUDER_LENGTH + 100);//Extra extrusion at fast feedrate
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_FAST_SPEED/60, which_extruder);
 						st_synchronize();
 						previous_state = FORM_FILAMENT;
-						processing = true;
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						
 						processing = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
 						if (which_extruder == 0){
@@ -1060,13 +1061,15 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						processing = true;
 						
-						
+						#if SETUP_G70 == 1
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						current_position[Z_AXIS] = saved_position[Z_AXIS];
 						
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS],saved_active_extruder);
 						
 						st_synchronize();
+						
+						#endif
 						//home_axis_from_code(true, true, false);
 						
 						current_position[Z_AXIS] = saved_position[Z_AXIS] + 20;
@@ -1631,10 +1634,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						else{
 							home_axis_from_code(true,true,true);
 						}
-						
+						st_synchronize();
 						current_position[Z_AXIS]=Z_MAX_POS-15;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
-						
+						st_synchronize();
 						current_position[Y_AXIS]=10;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Y_AXIS], active_extruder); //check speed
 						st_synchronize();
@@ -1647,14 +1650,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (which_extruder == 0) changeTool(0);
 						else changeTool(1);
 						
-						current_position[Y_AXIS] = 100;
+						
 						current_position[X_AXIS] = 155;
 						
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED*1.5,which_extruder);
 						st_synchronize();
 						processing = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP0,0);
-						filament_mode = 'N';
 						
 					}
 				}
@@ -2489,11 +2491,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					 if (filament_mode =='R')
 					{ //Removing...
+						processing = true;
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						current_position[E_AXIS] -= (BOWDEN_LENGTH + EXTRUDER_LENGTH + 100);//Extra extrusion at fast feedrate
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],  INSERT_FAST_SPEED/60, which_extruder);
 						previous_state = FORM_FILAMENT;
-						processing = true;
-						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+						
 						st_synchronize();
 						processing = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
@@ -2543,6 +2546,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_NYLON_STEP2)
 				{
 					setTargetHotend(0.0,which_extruder);
+					if(which_extruder == 0)analogWrite(FAN_PIN, 255);
+					else analogWrite(FAN2_PIN, 255);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP3,0);
 					processing_nylon_temps = true;
 					
@@ -2552,7 +2557,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						touchscreen_update();
 					}
 					processing_nylon_temps = false;
-					
+					if(which_extruder == 0)analogWrite(FAN_PIN, 255);
+					else analogWrite(FAN2_PIN, 255);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP4,0);
 					
 				}
@@ -2580,6 +2586,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 												
 					}
 					Serial.println("50 grados");
+					if(which_extruder == 0)analogWrite(FAN_PIN, 0);
+					else analogWrite(FAN2_PIN, 0);
 					setTargetHotend(105.0,which_extruder);
 					Tref = (int)degHotend(which_extruder);
 					Tfinal = 105-NYLON_TEMP_HYSTERESIS;
@@ -2639,6 +2647,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_NYLON_SUCCESS)
 				{
 					setTargetHotend(0.0,which_extruder);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					processing = true;
+					home_axis_from_code(true, true, false);
+					processing =  false;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_MAINTENANCE,0);
 					flag_nylon_clean_metode = false;
 				}
@@ -2981,7 +2993,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							if (which_extruder == 0) changeTool(0);
 							else changeTool(1);
 							
-							current_position[Y_AXIS] = 100;
+							current_position[Y_AXIS] = 10;
 							current_position[X_AXIS] = 155;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 							processing = true;
