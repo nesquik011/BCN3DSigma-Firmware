@@ -15,7 +15,8 @@
 //without form declared///////////////////////////////
 #define FORM_STOP_PRINT								1
 
-#define BUTTON_STOP_YES						1
+	#define BUTTON_STOP_YES						1
+	#define BUTTON_STOP_NO						61
 #define BUTTON_COOLDOWN_OK					3224
 #define BUTTON_COOLDOWN_OK					3224
 #define BUTTON_COOLDOWN_CANCEL				74
@@ -34,14 +35,14 @@
 	#define STRING_NAME_FILE_DUR2			25
 	#define STRING_NAME_FILE_DUR3			26
 	#define STRING_NAME_FILE_DUR4			30
-	#define STRING_NAME_FILE_DUR5			31
+	#define STRING_NAME_FILE_DUR5			341
 	//#define STRING_FOLDER_NAME				6
 	#define BUTTON_SD_SELECTED0				85
 	#define BUTTON_SD_SELECTED1				15
 	#define BUTTON_SD_SELECTED2				14
 	#define BUTTON_SD_SELECTED3				56
 	#define BUTTON_SD_SELECTED4				86
-	#define BUTTON_SD_SELECTED5				87
+	#define BUTTON_SD_SELECTED5				847
 	#define BUTTON_SD_LEFTx3				37
 	#define BUTTON_SD_RIGHT					5
 	#define BUTTON_FOLDER_BACK				55
@@ -181,6 +182,7 @@
 	#define BUTTON_Z_LEFT_SELECT3			48	
 #define FORM_ADJUSTING_TEMPERATURES					36	
 	#define GIF_ADJUSTING_TEMPERATURES			2
+	#define STRING_ADJUSTING_TEMPERATURES			46
 #define FORM_X_CALIB_SELECT							27
 	#define BUTTON_X_LINE_SELECT1			21
 	#define BUTTON_X_LINE_SELECT2			22
@@ -250,8 +252,8 @@
 	#define BUTTON_Z_CALIB_Z2_Down			117
 #define FORM_BED_CAL_WAIT						45
 	
-#define FORM_FULL_CAL								40
-	#define STRING_AXIS						50
+#define FORM_FULL_CAL								4444
+	#define STRING_AXIS						555
 	
 #define FORM_FULL_CAL_ZL					51
 	#define BUTTON_FULL_CAL_ZL_GO			181
@@ -349,6 +351,7 @@
 	#define STRING_NYLON_TEMPS			43
 #define FORM_CHANGE_FILAMENT_TEMPS			40
 	#define GIF_CHANGE_FILAMENT_TEMPS		8
+	#define STRING_CHANGE_FILAMENT_TEMPS		45
 #define  FORM_MANUAL_FINE_CALIB_OK 59
 	#define BUTTON_MANUAL_FINE_CALIB_OK		203
 	#define BUTTON_MANUAL_FINE_CALIB_X		199

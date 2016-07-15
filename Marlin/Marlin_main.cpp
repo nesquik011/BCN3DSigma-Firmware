@@ -2442,32 +2442,23 @@ if (surfing_utilities)
 		int tHotend1=int(degHotend(1));
 		char buffer[25];
 		memset(buffer, '\0', sizeof(buffer) );
-		//Rapduch
-		//Edit for final TouchScreen
-		/*
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, current_position[X_AXIS]);
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);*/
-		
-		sprintf(buffer, "%3d %cC",tHotend,0x00B0);
-		//Serial.println(buffer);
-		genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
-		
-		sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
-		//Serial.println(buffer);
-		genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
-		/*
-		if (degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10) {
+		if(!is_changing_filament){
+			sprintf(buffer, "%3d %cC",tHotend,0x00B0);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
 			
-			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,0);
-			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,0);
-			//genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,0);
+			sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
 		}
-		else{
-			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,1);
-			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,1);
-			//genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,1);
-		}*/
+		
+		if(is_changing_filament){
+			int percentage = 0;
+			percentage = Tfinal1-Tref1;
+			percentage = 100*((int)degHotend(which_extruder)-Tref1)/percentage;
+			sprintf(buffer, "%d%%", percentage);
+			genie.WriteStr(STRING_CHANGE_FILAMENT_TEMPS,buffer);
+		}
 		
 		#if EXTRUDERS > 1
 		// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
@@ -2502,7 +2493,7 @@ if (surfing_utilities)
 		}
 		#endif //Extruders > 1
 		
-		waitPeriod=1000+millis(); // Every Second
+		waitPeriod=2000+millis(); // Every Second
 	}
 }
 if(filament_accept_ok && !home_made){
@@ -2696,37 +2687,31 @@ void update_screen_noprinting(){
 			int tHotend1=int(degHotend(1));
 			char buffer[25];
 			memset(buffer, '\0', sizeof(buffer) );
-			//Rapduch
-			//Edit for final TouchScreen
-			/*
-			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, current_position[X_AXIS]);
-			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
-			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);*/
 			
-			sprintf(buffer, "%3d %cC",tHotend,0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
+			if(!is_changing_filament){
+				sprintf(buffer, "%3d %cC",tHotend,0x00B0);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
 			
-			sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
-			/*
-			if (degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10) {
-				
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,0);
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,0);
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,0);
+				sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
 			}
-			else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,1);
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,1);
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,1);
-			}*/
+			
+			if(is_changing_filament){
+				int percentage = 0;
+				percentage = Tfinal1-Tref1;
+				percentage = 100*((int)degHotend(which_extruder)-Tref1)/percentage;
+				sprintf(buffer, "%d%%", percentage);
+				genie.WriteStr(STRING_CHANGE_FILAMENT_TEMPS,buffer);
+			}
+			
 			
 			#if EXTRUDERS > 1
 			// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
 			if ((degHotend(0) >= (degTargetHotend0()-CHANGE_FIL_TEMP_HYSTERESIS)) && (degHotend(1) >= (degTargetHotend1()-CHANGE_FIL_TEMP_HYSTERESIS)) && is_changing_filament){
 				// if we want to add user setting temp, we should control if is heating
+				
 				Serial.println("temp ok");
 				
 				Serial.println("Ready to Insert/Remove");
@@ -2756,7 +2741,7 @@ void update_screen_noprinting(){
 			}
 			#endif //Extruders > 1
 		
-			waitPeriodno=1000+millis(); // Every Second
+			waitPeriodno=2000+millis(); // Every Second
 		}
 	}
 	if(z_adjust_10up && !blocks_queued()){
