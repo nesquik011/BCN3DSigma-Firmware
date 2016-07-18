@@ -241,18 +241,21 @@ int Listfiles::get_filgramos2(){
 	return gram;
 }
 int Listfiles::get_hoursremaning(){
-	long hours = 0;
+	unsigned long long hours = 0;
 	if (get_hours()==0)return 0;
-	hours = ((long)get_hours()*60+(long)get_minutes());
-	hours = hours-hours*(long)card.getSdPosition()/(long)card.getFileSize();
+	hours = get_hours()*60+get_minutes();
+	Serial.println((long)hours);
+	hours = hours-hours*card.getSdPosition()/card.getFileSize();
+	Serial.println((long)hours);
 	hours = hours/60;
+	Serial.println((long)hours);
 	return (int) hours;
 }
 int Listfiles::get_minutesremanig(){
-	long minu = 0;
+	unsigned long long minu = 0;
 	if (get_minutes()==-1)return 0;
-	minu = ((long)get_hours()*60+(long)get_minutes());
-	minu = minu-minu*(long)card.getSdPosition()/(long)card.getFileSize();
+	minu = get_hours()*60+get_minutes();
+	minu = minu-minu*card.getSdPosition()/card.getFileSize();
 	minu = minu%60;
 	return (int) minu;
 }

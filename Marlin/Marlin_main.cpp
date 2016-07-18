@@ -333,7 +333,8 @@ bool processing = false;
 bool processing_change_filament_temps = false;
 bool processing_adjusting = false;
 bool processing_nylon_temps = false;
-
+bool processing_bed = false;
+bool processing_bed_first = false;
 bool processing_test = false;
 bool heatting = false;
 bool back_home = false;
@@ -2441,32 +2442,23 @@ if (surfing_utilities)
 		int tHotend1=int(degHotend(1));
 		char buffer[25];
 		memset(buffer, '\0', sizeof(buffer) );
-		//Rapduch
-		//Edit for final TouchScreen
-		/*
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, current_position[X_AXIS]);
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
-		genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);*/
-		
-		sprintf(buffer, "%3d %cC",tHotend,0x00B0);
-		//Serial.println(buffer);
-		genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
-		
-		sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
-		//Serial.println(buffer);
-		genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
-		/*
-		if (degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10) {
+		if(!is_changing_filament){
+			sprintf(buffer, "%3d %cC",tHotend,0x00B0);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
 			
-			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,0);
-			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,0);
-			//genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,0);
+			sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
+			//Serial.println(buffer);
+			genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
 		}
-		else{
-			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,1);
-			genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,1);
-			//genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,1);
-		}*/
+		
+		if(is_changing_filament){
+			int percentage = 0;
+			percentage = Tfinal1-Tref1;
+			percentage = 100*((int)degHotend(which_extruder)-Tref1)/percentage;
+			sprintf(buffer, "%d%%", percentage);
+			genie.WriteStr(STRING_CHANGE_FILAMENT_TEMPS,buffer);
+		}
 		
 		#if EXTRUDERS > 1
 		// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
@@ -2501,7 +2493,7 @@ if (surfing_utilities)
 		}
 		#endif //Extruders > 1
 		
-		waitPeriod=1000+millis(); // Every Second
+		waitPeriod=2000+millis(); // Every Second
 	}
 }
 if(filament_accept_ok && !home_made){
@@ -2607,15 +2599,15 @@ void update_screen_noprinting(){
 			//Rapduch
 			//Edit for final TouchScreen
 			
-			sprintf(buffer, "%3d %cC",tHotend,0x00B0);
+			sprintf(buffer, "%3d%cC / %3d%cC",tHotend,0x00B0,(int)degTargetHotend0(),0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_NOZZ1,buffer);
 			
-			sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
+			sprintf(buffer, "%3d%cC / %3d%cC",tHotend1,0x00B0,(int)degTargetHotend1(),0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_NOZZ2,buffer);
 			
-			sprintf(buffer, "%2d %cC",tBed,0x00B0);
+			sprintf(buffer, "%3d%cC / %3d%cC",tBed,0x00B0,(int)degTargetBed(),0x00B0);
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_BED,buffer);
 			
@@ -2625,23 +2617,23 @@ void update_screen_noprinting(){
 			}
 			else if(target_temperature[0]!=0){
 				gifhotent0_flag = false;
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,1);
+				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,1);//<GIFF
 			}
 			else{
 				gifhotent0_flag = false;
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,0);
+				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,0);//<GIFF
 			}
 			if ((tHotend1 <= target_temperature[1]-10 || tHotend1 >= target_temperature[1]+10) && target_temperature[1]!=0)  {
-				gifhotent1_flag = true;
+				gifhotent1_flag = true;//<GIFF
 				
 			}
 			else if(target_temperature[1]!=0){
 				gifhotent1_flag = false;
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,1);
+				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,1); //<GIFF
 			}
 			else{
 				gifhotent1_flag = false;
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,0);
+				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,0);//<GIFF
 			}
 			if (( tBed <= target_temperature_bed-10 ||  tBed >= target_temperature_bed+10) && target_temperature_bed!=0)  {
 				gifbed_flag = true;
@@ -2649,16 +2641,16 @@ void update_screen_noprinting(){
 			}
 			else if(target_temperature_bed!=0){
 				gifbed_flag = false;
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,1);
+				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,1);//<GIFF
 			}
 			else{
 				gifbed_flag = false;
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,0);
+				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,0);//<GIFF
 			}
 			
 			
 			
-			waitPeriodno=1000+millis(); // Every Second
+			waitPeriodno=3000+millis(); // Every Second
 		}
 		if (millis() >= waitPeriod_p && (gifhotent0_flag || gifhotent1_flag || gifbed_flag ))
 		{
@@ -2695,50 +2687,44 @@ void update_screen_noprinting(){
 			int tHotend1=int(degHotend(1));
 			char buffer[25];
 			memset(buffer, '\0', sizeof(buffer) );
-			//Rapduch
-			//Edit for final TouchScreen
-			/*
-			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, current_position[X_AXIS]);
-			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 1, current_position[Y_AXIS]);
-			genie.WriteObject(GENIE_OBJ_LED_DIGITS, 2, current_position[Z_AXIS]);*/
 			
-			sprintf(buffer, "%3d %cC",tHotend,0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
+			if(!is_changing_filament){
+				sprintf(buffer, "%3d %cC",tHotend,0x00B0);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
 			
-			sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
-			//Serial.println(buffer);
-			genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
-			/*
-			if (degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-10) {
-				
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,0);
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,0);
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,0);
+				sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
+				//Serial.println(buffer);
+				genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
 			}
-			else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERT,1);
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_RETRACK,1);
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_PURGE_INSERTX3,1);
-			}*/
+			
+			if(is_changing_filament){
+				int percentage = 0;
+				percentage = Tfinal1-Tref1;
+				percentage = 100*((int)degHotend(which_extruder)-Tref1)/percentage;
+				sprintf(buffer, "%d%%", percentage);
+				genie.WriteStr(STRING_CHANGE_FILAMENT_TEMPS,buffer);
+			}
+			
 			
 			#if EXTRUDERS > 1
 			// Check if preheat for insert_FIL is done ////////////////////////////////////////////////////////////////////
 			if ((degHotend(0) >= (degTargetHotend0()-CHANGE_FIL_TEMP_HYSTERESIS)) && (degHotend(1) >= (degTargetHotend1()-CHANGE_FIL_TEMP_HYSTERESIS)) && is_changing_filament){
 				// if we want to add user setting temp, we should control if is heating
+				
 				Serial.println("temp ok");
 				
 				Serial.println("Ready to Insert/Remove");
 				//We have preheated correctly
 				if (filament_mode =='I'){
-					heatting = false;
+					//heatting = false;
 					//genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PLACE_FIL,0);
 					//genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
 				}
 				else if (filament_mode =='R')
 				{
-					heatting = false;
+					//heatting = false;
 					//genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL_PLACE_FIL,0);
 					//genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
@@ -2746,7 +2732,7 @@ void update_screen_noprinting(){
 				}
 				else
 				{
-					heatting = false;
+					//heatting = false;
 					//genie.WriteStr(STRING_FILAMENT,"Press GO to Purge Filament");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
 				}
@@ -2755,7 +2741,7 @@ void update_screen_noprinting(){
 			}
 			#endif //Extruders > 1
 		
-			waitPeriodno=1000+millis(); // Every Second
+			waitPeriodno=2000+millis(); // Every Second
 		}
 	}
 	if(z_adjust_10up && !blocks_queued()){
@@ -2873,6 +2859,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	//static keyword specifies that the variable retains its state between calls to the function
 
 	static uint32_t waitPeriod_p = millis();
+	
 	static uint32_t waitPeriod_pbackhome = millis(); //Processing back home
 	static int8_t processing_state = 0;
 	static int count5s = 0;
@@ -2946,17 +2933,44 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_TEMPS,processing_state);
 			waitPeriod_p=40+millis();
 		}
+		
 	}
 	if (processing_test){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<34){
+			if(processing_state<42){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PRINTING_TEST,processing_state);
+			waitPeriod_p=40+millis();
+		}
+	}
+	if (processing_bed_first){
+		if (millis() >= waitPeriod_p){
+			
+			if(processing_state<42){
+				processing_state++;
+			}
+			else{
+				processing_state=0;
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_INFO_TURN_SCREWS_FIRST,processing_state);
+			waitPeriod_p=40+millis();
+		}
+	}
+	if (processing_bed){
+		if (millis() >= waitPeriod_p){
+			
+			if(processing_state<42){
+				processing_state++;
+			}
+			else{
+				processing_state=0;
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_INFO_TURN_SCREWS,processing_state);
 			waitPeriod_p=40+millis();
 		}
 	}
@@ -4604,7 +4618,7 @@ inline void gcode_G41(){
 }
 inline void gcode_G43(){
 #ifdef EXTRUDER_CALIBRATION_WIZARD
-	
+	processing =  true;
 	Serial.println("Starting Z Calibration Wizard");
 	//Raise to correct
 		
@@ -4617,8 +4631,8 @@ inline void gcode_G43(){
 	current_position[Y_AXIS]=Y_MAX_POS/2;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
 		
-	current_position[X_AXIS]=X_MAX_POS/2;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
+	/*current_position[X_AXIS]=X_MAX_POS/2;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);*/
 		
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 		
@@ -4631,6 +4645,7 @@ inline void gcode_G43(){
 		}else{
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_Z_EXTRUDER2,0);
 	}
+	processing =  false;
 	
 	
 #endif //EXTRUDER_CALIBRATION_WIZARD
@@ -5363,8 +5378,8 @@ if (aprox1==0 && aprox2==0 && aprox3==0) //If the calibration it's ok
 							*/
 							
 							active_extruder = LEFT_EXTRUDER;
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-							processing = true;
+							//genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+							//processing = true;
 							setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
 							setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
 							setTargetBed(max(bed_temp_l,bed_temp_r));
@@ -5391,8 +5406,14 @@ if (aprox1==0 && aprox2==0 && aprox3==0) //If the calibration it's ok
 	bed_calibration_times++;
 								
 	#ifdef SIGMA_TOUCH_SCREEN	
-	if (bed_calibration_times >= 2) genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_TURN_SCREWS,0);
-	else genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_TURN_SCREWS_FIRST,0);			
+	if (bed_calibration_times >= 2) {
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_TURN_SCREWS,0);
+		processing_bed = true;
+	}
+	else{ 
+		genie.WriteObject(GENIE_OBJ_FORM,FORM_INFO_TURN_SCREWS_FIRST,0);
+		processing_bed_first = true;		
+	}
 	/*		 //char buffer[256];
 	//
 	//
@@ -5564,9 +5585,18 @@ inline void gcode_G70(){
 					//*********************************//
 					active_extruder = saved_active_extruder;
 					
+					#if SETUP_G70 == 0
 					
-					
-					
+					current_position[Z_AXIS] = saved_position[Z_AXIS];
+					feedrate=homing_feedrate[Z_AXIS];
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+					destination[Z_AXIS] = current_position[Z_AXIS];
+					st_synchronize();
+					#endif
+					current_position[Y_AXIS] = saved_position[Y_AXIS];
+					feedrate=homing_feedrate[Y_AXIS];
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);//Purge
+					st_synchronize();
 					
 					current_position[E_AXIS]+=10;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
@@ -5575,16 +5605,11 @@ inline void gcode_G70(){
 					plan_set_e_position(current_position[E_AXIS]);
 					
 					
-					current_position[Y_AXIS] = saved_position[Y_AXIS];
-					////******PURGE   -->> Purge to clean the extruder, retrack to avoid the trickle
-				/*	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] += 2, 400, active_extruder);
-					st_synchronize();
-					delay(300);
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS] -= 4, 2400, active_extruder);
-					st_synchronize();*/
-					//*********************************//
 					
-					//********MOVE TO ORIGINAL POSITION X
+					
+					#if SETUP_G70 == 1
+					
+					
 					if (!active_extruder){
 					current_position[X_AXIS] = current_position[X_AXIS]+30;
 					feedrate=homing_feedrate[X_AXIS];
@@ -5616,17 +5641,14 @@ inline void gcode_G70(){
 					st_synchronize();
 					delay(1000);
 					
+					#endif
+					
 					current_position[X_AXIS] = saved_position[X_AXIS];
 					feedrate=homing_feedrate[X_AXIS];
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					st_synchronize();
-					//*********************************//
 					
-					//*********************************//
-					
-					//********MOVE TO ORIGINAL POSITION Z
-					//if(current_position[Z_AXIS]>=extruder_offset[Z_AXIS]) += 20;
-					
+					#if SETUP_G70 == 1
 					current_position[Z_AXIS] = saved_position[Z_AXIS];
 					feedrate=homing_feedrate[Z_AXIS];
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
@@ -5636,10 +5658,13 @@ inline void gcode_G70(){
 					
 					
 					//********EXTRACK to keep ready to the new instruction
+					
 					current_position[E_AXIS]+=0; //2
 					feedrate=20*60;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					st_synchronize();
+					#endif
+					
 					//*********************************//
 					processing = false;
 					screen_printing_pause_form = screen_printing_pause_form0;
