@@ -196,11 +196,11 @@
 	#define BUTTON_X_LINE_SELECT10			101
 #define FORM_TEMP_MENU								28
 	#define STRING_TEMP_NOZZ1				40
-	#define STRING_TEMP_BED					41
-	#define STRING_TEMP_NOZZ2				42
+	#define STRING_TEMP_BED					42
+	#define STRING_TEMP_NOZZ2				41
 	#define BUTTON_PREHEAT_LEXTR			11
-	#define BUTTON_PREHEAT_BED				81
-	#define BUTTON_PREHEAT_REXTR			82
+	#define BUTTON_PREHEAT_BED				82
+	#define BUTTON_PREHEAT_REXTR			81
 	#define BUTTON_PREHEAT_BACK				83
 	#define GIF_TEMP_LEXTR					3
 	#define GIF_TEMP_BED					4

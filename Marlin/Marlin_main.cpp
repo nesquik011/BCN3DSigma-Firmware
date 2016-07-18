@@ -2717,14 +2717,14 @@ void update_screen_noprinting(){
 				Serial.println("Ready to Insert/Remove");
 				//We have preheated correctly
 				if (filament_mode =='I'){
-					heatting = false;
+					//heatting = false;
 					//genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_INSERT_FIL_PLACE_FIL,0);
 					//genie.WriteStr(STRING_FILAMENT,"Press GO and keep pushing the filament \n until starts being pulled");
 				}
 				else if (filament_mode =='R')
 				{
-					heatting = false;
+					//heatting = false;
 					//genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_REMOVE_FIL_PLACE_FIL,0);
 					//genie.WriteStr(STRING_FILAMENT,"Press GO to Remove Filament, roll\n the spool backwards to save the filament");
@@ -2732,7 +2732,7 @@ void update_screen_noprinting(){
 				}
 				else
 				{
-					heatting = false;
+					//heatting = false;
 					//genie.WriteStr(STRING_FILAMENT,"Press GO to Purge Filament");
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PURGE_FIL,0);
 				}
@@ -4631,8 +4631,8 @@ inline void gcode_G43(){
 	current_position[Y_AXIS]=Y_MAX_POS/2;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
 		
-	current_position[X_AXIS]=X_MAX_POS/2;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
+	/*current_position[X_AXIS]=X_MAX_POS/2;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);*/
 		
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 		
@@ -5593,6 +5593,10 @@ inline void gcode_G70(){
 					destination[Z_AXIS] = current_position[Z_AXIS];
 					st_synchronize();
 					#endif
+					current_position[Y_AXIS] = saved_position[Y_AXIS];
+					feedrate=homing_feedrate[Y_AXIS];
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);//Purge
+					st_synchronize();
 					
 					current_position[E_AXIS]+=10;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
@@ -5601,10 +5605,7 @@ inline void gcode_G70(){
 					plan_set_e_position(current_position[E_AXIS]);
 					
 					
-					current_position[Y_AXIS] = saved_position[Y_AXIS];
-					feedrate=homing_feedrate[Y_AXIS];
-					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
-					st_synchronize();
+					
 					
 					#if SETUP_G70 == 1
 					
