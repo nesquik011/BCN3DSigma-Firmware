@@ -1116,7 +1116,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (!card.filenameIsDir){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+							sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							setfilenames(6);
 							
 						}
@@ -1153,7 +1153,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (!card.filenameIsDir){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+							sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							setfilenames(6);
 							
 						}
@@ -1195,7 +1195,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (!card.filenameIsDir){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+							sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							setfilenames(6);
 							
 						}
@@ -1241,7 +1241,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (!card.filenameIsDir){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+							sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							setfilenames(6);
 							
 						}
@@ -1293,7 +1293,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (!card.filenameIsDir){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+							sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							setfilenames(6);
 							
 						}
@@ -1348,7 +1348,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							if (!card.filenameIsDir){
 								genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 								listsd.get_lineduration();
-								sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+								sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 								setfilenames(6);
 								
 							}

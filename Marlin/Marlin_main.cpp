@@ -953,338 +953,350 @@ inline void ListFilesUpfunc(){
 			{
 				filepointer+=LISTNUMSDFILES;
 			}
-		}
-		else{
-			
-			if (filepointer == card.getnrfilenames()-1)
-			{
-				filepointer=0; //Last SD file
-				}else{
-				filepointer++;
-			}
-			
-		}
-		
-		int vecto = 0;
-		int jint = 0;
-		char Workdir[20];
-		
-		
-		
-		//Declare filepointer
-		card.getWorkDirName();
-		//Text index starts at 0
-		//for(jint = 0; jint < 4; jint++){//
-		if (fileCnt != 0){
 			
 			
 			
-			vecto = filepointer + jint;
-			card.getfilename(vecto);
-			Serial.println(card.longFilename);
-			if (card.filenameIsDir)
-			{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_SD_SELECTED0,1);
+			int vecto = 0;
+			int jint = 0;
+			char Workdir[20];
+			
+			
+			
+			//Declare filepointer
+			card.getWorkDirName();
+			//Text index starts at 0
+			//for(jint = 0; jint < 4; jint++){//
+			if (fileCnt != 0){
 				
-				setfoldernames(jint);
 				
-				if(card.chdir(card.filename)!= -1){
-					uint16_t NUMitems = card.getnrfilenames();
-					card.updir();
-					card.getWorkDirName();
-					memset(Workdir, '\0', sizeof(Workdir));
-					sprintf(Workdir, "%d items",NUMitems);
-					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				
+				vecto = filepointer + jint;
+				card.getfilename(vecto);
+				Serial.println(card.longFilename);
+				if (card.filenameIsDir)
+				{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_SD_SELECTED0,1);
+					
+					setfoldernames(jint);
+					
+					if(card.chdir(card.filename)!= -1){
+						uint16_t NUMitems = card.getnrfilenames();
+						card.updir();
+						card.getWorkDirName();
+						memset(Workdir, '\0', sizeof(Workdir));
+						sprintf(Workdir, "%d items",NUMitems);
+						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+					}
+					else{
+						genie.WriteStr(stringfiledur[jint],"       ");//Printing form
+					}
+					}else{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+					listsd.get_lineduration();
+					sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					//Serial.println(listsd.comandline);
+					setfilenames(jint);
+					
+				}
+				
+				
+				#if LISTNUMSDFILES > 1
+				
+				jint++;
+				
+				if(fileCnt > 1){
+					
+					if(filepointer == (fileCnt - 1)){
+						vecto = 0;
+					}
+					else
+					{
+						vecto = filepointer + jint;
+					}
+					
+					
+					card.getfilename(vecto);
+					Serial.println(card.longFilename);
+					if (card.filenameIsDir)
+					{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,1);
+						setfoldernames(jint);
+						
+						if(card.chdir(card.filename)!= -1){
+							uint16_t NUMitems = card.getnrfilenames();
+							card.updir();
+							card.getWorkDirName();
+							memset(Workdir, '\0', sizeof(Workdir));
+							sprintf(Workdir, "%d items",NUMitems);
+							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+						}
+						else{
+							genie.WriteStr(stringfiledur[jint],"       ");//Printing form
+						}
+						}else{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
+						listsd.get_lineduration();
+						sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						//Serial.println(listsd.comandline);
+						setfilenames(jint);
+						
+					}
 				}
 				else{
+					genie.WriteStr(stringfilename[jint],"        ");//Printing form
+					genie.WriteStr(stringfiledur[jint],"           ");//Printing form
+					
+				}
+				#endif
+				#if LISTNUMSDFILES > 2
+				jint++;
+				
+				if(fileCnt > 2){
+					
+					
+					if(filepointer == (fileCnt - 2)){
+						vecto = 0;
+					}
+					else if(filepointer == (fileCnt - 1)){
+						vecto = 1;
+					}
+					else
+					{
+						vecto = filepointer + jint;
+					}
+					
+					
+					card.getfilename(vecto);
+					Serial.println(card.longFilename);
+					if (card.filenameIsDir)
+					{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,1);
+						setfoldernames(jint);
+						
+						if(card.chdir(card.filename)!= -1){
+							uint16_t NUMitems = card.getnrfilenames();
+							card.updir();
+							card.getWorkDirName();
+							memset(Workdir, '\0', sizeof(Workdir));
+							sprintf(Workdir, "%d items",NUMitems);
+							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+						}
+						else{
+							genie.WriteStr(stringfiledur[jint],"           ");//Printing form
+						}
+						}else{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
+						listsd.get_lineduration();
+						sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						//Serial.println(listsd.comandline);
+						setfilenames(jint);
+						
+					}
+					
+				}
+				else{
+					genie.WriteStr(stringfilename[jint],"            ");//Printing form
+					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
+					
+				}
+				#endif
+				#if LISTNUMSDFILES > 3
+				jint++;
+				
+				if(fileCnt > 3){
+					
+					if(filepointer == (fileCnt - 3)){
+						vecto = 0;
+					}
+					else if(filepointer == (fileCnt - 2)){
+						vecto = 1;
+					}
+					else if(filepointer == (fileCnt - 1)){
+						vecto = 2;
+					}
+					else
+					{
+						vecto = filepointer + jint;
+					}
+					
+					
+					card.getfilename(vecto);
+					Serial.println(card.longFilename);
+					if (card.filenameIsDir)
+					{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,1);
+						setfoldernames(jint);
+						
+						if(card.chdir(card.filename)!= -1){
+							uint16_t NUMitems = card.getnrfilenames();
+							card.updir();
+							card.getWorkDirName();
+							memset(Workdir, '\0', sizeof(Workdir));
+							sprintf(Workdir, "%d items",NUMitems);
+							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+						}
+						else{
+							genie.WriteStr(stringfiledur[jint],"          ");//Printing form
+						}
+						}else{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
+						listsd.get_lineduration();
+						sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						//Serial.println(listsd.comandline);
+						setfilenames(jint);
+						
+					}
+					
+					}else{
+					genie.WriteStr(stringfilename[jint],"          ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 				}
-				}else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
-				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
-				//Serial.println(listsd.comandline);
-				setfilenames(jint);
 				
-			}
-			
-			
-			#if LISTNUMSDFILES > 1
-			
-			jint++;
-			
-			if(fileCnt > 1){
+				#endif
+				#if LISTNUMSDFILES > 4
+				jint++;
 				
-				if(filepointer == (fileCnt - 1)){
-					vecto = 0;
-				}
-				else
-				{
-					vecto = filepointer + jint;
-				}
-				
-				
-				card.getfilename(vecto);
-				Serial.println(card.longFilename);
-				if (card.filenameIsDir)
-				{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,1);
-					setfoldernames(jint);
+				if(fileCnt > 4){
 					
-					if(card.chdir(card.filename)!= -1){
-						uint16_t NUMitems = card.getnrfilenames();
-						card.updir();
-						card.getWorkDirName();
-						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
-						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+					
+					if(filepointer == (fileCnt - 4)){
+						vecto = 0;
 					}
-					else{
-						genie.WriteStr(stringfiledur[jint],"       ");//Printing form
+					else if(filepointer == (fileCnt - 3)){
+						vecto = 1;
 					}
+					else if(filepointer == (fileCnt - 2)){
+						vecto = 2;
+					}
+					else if(filepointer == (fileCnt - 1)){
+						vecto = 3;
+					}
+					else
+					{
+						vecto = filepointer + jint;
+					}
+					
+					card.getfilename(vecto);
+					Serial.println(card.longFilename);
+					if (card.filenameIsDir)
+					{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,1);
+						setfoldernames(jint);
+						
+						if(card.chdir(card.filename)!= -1){
+							uint16_t NUMitems = card.getnrfilenames();
+							card.updir();
+							card.getWorkDirName();
+							memset(Workdir, '\0', sizeof(Workdir));
+							sprintf(Workdir, "%d items",NUMitems);
+							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+						}
+						else{
+							genie.WriteStr(stringfiledur[jint],"       ");//Printing form
+						}
+						}else{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
+						listsd.get_lineduration();
+						sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						//Serial.println(listsd.comandline);
+						setfilenames(jint);
+						
+					}
+					
 					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
-					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
-					//Serial.println(listsd.comandline);
-					setfilenames(jint);
-					
+					genie.WriteStr(stringfilename[jint],"            ");//Printing form
+					genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 				}
-			}
-			else{
-				genie.WriteStr(stringfilename[jint],"        ");//Printing form
-				genie.WriteStr(stringfiledur[jint],"           ");//Printing form
+				#endif
+				#if LISTNUMSDFILES > 5
+				jint++;
 				
-			}
-			#endif
-			#if LISTNUMSDFILES > 2
-			jint++;
-			
-			if(fileCnt > 2){
-				
-				
-				if(filepointer == (fileCnt - 2)){
-					vecto = 0;
-				}
-				else if(filepointer == (fileCnt - 1)){
-					vecto = 1;
-				}
-				else
-				{
-					vecto = filepointer + jint;
-				}
-				
-				
-				card.getfilename(vecto);
-				Serial.println(card.longFilename);
-				if (card.filenameIsDir)
-				{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,1);
-					setfoldernames(jint);
-					
-					if(card.chdir(card.filename)!= -1){
-						uint16_t NUMitems = card.getnrfilenames();
-						card.updir();
-						card.getWorkDirName();
-						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
-						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+				if(fileCnt > 5){
+					if(filepointer == (fileCnt - 5)){
+						vecto = 0;
 					}
-					else{
-						genie.WriteStr(stringfiledur[jint],"           ");//Printing form
+					else if(filepointer == (fileCnt - 4)){
+						vecto = 1;
 					}
+					else if(filepointer == (fileCnt - 3)){
+						vecto = 2;
+					}
+					else if(filepointer == (fileCnt - 2)){
+						vecto = 3;
+					}
+					else if(filepointer == (fileCnt - 1)){
+						vecto = 4;
+					}
+					else
+					{
+						vecto = filepointer + jint;
+					}
+					
+					card.getfilename(vecto);
+					Serial.println(card.longFilename);
+					if (card.filenameIsDir)
+					{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,1);
+						setfoldernames(jint);
+						
+						if(card.chdir(card.filename)!= -1){
+							uint16_t NUMitems = card.getnrfilenames();
+							card.updir();
+							card.getWorkDirName();
+							memset(Workdir, '\0', sizeof(Workdir));
+							sprintf(Workdir, "%d items",NUMitems);
+							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+						}
+						else{
+							genie.WriteStr(stringfiledur[jint],"          ");//Printing form
+						}
+						}else{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
+						listsd.get_lineduration();
+						sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						//Serial.println(listsd.comandline);
+						setfilenames(jint);
+						
+					}
+					
 					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
-					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
-					//Serial.println(listsd.comandline);
-					setfilenames(jint);
-					
+					genie.WriteStr(stringfilename[jint],"                  ");//Printing form
+					genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 				}
-				
-			}
-			else{
-				genie.WriteStr(stringfilename[jint],"            ");//Printing form
-				genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-				
-			}
-			#endif
-			#if LISTNUMSDFILES > 3
-			jint++;
-			
-			if(fileCnt > 3){
-				
-				if(filepointer == (fileCnt - 3)){
-					vecto = 0;
-				}
-				else if(filepointer == (fileCnt - 2)){
-					vecto = 1;
-				}
-				else if(filepointer == (fileCnt - 1)){
-					vecto = 2;
-				}
-				else
-				{
-					vecto = filepointer + jint;
-				}
+				#endif
 				
 				
-				card.getfilename(vecto);
-				Serial.println(card.longFilename);
-				if (card.filenameIsDir)
-				{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,1);
-					setfoldernames(jint);
-					
-					if(card.chdir(card.filename)!= -1){
-						uint16_t NUMitems = card.getnrfilenames();
-						card.updir();
-						card.getWorkDirName();
-						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
-						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-					}
-					else{
-						genie.WriteStr(stringfiledur[jint],"          ");//Printing form
-					}
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
-					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
-					//Serial.println(listsd.comandline);
-					setfilenames(jint);
-					
-				}
 				
-				}else{
-				genie.WriteStr(stringfilename[jint],"          ");//Printing form
-				genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 			}
 			
-			#endif
-			#if LISTNUMSDFILES > 4
-			jint++;
 			
-			if(fileCnt > 4){
-				
-				
-				if(filepointer == (fileCnt - 4)){
-					vecto = 0;
-				}
-				else if(filepointer == (fileCnt - 3)){
-					vecto = 1;
-				}
-				else if(filepointer == (fileCnt - 2)){
-					vecto = 2;
-				}
-				else if(filepointer == (fileCnt - 1)){
-					vecto = 3;
-				}
-				else
-				{
-					vecto = filepointer + jint;
-				}
-				
-				card.getfilename(vecto);
-				Serial.println(card.longFilename);
-				if (card.filenameIsDir)
-				{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,1);
-					setfoldernames(jint);
-					
-					if(card.chdir(card.filename)!= -1){
-						uint16_t NUMitems = card.getnrfilenames();
-						card.updir();
-						card.getWorkDirName();
-						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
-						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-					}
-					else{
-						genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-					}
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
-					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
-					//Serial.println(listsd.comandline);
-					setfilenames(jint);
-					
-				}
-				
-				}else{
-				genie.WriteStr(stringfilename[jint],"            ");//Printing form
-				genie.WriteStr(stringfiledur[jint],"        ");//Printing form
-			}
-			#endif
-			#if LISTNUMSDFILES > 5
-			jint++;
 			
-			if(fileCnt > 5){
-				if(filepointer == (fileCnt - 5)){
-					vecto = 0;
-				}
-				else if(filepointer == (fileCnt - 4)){
-					vecto = 1;
-				}
-				else if(filepointer == (fileCnt - 3)){
-					vecto = 2;
-				}
-				else if(filepointer == (fileCnt - 2)){
-					vecto = 3;
-				}
-				else if(filepointer == (fileCnt - 1)){
-					vecto = 4;
-				}
-				else
-				{
-					vecto = filepointer + jint;
-				}
-				
-				card.getfilename(vecto);
-				Serial.println(card.longFilename);
-				if (card.filenameIsDir)
-				{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,1);
-					setfoldernames(jint);
-					
-					if(card.chdir(card.filename)!= -1){
-						uint16_t NUMitems = card.getnrfilenames();
-						card.updir();
-						card.getWorkDirName();
-						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
-						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-					}
-					else{
-						genie.WriteStr(stringfiledur[jint],"          ");//Printing form
-					}
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
-					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
-					//Serial.println(listsd.comandline);
-					setfilenames(jint);
-					
-				}
-				
-				}else{
-				genie.WriteStr(stringfilename[jint],"                  ");//Printing form
-				genie.WriteStr(stringfiledur[jint],"        ");//Printing form
-			}
-			#endif
+			
+			
+		}
+		else{
+			/*
+			if (filepointer == card.getnrfilenames()-1)
+			{
+			filepointer=0; //Last SD file
+			}else{
+			filepointer++;
+			}*/
 			
 		}
 		
 		
-		
-		
-		
-		
-		
-		
-		updownsdfilesflag= true;
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	updownsdfilesflag= true;
+	
 	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
 }
 inline void ListFilesDownx3func(){
@@ -1325,343 +1337,338 @@ inline void ListFilesDownx3func(){
 			else{
 				filepointer-=LISTNUMSDFILES;
 			}
+			
+			
+			
+			
+			int vecto = 0;
+			int jint = 0;
+			char Workdir[20];
+			
+			
+			
+			//Declare filepointer
+			card.getWorkDirName();
+			//Text index starts at 0
+			//for(jint = 0; jint < 4; jint++){//
+			
+			
+			if (fileCnt != 0){
+				
+				
+				
+				vecto = filepointer + jint;
+				card.getfilename(vecto);
+				Serial.println(card.longFilename);
+				if (card.filenameIsDir)
+				{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_SD_SELECTED0,1);
+					
+					setfoldernames(jint);
+					
+					if(card.chdir(card.filename)!= -1){
+						uint16_t NUMitems = card.getnrfilenames();
+						card.updir();
+						card.getWorkDirName();
+						memset(Workdir, '\0', sizeof(Workdir));
+						sprintf(Workdir, "%d items",NUMitems);
+						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+					}
+					else{
+						genie.WriteStr(stringfiledur[jint],"       ");//Printing form
+					}
+					}else{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+					listsd.get_lineduration();
+					sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					//Serial.println(listsd.comandline);
+					setfilenames(jint);
+					
+				}
+				
+				
+
+				#if LISTNUMSDFILES > 1
+				jint++;
+				
+				if(fileCnt > 1){
+					
+					if(filepointer == (fileCnt - 1)){
+						vecto = 0;
+					}
+					else
+					{
+						vecto = filepointer + jint;
+					}
+					
+					
+					card.getfilename(vecto);
+					Serial.println(card.longFilename);
+					if (card.filenameIsDir)
+					{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,1);
+						setfoldernames(jint);
+						
+						if(card.chdir(card.filename)!= -1){
+							uint16_t NUMitems = card.getnrfilenames();
+							card.updir();
+							card.getWorkDirName();
+							memset(Workdir, '\0', sizeof(Workdir));
+							sprintf(Workdir, "%d items",NUMitems);
+							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+						}
+						else{
+							genie.WriteStr(stringfiledur[jint],"       ");//Printing form
+						}
+						}else{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
+						listsd.get_lineduration();
+						sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						//Serial.println(listsd.comandline);
+						setfilenames(jint);
+						
+					}
+				}
+				else{
+					genie.WriteStr(stringfilename[jint],"        ");//Printing form
+					genie.WriteStr(stringfiledur[jint],"           ");//Printing form
+					
+				}
+				#endif
+				#if LISTNUMSDFILES > 2
+				jint++;
+				
+				if(fileCnt > 2){
+					
+					
+					if(filepointer == (fileCnt - 2)){
+						vecto = 0;
+					}
+					else if(filepointer == (fileCnt - 1)){
+						vecto = 1;
+					}
+					else
+					{
+						vecto = filepointer + jint;
+					}
+					
+					
+					card.getfilename(vecto);
+					Serial.println(card.longFilename);
+					if (card.filenameIsDir)
+					{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,1);
+						setfoldernames(jint);
+						
+						if(card.chdir(card.filename)!= -1){
+							uint16_t NUMitems = card.getnrfilenames();
+							card.updir();
+							card.getWorkDirName();
+							memset(Workdir, '\0', sizeof(Workdir));
+							sprintf(Workdir, "%d items",NUMitems);
+							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+						}
+						else{
+							genie.WriteStr(stringfiledur[jint],"           ");//Printing form
+						}
+						}else{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
+						listsd.get_lineduration();
+						sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						//Serial.println(listsd.comandline);
+						setfilenames(jint);
+						
+					}
+					
+				}
+				else{
+					genie.WriteStr(stringfilename[jint],"            ");//Printing form
+					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
+					
+				}
+				
+				#endif
+				#if LISTNUMSDFILES > 3
+				jint++;
+				
+				if(fileCnt > 3){
+					
+					if(filepointer == (fileCnt - 3)){
+						vecto = 0;
+					}
+					else if(filepointer == (fileCnt - 2)){
+						vecto = 1;
+					}
+					else if(filepointer == (fileCnt - 1)){
+						vecto = 2;
+					}
+					else
+					{
+						vecto = filepointer + jint;
+					}
+					
+					
+					card.getfilename(vecto);
+					Serial.println(card.longFilename);
+					if (card.filenameIsDir)
+					{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,1);
+						setfoldernames(jint);
+						
+						if(card.chdir(card.filename)!= -1){
+							uint16_t NUMitems = card.getnrfilenames();
+							card.updir();
+							card.getWorkDirName();
+							memset(Workdir, '\0', sizeof(Workdir));
+							sprintf(Workdir, "%d items",NUMitems);
+							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+						}
+						else{
+							genie.WriteStr(stringfiledur[jint],"          ");//Printing form
+						}
+						}else{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
+						listsd.get_lineduration();
+						sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						//Serial.println(listsd.comandline);
+						setfilenames(jint);
+						
+					}
+					
+					}else{
+					genie.WriteStr(stringfilename[jint],"          ");//Printing form
+					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
+				}
+				
+				#endif
+				#if LISTNUMSDFILES > 4
+				jint++;
+				
+				if(fileCnt > 4){
+					
+					
+					if(filepointer == (fileCnt - 4)){
+						vecto = 0;
+					}
+					else if(filepointer == (fileCnt - 3)){
+						vecto = 1;
+					}
+					else if(filepointer == (fileCnt - 2)){
+						vecto = 2;
+					}
+					else if(filepointer == (fileCnt - 1)){
+						vecto = 3;
+					}
+					else
+					{
+						vecto = filepointer + jint;
+					}
+					
+					card.getfilename(vecto);
+					Serial.println(card.longFilename);
+					if (card.filenameIsDir)
+					{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,1);
+						setfoldernames(jint);
+						
+						if(card.chdir(card.filename)!= -1){
+							uint16_t NUMitems = card.getnrfilenames();
+							card.updir();
+							card.getWorkDirName();
+							memset(Workdir, '\0', sizeof(Workdir));
+							sprintf(Workdir, "%d items",NUMitems);
+							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+						}
+						else{
+							genie.WriteStr(stringfiledur[jint],"       ");//Printing form
+						}
+						}else{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
+						listsd.get_lineduration();
+						sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						//Serial.println(listsd.comandline);
+						setfilenames(jint);
+						
+					}
+					
+					}else{
+					genie.WriteStr(stringfilename[jint],"            ");//Printing form
+					genie.WriteStr(stringfiledur[jint],"        ");//Printing form
+				}
+				
+				#endif
+				#if LISTNUMSDFILES > 5
+				jint++;
+				
+				if(fileCnt > 5){
+					if(filepointer == (fileCnt - 5)){
+						vecto = 0;
+					}
+					else if(filepointer == (fileCnt - 4)){
+						vecto = 1;
+					}
+					else if(filepointer == (fileCnt - 3)){
+						vecto = 2;
+					}
+					else if(filepointer == (fileCnt - 2)){
+						vecto = 3;
+					}
+					else if(filepointer == (fileCnt - 1)){
+						vecto = 4;
+					}
+					else
+					{
+						vecto = filepointer + jint;
+					}
+					
+					card.getfilename(vecto);
+					Serial.println(card.longFilename);
+					if (card.filenameIsDir)
+					{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,1);
+						setfoldernames(jint);
+						
+						if(card.chdir(card.filename)!= -1){
+							uint16_t NUMitems = card.getnrfilenames();
+							card.updir();
+							card.getWorkDirName();
+							memset(Workdir, '\0', sizeof(Workdir));
+							sprintf(Workdir, "%d items",NUMitems);
+							genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
+						}
+						else{
+							genie.WriteStr(stringfiledur[jint],"          ");//Printing form
+						}
+						}else{
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
+						listsd.get_lineduration();
+						sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						//Serial.println(listsd.comandline);
+						setfilenames(jint);
+						
+					}
+					
+					}else{
+					genie.WriteStr(stringfilename[jint],"                  ");//Printing form
+					genie.WriteStr(stringfiledur[jint],"        ");//Printing form
+				}
+				#endif
+				
+			}
+			
+			
+			
+			
+			
 		}
 		else{
-			if (filepointer == 0)
+			/*if (filepointer == 0)
 			{
 				filepointer=card.getnrfilenames()-1; //Last SD file
 				}else{
 				filepointer--;
-			}
+			}*/
 		}
-		
-		int vecto = 0;
-		int jint = 0;
-		char Workdir[20];
-		
-		
-		
-		//Declare filepointer
-		card.getWorkDirName();
-		//Text index starts at 0
-		//for(jint = 0; jint < 4; jint++){//
-		
-		
-		if (fileCnt != 0){
-			
-			
-			
-			vecto = filepointer + jint;
-			card.getfilename(vecto);
-			Serial.println(card.longFilename);
-			if (card.filenameIsDir)
-			{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_SD_SELECTED0,1);
-				
-				setfoldernames(jint);
-				
-				if(card.chdir(card.filename)!= -1){
-					uint16_t NUMitems = card.getnrfilenames();
-					card.updir();
-					card.getWorkDirName();
-					memset(Workdir, '\0', sizeof(Workdir));
-					sprintf(Workdir, "%d items",NUMitems);
-					genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-				}
-				else{
-					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-				}
-				}else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
-				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
-				//Serial.println(listsd.comandline);
-				setfilenames(jint);
-				
-			}
-			
-			
-
-			#if LISTNUMSDFILES > 1
-			jint++;
-			
-			if(fileCnt > 1){
-				
-				if(filepointer == (fileCnt - 1)){
-					vecto = 0;
-				}
-				else
-				{
-					vecto = filepointer + jint;
-				}
-				
-				
-				card.getfilename(vecto);
-				Serial.println(card.longFilename);
-				if (card.filenameIsDir)
-				{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,1);
-					setfoldernames(jint);
-					
-					if(card.chdir(card.filename)!= -1){
-						uint16_t NUMitems = card.getnrfilenames();
-						card.updir();
-						card.getWorkDirName();
-						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
-						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-					}
-					else{
-						genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-					}
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
-					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
-					//Serial.println(listsd.comandline);
-					setfilenames(jint);
-					
-				}
-			}
-			else{
-				genie.WriteStr(stringfilename[jint],"        ");//Printing form
-				genie.WriteStr(stringfiledur[jint],"           ");//Printing form
-				
-			}
-			#endif
-			#if LISTNUMSDFILES > 2
-			jint++;
-			
-			if(fileCnt > 2){
-				
-				
-				if(filepointer == (fileCnt - 2)){
-					vecto = 0;
-				}
-				else if(filepointer == (fileCnt - 1)){
-					vecto = 1;
-				}
-				else
-				{
-					vecto = filepointer + jint;
-				}
-				
-				
-				card.getfilename(vecto);
-				Serial.println(card.longFilename);
-				if (card.filenameIsDir)
-				{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,1);
-					setfoldernames(jint);
-					
-					if(card.chdir(card.filename)!= -1){
-						uint16_t NUMitems = card.getnrfilenames();
-						card.updir();
-						card.getWorkDirName();
-						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
-						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-					}
-					else{
-						genie.WriteStr(stringfiledur[jint],"           ");//Printing form
-					}
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
-					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
-					//Serial.println(listsd.comandline);
-					setfilenames(jint);
-					
-				}
-				
-			}
-			else{
-				genie.WriteStr(stringfilename[jint],"            ");//Printing form
-				genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-				
-			}
-			
-			#endif
-			#if LISTNUMSDFILES > 3
-			jint++;
-			
-			if(fileCnt > 3){
-				
-				if(filepointer == (fileCnt - 3)){
-					vecto = 0;
-				}
-				else if(filepointer == (fileCnt - 2)){
-					vecto = 1;
-				}
-				else if(filepointer == (fileCnt - 1)){
-					vecto = 2;
-				}
-				else
-				{
-					vecto = filepointer + jint;
-				}
-				
-				
-				card.getfilename(vecto);
-				Serial.println(card.longFilename);
-				if (card.filenameIsDir)
-				{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,1);
-					setfoldernames(jint);
-					
-					if(card.chdir(card.filename)!= -1){
-						uint16_t NUMitems = card.getnrfilenames();
-						card.updir();
-						card.getWorkDirName();
-						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
-						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-					}
-					else{
-						genie.WriteStr(stringfiledur[jint],"          ");//Printing form
-					}
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
-					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
-					//Serial.println(listsd.comandline);
-					setfilenames(jint);
-					
-				}
-				
-				}else{
-				genie.WriteStr(stringfilename[jint],"          ");//Printing form
-				genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-			}
-			
-			#endif
-			#if LISTNUMSDFILES > 4
-			jint++;
-			
-			if(fileCnt > 4){
-				
-				
-				if(filepointer == (fileCnt - 4)){
-					vecto = 0;
-				}
-				else if(filepointer == (fileCnt - 3)){
-					vecto = 1;
-				}
-				else if(filepointer == (fileCnt - 2)){
-					vecto = 2;
-				}
-				else if(filepointer == (fileCnt - 1)){
-					vecto = 3;
-				}
-				else
-				{
-					vecto = filepointer + jint;
-				}
-				
-				card.getfilename(vecto);
-				Serial.println(card.longFilename);
-				if (card.filenameIsDir)
-				{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,1);
-					setfoldernames(jint);
-					
-					if(card.chdir(card.filename)!= -1){
-						uint16_t NUMitems = card.getnrfilenames();
-						card.updir();
-						card.getWorkDirName();
-						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
-						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-					}
-					else{
-						genie.WriteStr(stringfiledur[jint],"       ");//Printing form
-					}
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
-					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
-					//Serial.println(listsd.comandline);
-					setfilenames(jint);
-					
-				}
-				
-				}else{
-				genie.WriteStr(stringfilename[jint],"            ");//Printing form
-				genie.WriteStr(stringfiledur[jint],"        ");//Printing form
-			}
-			
-			#endif
-			#if LISTNUMSDFILES > 5
-			jint++;
-			
-			if(fileCnt > 5){
-				if(filepointer == (fileCnt - 5)){
-					vecto = 0;
-				}
-				else if(filepointer == (fileCnt - 4)){
-					vecto = 1;
-				}
-				else if(filepointer == (fileCnt - 3)){
-					vecto = 2;
-				}
-				else if(filepointer == (fileCnt - 2)){
-					vecto = 3;
-				}
-				else if(filepointer == (fileCnt - 1)){
-					vecto = 4;
-				}
-				else
-				{
-					vecto = filepointer + jint;
-				}
-				
-				card.getfilename(vecto);
-				Serial.println(card.longFilename);
-				if (card.filenameIsDir)
-				{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,1);
-					setfoldernames(jint);
-					
-					if(card.chdir(card.filename)!= -1){
-						uint16_t NUMitems = card.getnrfilenames();
-						card.updir();
-						card.getWorkDirName();
-						memset(Workdir, '\0', sizeof(Workdir));
-						sprintf(Workdir, "%d items",NUMitems);
-						genie.WriteStr(stringfiledur[jint],Workdir);//Printing form
-					}
-					else{
-						genie.WriteStr(stringfiledur[jint],"          ");//Printing form
-					}
-					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
-					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
-					//Serial.println(listsd.comandline);
-					setfilenames(jint);
-					
-				}
-				
-				}else{
-				genie.WriteStr(stringfilename[jint],"                  ");//Printing form
-				genie.WriteStr(stringfiledur[jint],"        ");//Printing form
-			}
-			#endif
-			
-		}
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		
 		
 		
@@ -1716,7 +1723,7 @@ inline void ListFileListINITSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+				sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -1754,7 +1761,7 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1793,7 +1800,7 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1833,7 +1840,7 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1871,7 +1878,7 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1908,7 +1915,7 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+					sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1974,7 +1981,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 			}else{
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 			listsd.get_lineduration();
-			sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+			sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 			//Serial.println(listsd.comandline);
 			setfilenames(jint);
 			
@@ -2011,7 +2018,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+				sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -2050,7 +2057,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+				sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -2090,7 +2097,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+				sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -2128,7 +2135,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+				sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -2165,7 +2172,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%dh %dmin / %d.%dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1(),listsd.get_filgramos2());
+				sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
