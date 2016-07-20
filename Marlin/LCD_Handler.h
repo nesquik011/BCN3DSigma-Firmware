@@ -789,6 +789,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						processing = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+						processing_success = true;
 						if (which_extruder == 0){
 							old_insert_temp_l = insert_temp_l;
 							old_remove_temp_l = remove_temp_l;
@@ -815,7 +816,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing=true;
 						home_axis_from_code(true,true,false);*/
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
-						
+						processing_success = true;
 						
 					}
 					
@@ -1032,7 +1033,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					//enquecommand_P((PSTR("G28 X0 Y0")));
 					Serial.println("HOLA SUCCESS");
-					
+					processing_success = false;
 					filament_accept_ok = false;
 					if (filament_mode == 'R')
 					{
@@ -1075,7 +1076,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						#endif
 						//home_axis_from_code(true, true, false);
 						
-						current_position[Z_AXIS] = saved_position[Z_AXIS] + 20;
+						current_position[Z_AXIS] = saved_position[Z_AXIS] + 10;
 						plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],homing_feedrate[Z_AXIS] ,saved_active_extruder);
 						st_synchronize();
 						processing = false;
@@ -1116,7 +1117,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (!card.filenameIsDir){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							setfilenames(6);
 							
 						}
@@ -1153,7 +1154,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (!card.filenameIsDir){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							setfilenames(6);
 							
 						}
@@ -1195,7 +1196,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (!card.filenameIsDir){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							setfilenames(6);
 							
 						}
@@ -1241,7 +1242,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (!card.filenameIsDir){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							setfilenames(6);
 							
 						}
@@ -1293,7 +1294,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (!card.filenameIsDir){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 							setfilenames(6);
 							
 						}
@@ -1348,7 +1349,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							if (!card.filenameIsDir){
 								genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 								listsd.get_lineduration();
-								sprintf(listsd.comandline2, "%4dh %dmin / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+								sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
 								setfilenames(6);
 								
 							}
@@ -2503,6 +2504,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						st_synchronize();
 						processing = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_SUCCESS_FILAMENT,0);
+						processing_success = true;
 						if (which_extruder == 0){
 							old_insert_temp_l = insert_temp_l;
 							old_remove_temp_l = remove_temp_l;
@@ -2563,11 +2565,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if(which_extruder == 0)analogWrite(FAN_PIN, 255);
 					else analogWrite(FAN2_PIN, 255);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP4,0);
-					
+					processing_nylon_step4 = true;
 				}
 				else if (Event.reportObject.index == BUTTON_NYLON_STEP4)
 				{
-					
+					processing_nylon_step4 = false;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_TEMPS,0);
 					processing_nylon_temps = true;
 					int Tref = (int)degHotend(which_extruder);
@@ -2964,6 +2966,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					#pragma region SuccessScreens
 					else if (Event.reportObject.index == BUTTON_BED_CALIB_SUCCESS )
 					{
+						processing_bed_success = false;
 						//enquecommand_P((PSTR("G28 X0 Y0")));
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 						processing = true;
@@ -2983,6 +2986,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_SUCCESS_FILAMENT_OK)
 
 					{
+						processing_success = false;
 						if(!flag_nylon_clean_metode){
 							enquecommand_P((PSTR("T0")));
 							Serial.println("Filament Inserted/Removed, returning to Main Menu");
@@ -3018,6 +3022,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							
 						}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						processing_bed_success=true;
 						//char buffer[30];
 						float calculus = extruder_offset[X_AXIS][1] + 0.5;
 						Serial.print("Calculus:  ");
@@ -3032,8 +3037,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						
 						if(flag_full_calib){
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
-						}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
-						
+						}else{
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						processing_bed_success=true;
+						}
 						float calculus = extruder_offset[X_AXIS][1] + 0.4;
 						Serial.print("Calculus:  ");
 						Serial.println(calculus);
@@ -3048,7 +3055,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 						
 						}
-						else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						else{
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+							processing_bed_success=true;
+						}
 						float calculus = extruder_offset[X_AXIS][1] + 0.3;
 						Serial.print("Calculus:  ");
 						Serial.println(calculus);
@@ -3062,7 +3072,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if(flag_full_calib){
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 							
-						}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						}else{
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						processing_bed_success=true;
+					}
 						float calculus = extruder_offset[X_AXIS][1] + 0.2;
 						Serial.print("Calculus:  ");
 						Serial.println(calculus);
@@ -3077,7 +3090,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if(flag_full_calib){
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 						}
-						else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						else{
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+							processing_bed_success=true;
+						}
 						float calculus = extruder_offset[X_AXIS][1] + 0.1;
 						Serial.print("Calculus:  ");
 						Serial.println(calculus);
@@ -3088,17 +3104,22 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT6)
 					{
-						float calculus = extruder_offset[X_AXIS][1];
-						Serial.print("Calculus:  ");
-						Serial.println(calculus);
-						extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
-						Config_StoreSettings(); //Store changes
+						
 						if(flag_full_calib){
 							
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 							
 						}
-						else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						else{
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+							processing_bed_success=true;
+						}
+						float calculus = extruder_offset[X_AXIS][1];
+						Serial.print("Calculus:  ");
+						Serial.println(calculus);
+						extruder_offset[X_AXIS][RIGHT_EXTRUDER]=calculus;
+						Config_StoreSettings(); //Store changes
+						
 					}
 					
 					else if (Event.reportObject.index == BUTTON_X_LINE_SELECT7)
@@ -3106,7 +3127,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if(flag_full_calib){
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 							
-						}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						}else{
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						processing_bed_success=true;
+					}
 						float calculus = extruder_offset[X_AXIS][1] - 0.1;
 						Serial.print("Calculus:  ");
 						Serial.println(calculus);
@@ -3121,7 +3145,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 							
-						}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						}else{
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						processing_bed_success=true;
+					}
 						float calculus = extruder_offset[X_AXIS][1] - 0.2;
 						Serial.print("Calculus:  ");
 						Serial.println(calculus);
@@ -3135,7 +3162,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if(flag_full_calib){
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL_Y,0);
 							
-						}else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						}else{
+						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						processing_bed_success=true;
+					}
 						
 						float calculus = extruder_offset[X_AXIS][1] - 0.3;
 						Serial.print("Calculus:  ");
@@ -3159,7 +3189,10 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							
 						}
-						else genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						else{
+							genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+							processing_bed_success=true;
+						}
 						float calculus = extruder_offset[X_AXIS][1]-0.4;
 						Serial.print("Calculus:  ");
 						Serial.println(calculus);
@@ -3204,7 +3237,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT1)
 					{
+						
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						processing_bed_success=true;
 						
 						//char buffer[30];
 						float calculus = extruder_offset[Y_AXIS][1] + 0.5;
@@ -3227,6 +3262,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT2)
 					{
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						processing_bed_success=true;
 						//enquecommand_P((PSTR("M218 T1 X-0.4")));
 						float calculus = extruder_offset[Y_AXIS][1] + 0.4;
 						Serial.print("Calculus:  ");
@@ -3244,6 +3280,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT3)
 					{
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						processing_bed_success=true;
 						float calculus = extruder_offset[Y_AXIS][1] + 0.3;
 						Serial.print("Calculus:  ");
 						Serial.println(calculus);
@@ -3261,6 +3298,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT4)
 					{
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						processing_bed_success=true;
 						float calculus = extruder_offset[Y_AXIS][1] + 0.2;
 						Serial.print("Calculus:  ");
 						Serial.println(calculus);
@@ -3278,6 +3316,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT5)
 					{
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						processing_bed_success=true;
 						float calculus = extruder_offset[Y_AXIS][1] + 0.1;
 						Serial.print("Calculus:  ");
 						Serial.println(calculus);
@@ -3295,6 +3334,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT6)
 					{
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						processing_bed_success=true;
 						float calculus = extruder_offset[Y_AXIS][1];
 						Serial.print("Calculus:  ");
 						Serial.println(calculus);
@@ -3312,6 +3352,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT7)
 					{
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						processing_bed_success=true;
 						float calculus = extruder_offset[X_AXIS][1] - 0.1;
 						Serial.print("Calculus:  ");
 						Serial.println(calculus);
@@ -3329,6 +3370,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT8)
 					{
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						processing_bed_success=true;
 						float calculus = extruder_offset[Y_AXIS][1] - 0.2;
 						Serial.print("Calculus:  ");
 						Serial.println(calculus);
@@ -3346,6 +3388,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT9)
 					{
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						processing_bed_success=true;
 						float calculus = extruder_offset[Y_AXIS][1] - 0.3;
 						Serial.print("Calculus:  ");
 						Serial.println(calculus);
@@ -3363,6 +3406,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BUTTON_Y_LINE_SELECT10)
 					{
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						processing_bed_success=true;
 						float calculus = extruder_offset[Y_AXIS][1] - 0.4;
 						Serial.print("Calculus:  ");
 						
@@ -3888,6 +3932,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_FULL_CAL_Y_SKIP){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+						processing_bed_success=true;
 					}
 					else if(Event.reportObject.index == BUTTON_CLEAN_NOZZEL_L){
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
@@ -4307,7 +4352,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							
 							dobloking=true;
 							
-							while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
+							while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHoteFORM_CAL_WIZARD_DONE_GOODnd(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
 								
 								manage_heater();
 							}
@@ -4343,6 +4388,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						}
 						else{
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_CAL_WIZARD_DONE_GOOD,0);
+							processing_bed_success=true;
 						}
 					}
 					
