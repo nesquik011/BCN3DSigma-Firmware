@@ -2410,9 +2410,7 @@ void update_screen_printing(){
 		dobloking =false;
 		//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
 		quickStop();
-		setTargetHotend0(0);
-		setTargetHotend1(0);
-		setTargetBed(0);
+		
 		enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
 		st_synchronize();
 		
@@ -2883,11 +2881,11 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	
 	if(card.sdprinting && !card.sdispaused || !card.sdprinting && card.sdispaused )
 	{
-		/*if(flag_pause){
+		if(card.sdispaused){
 		
 		previous_millis_cmd = millis();
 		
-		}*/
+		}
 		update_screen_printing();
 	}
 	else if(screen_sdcard){
@@ -3037,7 +3035,8 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	
 	if(back_home){
 			if(home_made == false){
-				
+			cancel_heatup = true;	
+			
 				if (millis() >= waitPeriod_pbackhome){
 					if(processing_state<17){
 						processing_state++;
@@ -3047,6 +3046,9 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 					}
 					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
 					waitPeriod_p=40+millis();
+					setTargetHotend0(0);
+					setTargetHotend1(0);
+					setTargetBed(0);
 				}
 				
 			}
@@ -3054,6 +3056,10 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				back_home = false;
 				gcode_T0_T1_auto(0);
 				st_synchronize();
+				setTargetHotend0(0);
+				setTargetHotend1(0);
+				setTargetBed(0);
+				cancel_heatup = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				
 				//form home
