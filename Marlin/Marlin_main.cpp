@@ -2863,9 +2863,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	static uint32_t waitPeriod_pbackhome = millis(); //Processing back home
 	static int8_t processing_state = 0;
 	static int count5s = 0;
-	if(card.sdispaused){
-		previous_millis_cmd = millis();
-	}
+	
 	
 	
 	if(card.sdprinting && !card.sdispaused || !card.sdprinting && card.sdispaused )
