@@ -65,7 +65,8 @@
 	#define BUTTON_Z_BOT					46
 	#define BUTTON_Z_UP						42
 	#define BUTTON_Z_DOWN					45
-	#define BUTTON_Z_BACK					3
+	#define BUTTON_Z_BACK					34
+	#define BUTTON_Z_ACCEPT					3
 
 #define FORM_FILAMENT								6
 	#define	BUTTON_FILAMENT_OPTIONS_BACK			0
