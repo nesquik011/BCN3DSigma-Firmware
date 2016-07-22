@@ -330,6 +330,7 @@ float zprobe_zoffset;
 
 //bools to control which kind of process are actually running
 bool processing = false;
+uint8_t processing_z_set = 255;
 bool processing_success = false;
 bool processing_bed_success = false;
 bool processing_nylon_step4 = false;
@@ -2756,7 +2757,8 @@ void update_screen_noprinting(){
 		}
 	}
 	if(z_adjust_10up && !blocks_queued()){
-		
+		processing_z_set = 0;
+		z_adjust_10up = false;
 		current_position[Z_AXIS]-=10;
 		
 		if (home_made_Z){
@@ -2768,37 +2770,42 @@ void update_screen_noprinting(){
 			quickStop();
 		}
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
-		
+		st_synchronize();
+		processing_z_set = 255;
 		z_adjust_10up = false;
 	}
 	if(z_adjust_50up && !blocks_queued()){
-		
+		processing_z_set = 0;
 		current_position[Z_AXIS]-=50;
-		
+		z_adjust_50up= false;
 		if (home_made_Z){
 			if(current_position[Z_AXIS]< Z_MIN_POS){
 				current_position[Z_AXIS]= Z_MIN_POS;
 			}
 		}
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
-		z_adjust_50up= false;
+		st_synchronize();
+		processing_z_set = 255;
+		
 	}
 	if(z_adjust_10down && !blocks_queued()){
+		processing_z_set = 1;
 		current_position[Z_AXIS]+=10;
-		
+		z_adjust_10down = false;
 		if (home_made_Z){
 			if(current_position[Z_AXIS] > Z_MAX_POS-15){
 				current_position[Z_AXIS] = Z_MAX_POS-15;
 			}
 		}
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
+		st_synchronize();
+		processing_z_set = 255;
 		
-		z_adjust_10down = false;
 	}
 	if(z_adjust_50down && !blocks_queued()){
-		
+		processing_z_set = 1;
 		current_position[Z_AXIS]+=50;
-		
+		z_adjust_50down = false;
 		if (home_made_Z){
 			
 			if(current_position[Z_AXIS] > Z_MAX_POS-15){
@@ -2806,8 +2813,9 @@ void update_screen_noprinting(){
 			}
 		}
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
+		st_synchronize();
+		processing_z_set = 255;
 		
-		z_adjust_50down = false;
 	}
 	if(filament_accept_ok && !home_made){
 		processing=true;
@@ -2899,14 +2907,14 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			
 			
 			
-			if(processing_state<17){
+			if(processing_state<FramesProcessing){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	if (processing_change_filament_temps){
@@ -2914,33 +2922,33 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			
 			
 			
-			if(processing_state<44){
+			if(processing_state<FramesChangefilamentTemps){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_CHANGE_FILAMENT_TEMPS,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	if (processing_adjusting){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<44){
+			if(processing_state<FramesAdjustingTemps){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ADJUSTING_TEMPERATURES,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	if (processing_nylon_temps){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<44){
+			if(processing_state<FramesNylonTemps){
 				processing_state++;
 			}
 			else{
@@ -2948,7 +2956,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_TEMPS,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 		
 	}
@@ -2962,52 +2970,74 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PRINTING_TEST,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	if (processing_bed_first){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<42){
+			if(processing_state<FramesBedScrew){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_INFO_TURN_SCREWS_FIRST,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	if (processing_success){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<35){
+			if(processing_state<FramesGifSuccess){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SUCCESS_FILAMENT_OK,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
+		}
+	}
+	if (processing_z_set == 0 || processing_z_set == 1){
+		if (millis() >= waitPeriod_p){
+			if (processing_z_set == 0){
+				if(processing_state<FramesZSet){
+					processing_state++;
+				}
+				else{
+					processing_state=0;
+				}
+			}
+			else{
+				if(processing_state>0){
+					processing_state--;
+				}
+				else{
+					processing_state=FramesZSet;
+				}
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_SET,processing_state);
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	if (processing_nylon_step4){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<35){
+			if(processing_state<FramesGifSuccess){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP4,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	if (processing_bed_success){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<35){
+			if(processing_state<FramesGifSuccess){
 				processing_state++;
 			}
 			else{
@@ -3020,7 +3050,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	if (processing_bed){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<42){
+			if(processing_state<FramesBedScrew){
 				processing_state++;
 			}
 			else{

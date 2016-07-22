@@ -1131,6 +1131,24 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define G69_RETRACK 2
 #define G69_XYMOVE 5
 #define G70_PURGE 10
+
+
+
+
+///////GIFs
+#define FramerateGifs   40   /// 40ms------> 25fps
+
+
+#define FramesGifSuccess   40 
+#define FramesBedScrew   42     
+#define FramesZSet   49
+#define FramesTest   36
+#define FramesProcessing   17
+#define FramesChangefilamentTemps   44
+#define FramesAdjustingTemps   44
+#define FramesNylonTemps   44
+
+
 //#define SCREENTEST
 
 

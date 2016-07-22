@@ -2585,7 +2585,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					processing_nylon_temps = true;
 					
 					while (degHotend(which_extruder)>160.0){ //Waiting to heat the extruder
-						
+						//previous_millis_cmd = millis();
 						manage_heater();
 						touchscreen_update();
 					}
@@ -2614,6 +2614,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							genie.WriteStr(STRING_NYLON_TEMPS,buffer);
 							waitPeriod_s=2000+millis();
 						}
+						//previous_millis_cmd = millis();
 						manage_heater();
 						touchscreen_update();
 												
