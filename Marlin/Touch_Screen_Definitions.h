@@ -47,6 +47,7 @@
 	#define BUTTON_SD_RIGHT					5
 	#define BUTTON_FOLDER_BACK				55
 	#define USERIMAGE_FOLDER_FILE           1
+	#define GIF_SCROLL_BAR					 14
 #define FORM_SDFILE_CONFIRMATION			15
 	#define STRING_NAME_FILE6				27
 	#define STRING_NAME_FILE_DUR6			28

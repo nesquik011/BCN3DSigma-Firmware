@@ -956,7 +956,7 @@ inline void ListFilesUpfunc(){
 			{
 				filepointer+=LISTNUMSDFILES;
 			}
-			
+			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/fileCnt);
 			
 			
 			int vecto = 0;
@@ -1340,7 +1340,7 @@ inline void ListFilesDownx3func(){
 			else{
 				filepointer-=LISTNUMSDFILES;
 			}
-			
+			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/fileCnt);
 			
 			
 			
@@ -1682,7 +1682,7 @@ inline void ListFilesDownx3func(){
 	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
 }
 inline void ListFileListINITSD(){
-	
+	genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,0);
 	Serial.println("Form 2!");
 	////Check sdcardFiles
 	filepointer = 0;
@@ -1948,6 +1948,7 @@ inline void ListFileListINITSD(){
 
 }		
 inline void ListFileListENTERBACKFORLDERSD(){
+	genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,0);
 	filepointer = 0;
 	int vecto = 0;
 	int jint = 0;
@@ -2827,13 +2828,11 @@ void update_screen_sdcard(){
 		ListFilesDown = false;
 	}*/
 	if(ListFilesUp){
-		
-		ListFilesUpfunc();
+		ListFilesDownx3func();
 		ListFilesUp = false;
 	}
 	if(ListFilesDownx3){
-		
-		ListFilesDownx3func();
+		ListFilesUpfunc();
 		ListFilesDownx3 = false;
 	}
 	if(ListFilesINITflag){
@@ -5605,18 +5604,18 @@ inline void gcode_G69(){
 					//*********************************//
 					saved_active_extruder = active_extruder;
 					//********RETRACK
-					current_position[E_AXIS]-=4;
+					current_position[E_AXIS]-=G69_RETRACK;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
 					st_synchronize();
 					//*********************************//
 					feedrate=homing_feedrate[X_AXIS];
 					if (active_extruder == LEFT_EXTRUDER){															//Move X axis, controlling the current_extruder
-						current_position[X_AXIS] = current_position[X_AXIS]-5;
-						current_position[Y_AXIS] = current_position[Y_AXIS]+5;
+						current_position[X_AXIS] = current_position[X_AXIS]-G69_XYMOVE;
+						current_position[Y_AXIS] = current_position[Y_AXIS]+G69_XYMOVE;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 						}else{
-						current_position[X_AXIS] = extruder_offset[X_AXIS][1]+5;
-						current_position[Y_AXIS] = current_position[Y_AXIS]+5;
+						current_position[X_AXIS] = extruder_offset[X_AXIS][1]+G69_XYMOVE;
+						current_position[Y_AXIS] = current_position[Y_AXIS]+G69_XYMOVE;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					}
 					st_synchronize();
@@ -5675,7 +5674,7 @@ inline void gcode_G70(){
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);//Purge
 					st_synchronize();
 					
-					current_position[E_AXIS]+=10;
+					current_position[E_AXIS]+=G70_PURGE;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
 					st_synchronize();
 					current_position[E_AXIS] = saved_position[E_AXIS]-2;
