@@ -2465,6 +2465,14 @@ if (surfing_utilities)
 		
 		if(is_changing_filament){
 			int percentage = 0;
+			int Tinstant;
+			if(Tref1 > (int)degHotend(which_extruder)){
+				Tinstant = Tref1;
+				}else if((int)degHotend(which_extruder) > Tfinal1){
+				Tinstant = Tfinal1;
+				}else{
+				Tinstant = (int)degHotend(which_extruder);
+			}
 			percentage = Tfinal1-Tref1;
 			percentage = 100*((int)degHotend(which_extruder)-Tref1)/percentage;
 			sprintf(buffer, "%d%%", percentage);
@@ -2712,8 +2720,16 @@ void update_screen_noprinting(){
 			
 			if(is_changing_filament){
 				int percentage = 0;
+				int Tinstant;
+				if(Tref1 > (int)degHotend(which_extruder)){
+					Tinstant = Tref1;
+					}else if((int)degHotend(which_extruder) > Tfinal1){
+					Tinstant = Tfinal1;
+					}else{
+					Tinstant = (int)degHotend(which_extruder);
+				}
 				percentage = Tfinal1-Tref1;
-				percentage = 100*((int)degHotend(which_extruder)-Tref1)/percentage;
+				percentage = 100*(Tinstant-Tref1)/percentage;
 				sprintf(buffer, "%d%%", percentage);
 				genie.WriteStr(STRING_CHANGE_FILAMENT_TEMPS,buffer);
 			}
@@ -5707,8 +5723,9 @@ inline void gcode_G70(){
 					current_position[E_AXIS]+=G70_PURGE;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
 					st_synchronize();
-					current_position[E_AXIS] = saved_position[E_AXIS]-2;
-					plan_set_e_position(current_position[E_AXIS]);
+					current_position[E_AXIS]-=1;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
+					st_synchronize();
 					
 					
 					
@@ -5753,6 +5770,9 @@ inline void gcode_G70(){
 					feedrate=200*60;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					st_synchronize();
+					
+					current_position[E_AXIS] = saved_position[E_AXIS];
+					plan_set_e_position(current_position[E_AXIS]);
 					
 					#if SETUP_G70 == 1
 					current_position[Z_AXIS] = saved_position[Z_AXIS];

@@ -243,7 +243,7 @@ int Listfiles::get_filgramos2(){
 int Listfiles::get_hoursremaning(){
 	unsigned long long hours = 0;
 	if (get_hours()==0)return 0;
-	hours = get_hours()*60+get_minutes();
+	hours =(unsigned long long)get_hours()*60+(unsigned long long)get_minutes();
 	Serial.println((long)hours);
 	hours = hours-hours*card.getSdPosition()/card.getFileSize();
 	Serial.println((long)hours);
@@ -254,7 +254,7 @@ int Listfiles::get_hoursremaning(){
 int Listfiles::get_minutesremanig(){
 	unsigned long long minu = 0;
 	if (get_minutes()==-1)return 0;
-	minu = get_hours()*60+get_minutes();
+	minu = (unsigned long long)get_hours()*60+(unsigned long long)get_minutes();
 	minu = minu-minu*card.getSdPosition()/card.getFileSize();
 	minu = minu%60;
 	return (int) minu;

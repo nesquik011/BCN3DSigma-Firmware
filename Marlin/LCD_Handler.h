@@ -1549,8 +1549,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 				}
 				
-				else if (Event.reportObject.index == MAINTENANCE_BACKMENU ){
+				else if (Event.reportObject.index == BUTTON_MAINTENANCE_BACKUTILITIES ){
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_UTILITIES, 0);
+				}
+				else if (Event.reportObject.index == BUTTON_MAINTENANCE_BACKMENU ){
+					screen_sdcard = false;
+					surfing_utilities=false;
+					Serial.println("Surfing 0");
+					surfing_temps = false;
+					genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
+					
 				}
 				
 				else if (Event.reportObject.index == CLEAN_NYLON_METODE ){
@@ -2557,6 +2565,15 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							char buffer[25];
 							memset(buffer, '\0', sizeof(buffer) );
 							
+							int Tinstant;
+							if(Tref > (int)degHotend(which_extruder)){
+								Tinstant = Tref;
+								}else if((int)degHotend(which_extruder) > Tfinal){
+								Tinstant = Tfinal;
+								}else{
+								Tinstant = (int)degHotend(which_extruder);
+							}
+							
 							percentage = Tfinal-Tref;
 							percentage = 100*((int)degHotend(which_extruder)-Tref)/percentage;
 							sprintf(buffer, "%d%%", percentage);
@@ -2583,9 +2600,30 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else analogWrite(FAN2_PIN, 255);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP3,0);
 					processing_nylon_temps = true;
-					
+					int Tref = (int)degHotend(which_extruder);
+					int Tfinal = 160;
+					int percentage = 0;
 					while (degHotend(which_extruder)>160.0){ //Waiting to heat the extruder
 						//previous_millis_cmd = millis();
+						
+						if (millis() >= waitPeriod_s){
+							char buffer[25];
+							memset(buffer, '\0', sizeof(buffer) );
+							int Tinstant;
+							if(Tref < (int)degHotend(which_extruder)){
+								Tinstant = Tref;
+								}else if((int)degHotend(which_extruder) < Tfinal){
+								Tinstant = Tfinal;
+								}else{
+								Tinstant = (int)degHotend(which_extruder);
+							}
+							
+							percentage = ((Tref-Tfinal)-(Tinstant-Tfinal))*100;
+							percentage = percentage/(Tref-Tfinal);
+							sprintf(buffer, "%d%%", percentage);
+							genie.WriteStr(STRING_NYLON_STEP3,buffer);
+							waitPeriod_s=2000+millis();
+						}
 						manage_heater();
 						touchscreen_update();
 					}
@@ -2607,8 +2645,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (millis() >= waitPeriod_s){
 							char buffer[25];
 							memset(buffer, '\0', sizeof(buffer) );
+							int Tinstant;
+							if(Tref < (int)degHotend(which_extruder)){
+								Tinstant = Tref;
+							}else if((int)degHotend(which_extruder) < Tfinal){
+								Tinstant = Tfinal;
+							}else{
+								Tinstant = (int)degHotend(which_extruder);
+							}
 							
-							percentage = ((Tref-Tfinal)-((int)degHotend(which_extruder)-Tfinal))*100;
+							percentage = ((Tref-Tfinal)-(Tinstant-Tfinal))*100;
 							percentage = percentage/(Tref-Tfinal);
 							sprintf(buffer, "%d%%", percentage);
 							genie.WriteStr(STRING_NYLON_TEMPS,buffer);
@@ -2632,6 +2678,14 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							char buffer[25];
 							memset(buffer, '\0', sizeof(buffer) );
 							
+							int Tinstant;
+							if(Tref > (int)degHotend(which_extruder)){
+								Tinstant = Tref;
+								}else if((int)degHotend(which_extruder) > Tfinal){
+								Tinstant = Tfinal;
+								}else{
+								Tinstant = (int)degHotend(which_extruder);
+							}
 							percentage = Tfinal-Tref;
 							percentage = 100*((int)degHotend(which_extruder)-Tref)/percentage;
 							sprintf(buffer, "%d%%", percentage);
