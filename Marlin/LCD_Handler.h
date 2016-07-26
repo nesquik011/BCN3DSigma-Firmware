@@ -1488,11 +1488,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_PREHEAT_LEXTR ){
 					int tHotend=target_temperature[0];
 					if(tHotend != 0){
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,0); //<GIFF
+						//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,0); //<GIFF
 						setTargetHotend0(0);
 					}
 					else{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,1); //<GIFF
+						//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,1); //<GIFF
 						 setTargetHotend0(print_temp_l);
 					}
 					gifhotent0_flag = false;
@@ -1501,11 +1501,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					int tHotend1=target_temperature[1];
 					if(tHotend1 != 0)
 					{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,0); //<GIFF
+						//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,0); //<GIFF
 						setTargetHotend1(0);
 					}
 					else{
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,1); //<GIFF
+						//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,1); //<GIFF
 						setTargetHotend1(print_temp_r);
 					}
 					gifhotent1_flag = false;
@@ -1513,11 +1513,11 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_PREHEAT_BED ){
 					int tBed=target_temperature_bed;
 					if(tBed != 0){
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,0); //<GIFF
+						//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,0); //<GIFF
 						setTargetBed(0);
 					}
 					else {
-						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,1); //<GIFF
+						//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,1); //<GIFF
 						setTargetBed( max(bed_temp_l,bed_temp_r));
 						
 					}

@@ -1143,11 +1143,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define FramesBedScrew   42     
 #define FramesZSet   49
 #define FramesTest   36
-#define FramesProcessing   17
+#define FramesProcessing   15
 #define FramesChangefilamentTemps   44
 #define FramesAdjustingTemps   44
-#define FramesNylonTemps   44
-
+#define FramesNylonTemps   43
+#define FramesPreheat   41
 
 //#define SCREENTEST
 

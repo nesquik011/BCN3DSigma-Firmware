@@ -2631,67 +2631,82 @@ void update_screen_noprinting(){
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_BED,buffer);
 			
+			
+			
+			
+			
+			waitPeriodno=3000+millis(); // Every Second
+		}
+		if (millis() >= waitPeriod_p)
+		{
+			
+			int tHotend=int(degHotend(0));
+			int tHotend1=int(degHotend(1));
+			int tBed=int(degBed() + 0.5);
+			
 			if ((tHotend <= target_temperature[0]-10 || tHotend >= target_temperature[0]+10) && target_temperature[0]!=0) {
 				gifhotent0_flag = true;
 				
 			}
 			else if(target_temperature[0]!=0){
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_LEXTR,FramesPreheat+1);
 				gifhotent0_flag = false;
-				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,1);//<GIFF
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,1);//<GIFF
 			}
 			else{
 				gifhotent0_flag = false;
-				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,0);//<GIFF
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_LEXTR,0);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,0);//<GIFF
 			}
 			if ((tHotend1 <= target_temperature[1]-10 || tHotend1 >= target_temperature[1]+10) && target_temperature[1]!=0)  {
 				gifhotent1_flag = true;//<GIFF
 				
 			}
 			else if(target_temperature[1]!=0){
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_REXTR,FramesPreheat+1);
 				gifhotent1_flag = false;
-				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,1); //<GIFF
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,1); //<GIFF
 			}
 			else{
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_REXTR,0);
 				gifhotent1_flag = false;
-				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,0);//<GIFF
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,0);//<GIFF
 			}
 			if (( tBed <= target_temperature_bed-10 ||  tBed >= target_temperature_bed+10) && target_temperature_bed!=0)  {
 				gifbed_flag = true;
 				
 			}
 			else if(target_temperature_bed!=0){
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_BED,FramesPreheat+1);
 				gifbed_flag = false;
-				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,1);//<GIFF
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,1);//<GIFF
 			}
 			else{
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_BED,0);
 				gifbed_flag = false;
-				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,0);//<GIFF
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,0);//<GIFF
 			}
 			
-			
-			
-			waitPeriodno=3000+millis(); // Every Second
-		}
-		if (millis() >= waitPeriod_p && (gifhotent0_flag || gifhotent1_flag || gifbed_flag ))
-		{
-			
-			if(processing_state<44){
-				processing_state++;
+			if(gifhotent0_flag || gifhotent1_flag || gifbed_flag ){
+				
+				
+				if(processing_state<FramesPreheat){
+					processing_state++;
+				}
+				else{
+					processing_state=3;
+				}
+				
+				if(gifhotent0_flag){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_LEXTR,processing_state);
+				}
+				if(gifhotent1_flag){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_REXTR,processing_state);
+				}
+				if(gifbed_flag){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_BED,processing_state);
+				}
 			}
-			else{
-				processing_state=0;
-			}
-			
-			if(gifhotent0_flag){
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_LEXTR,processing_state);
-			}
-			if(gifhotent1_flag){
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_REXTR,processing_state);
-			}
-			if(gifbed_flag){
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_BED,processing_state);
-			}
-			
 			
 			
 			waitPeriod_p=90+millis();
@@ -3083,7 +3098,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			cancel_heatup = true;	
 			
 				if (millis() >= waitPeriod_pbackhome){
-					if(processing_state<17){
+					if(processing_state<FramesProcessing){
 						processing_state++;
 					}
 					else{
