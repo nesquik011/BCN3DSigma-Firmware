@@ -1016,7 +1016,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				
 				
 				else if(Event.reportObject.index	== BUTTON_PURGE_BACK){
-					quickStop();
+					//quickStop();
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_PAUSE,0);
 					is_on_printing_screen = true;
 					surfing_utilities = false;

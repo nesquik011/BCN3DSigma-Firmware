@@ -1133,7 +1133,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define G70_PURGE 10
 
 
+//String GcodePrinting
 
+#define StringGcodeLength 20
 
 ///////GIFs
 #define FramerateGifs   40   /// 40ms------> 25fps
