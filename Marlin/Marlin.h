@@ -317,6 +317,8 @@ extern bool processing_change_filament_temps;
 extern bool processing_adjusting;
 extern bool processing_nylon_temps;
 extern bool processing_bed;
+extern bool processing_calib_ZL;
+extern bool processing_calib_ZR;
 extern bool processing_bed_first;
 extern bool processing_test;
 extern bool back_home;

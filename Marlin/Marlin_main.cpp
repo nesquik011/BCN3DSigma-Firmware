@@ -338,6 +338,8 @@ bool processing_change_filament_temps = false;
 bool processing_adjusting = false;
 bool processing_nylon_temps = false;
 bool processing_bed = false;
+bool processing_calib_ZL = false;
+bool processing_calib_ZR = false;
 bool processing_bed_first = false;
 bool processing_test = false;
 bool heatting = false;
@@ -997,7 +999,12 @@ inline void ListFilesUpfunc(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					if(listsd.get_minutes() == -1){
+						sprintf(listsd.comandline2, "");
+					}
+					else{
+						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1040,7 +1047,12 @@ inline void ListFilesUpfunc(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1091,7 +1103,12 @@ inline void ListFilesUpfunc(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1145,7 +1162,12 @@ inline void ListFilesUpfunc(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1201,7 +1223,12 @@ inline void ListFilesUpfunc(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1257,7 +1284,12 @@ inline void ListFilesUpfunc(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1384,7 +1416,12 @@ inline void ListFilesDownx3func(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					if(listsd.get_minutes() == -1){
+						sprintf(listsd.comandline2, "");
+					}
+					else{
+						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1427,7 +1464,12 @@ inline void ListFilesDownx3func(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1478,7 +1520,12 @@ inline void ListFilesDownx3func(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1533,7 +1580,12 @@ inline void ListFilesDownx3func(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1589,7 +1641,12 @@ inline void ListFilesDownx3func(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1646,7 +1703,12 @@ inline void ListFilesDownx3func(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1727,7 +1789,12 @@ inline void ListFileListINITSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				if(listsd.get_minutes() == -1){
+					sprintf(listsd.comandline2, "");
+				}
+				else{
+					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				}
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -1765,7 +1832,12 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					if(listsd.get_minutes() == -1){
+						sprintf(listsd.comandline2, "");
+					}
+					else{
+						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1804,7 +1876,12 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					if(listsd.get_minutes() == -1){
+						sprintf(listsd.comandline2, "");
+					}
+					else{
+						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1844,7 +1921,12 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					if(listsd.get_minutes() == -1){
+						sprintf(listsd.comandline2, "");
+					}
+					else{
+						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1882,7 +1964,12 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					if(listsd.get_minutes() == -1){
+						sprintf(listsd.comandline2, "");
+					}
+					else{
+						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1919,7 +2006,12 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					if(listsd.get_minutes() == -1){
+						sprintf(listsd.comandline2, "");
+					}
+					else{
+						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1986,7 +2078,12 @@ inline void ListFileListENTERBACKFORLDERSD(){
 			}else{
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 			listsd.get_lineduration();
-			sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+			if(listsd.get_minutes() == -1){
+				sprintf(listsd.comandline2, "");
+			}
+			else{
+				sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+			}
 			//Serial.println(listsd.comandline);
 			setfilenames(jint);
 			
@@ -2023,7 +2120,12 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				if(listsd.get_minutes() == -1){
+					sprintf(listsd.comandline2, "");
+				}
+				else{
+					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				}
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -2062,7 +2164,12 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				if(listsd.get_minutes() == -1){
+					sprintf(listsd.comandline2, "");
+				}
+				else{
+					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				}
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -2102,7 +2209,12 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				if(listsd.get_minutes() == -1){
+					sprintf(listsd.comandline2, "");
+				}
+				else{
+					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				}
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -2140,7 +2252,12 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				if(listsd.get_minutes() == -1){
+					sprintf(listsd.comandline2, "");
+				}
+				else{
+					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				}
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -2177,7 +2294,12 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				if(listsd.get_minutes() == -1){
+					sprintf(listsd.comandline2, "");
+				}
+				else{
+					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				}
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -2642,7 +2764,7 @@ void update_screen_noprinting(){
 			
 			int tHotend=int(degHotend(0));
 			int tHotend1=int(degHotend(1));
-			int tBed=int(degBed() + 0.5);
+			int tBed=(int)degBed();
 			
 			if ((tHotend <= target_temperature[0]-10 || tHotend >= target_temperature[0]+10) && target_temperature[0]!=0) {
 				gifhotent0_flag = true;
@@ -2677,7 +2799,7 @@ void update_screen_noprinting(){
 				
 			}
 			else if(target_temperature_bed!=0){
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_BED,FramesPreheat+1);
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_BED,FramesPreheat+2);
 				gifbed_flag = false;
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,1);//<GIFF
 			}
@@ -3088,6 +3210,32 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_INFO_TURN_SCREWS,processing_state);
+			waitPeriod_p=40+millis();
+		}
+	}
+	if (processing_calib_ZL){
+		if (millis() >= waitPeriod_p){
+			
+			if(processing_state<FramesZCalib){
+				processing_state++;
+			}
+			else{
+				processing_state=0;
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_PAPER_LEFT,processing_state);
+			waitPeriod_p=40+millis();
+		}
+	}
+	if (processing_calib_ZR){
+		if (millis() >= waitPeriod_p){
+			
+			if(processing_state<FramesZCalib){
+				processing_state++;
+			}
+			else{
+				processing_state=0;
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_PAPER_RIGHT,processing_state);
 			waitPeriod_p=40+millis();
 		}
 	}
@@ -4767,8 +4915,10 @@ inline void gcode_G43(){
 	//Go to Z Calibration select screen if first time!
 	if (active_extruder==LEFT_EXTRUDER) {
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_Z_EXTRUDER1,0);
+		processing_calib_ZL = true;
 		}else{
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_Z_EXTRUDER2,0);
+		processing_calib_ZR = true;
 	}
 	processing =  false;
 	

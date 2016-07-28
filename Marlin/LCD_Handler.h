@@ -1129,7 +1129,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (!card.filenameIsDir){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							if(listsd.get_minutes() == -1){
+								sprintf(listsd.comandline2, "");
+							}
+							else{
+								sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							}
 							setfilenames(6);
 							
 						}
@@ -1166,7 +1171,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (!card.filenameIsDir){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							if(listsd.get_minutes() == -1){
+								sprintf(listsd.comandline2, "");
+							}
+							else{
+								sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							}
 							setfilenames(6);
 							
 						}
@@ -1208,7 +1218,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (!card.filenameIsDir){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							if(listsd.get_minutes() == -1){
+								sprintf(listsd.comandline2, "");
+							}
+							else{
+								sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							}
 							setfilenames(6);
 							
 						}
@@ -1254,7 +1269,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (!card.filenameIsDir){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							if(listsd.get_minutes() == -1){
+								sprintf(listsd.comandline2, "");
+							}
+							else{
+								sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							}
 							setfilenames(6);
 							
 						}
@@ -1306,7 +1326,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						if (!card.filenameIsDir){
 							genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 							listsd.get_lineduration();
-							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							if(listsd.get_minutes() == -1){
+								sprintf(listsd.comandline2, "");
+							}
+							else{
+								sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+							}
 							setfilenames(6);
 							
 						}
@@ -1361,7 +1386,12 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							if (!card.filenameIsDir){
 								genie.WriteObject(GENIE_OBJ_FORM, FORM_SDFILE_CONFIRMATION,0);
 								listsd.get_lineduration();
-								sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+								if(listsd.get_minutes() == -1){
+									sprintf(listsd.comandline2, "");
+								}
+								else{
+									sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+								}
 								setfilenames(6);
 								
 							}
@@ -1579,6 +1609,19 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_NYLON_SELECT_BACKMENU ){
 					
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_MAINTENANCE, 0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_LEFT, 0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_RIGHT, 0);
+					genie.WriteObject(GENIE_OBJ_USERIMAGES, IMAG_NYLON_SELECT_TEXT, 0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_SKIP, 0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_GO, 0);
+					flag_nylon_clean_metode = false;
+				}
+				else if (Event.reportObject.index == BUTTON_NYLON_SELECT_BACKMAINMENU ){
+					screen_sdcard = false;
+					surfing_utilities=false;
+					Serial.println("Surfing 0");
+					surfing_temps = false;
+					genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_LEFT, 0);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON, BUTTON_NYLON_SELECT_RIGHT, 0);
 					genie.WriteObject(GENIE_OBJ_USERIMAGES, IMAG_NYLON_SELECT_TEXT, 0);
@@ -2823,7 +2866,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						memset(buffer, '\0', sizeof(buffer) );
 						sprintf(buffer, "0.000");
 						
-						
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_MANUAL_FINE_CALIB,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZR,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZL,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_X,1);
@@ -3560,6 +3603,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					else if (Event.reportObject.index == BUTTON_Z_CALIB_Z1_OK)
 					{
+						processing_calib_ZL = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 						Serial.println("OK first Extruder!");
 						//We have to override z_prove_offset
@@ -3616,6 +3660,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					else if (Event.reportObject.index == BUTTON_Z_CALIB_Z2_OK)
 					{
+						processing_calib_ZR = false;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 						Serial.println("OK second Extruder!");
 						extruder_offset[Z_AXIS][RIGHT_EXTRUDER]-=(current_position[Z_AXIS]);//Add the difference to the current offset value
@@ -4256,6 +4301,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_X){
 						calib_value_selected = 0;
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_MANUAL_FINE_CALIB,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZR,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZL,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_X,1);
@@ -4268,6 +4314,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_Y){
 						calib_value_selected = 1;
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_MANUAL_FINE_CALIB,1);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZR,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZL,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_X,0);
@@ -4281,6 +4328,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_ZL){
 						calib_value_selected = 2;
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_MANUAL_FINE_CALIB,2);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZR,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZL,1);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_X,0);
@@ -4293,6 +4341,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					else if(Event.reportObject.index == BUTTON_MANUAL_FINE_CALIB_ZR){
 						calib_value_selected = 3;
+						genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_MANUAL_FINE_CALIB,2);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZR,1);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_ZL,0);
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_MANUAL_FINE_CALIB_X,0);
