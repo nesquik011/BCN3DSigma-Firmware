@@ -330,6 +330,7 @@ float zprobe_zoffset;
 
 //bools to control which kind of process are actually running
 bool processing = false;
+uint8_t processing_z_set = 255;
 bool processing_success = false;
 bool processing_bed_success = false;
 bool processing_nylon_step4 = false;
@@ -337,6 +338,8 @@ bool processing_change_filament_temps = false;
 bool processing_adjusting = false;
 bool processing_nylon_temps = false;
 bool processing_bed = false;
+bool processing_calib_ZL = false;
+bool processing_calib_ZR = false;
 bool processing_bed_first = false;
 bool processing_test = false;
 bool heatting = false;
@@ -956,7 +959,7 @@ inline void ListFilesUpfunc(){
 			{
 				filepointer+=LISTNUMSDFILES;
 			}
-			
+			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/fileCnt);
 			
 			
 			int vecto = 0;
@@ -996,7 +999,12 @@ inline void ListFilesUpfunc(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					if(listsd.get_minutes() == -1){
+						sprintf(listsd.comandline2, "");
+					}
+					else{
+						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1039,7 +1047,12 @@ inline void ListFilesUpfunc(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1090,7 +1103,12 @@ inline void ListFilesUpfunc(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1144,7 +1162,12 @@ inline void ListFilesUpfunc(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1200,7 +1223,12 @@ inline void ListFilesUpfunc(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1256,7 +1284,12 @@ inline void ListFilesUpfunc(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1340,7 +1373,7 @@ inline void ListFilesDownx3func(){
 			else{
 				filepointer-=LISTNUMSDFILES;
 			}
-			
+			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/fileCnt);
 			
 			
 			
@@ -1383,7 +1416,12 @@ inline void ListFilesDownx3func(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					if(listsd.get_minutes() == -1){
+						sprintf(listsd.comandline2, "");
+					}
+					else{
+						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1426,7 +1464,12 @@ inline void ListFilesDownx3func(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1477,7 +1520,12 @@ inline void ListFilesDownx3func(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1532,7 +1580,12 @@ inline void ListFilesDownx3func(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1588,7 +1641,12 @@ inline void ListFilesDownx3func(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1645,7 +1703,12 @@ inline void ListFilesDownx3func(){
 						}else{
 						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 						listsd.get_lineduration();
-						sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						if(listsd.get_minutes() == -1){
+							sprintf(listsd.comandline2, "");
+						}
+						else{
+							sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+						}
 						//Serial.println(listsd.comandline);
 						setfilenames(jint);
 						
@@ -1682,7 +1745,7 @@ inline void ListFilesDownx3func(){
 	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
 }
 inline void ListFileListINITSD(){
-	
+	genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,0);
 	Serial.println("Form 2!");
 	////Check sdcardFiles
 	filepointer = 0;
@@ -1726,7 +1789,12 @@ inline void ListFileListINITSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				if(listsd.get_minutes() == -1){
+					sprintf(listsd.comandline2, "");
+				}
+				else{
+					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				}
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -1764,7 +1832,12 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					if(listsd.get_minutes() == -1){
+						sprintf(listsd.comandline2, "");
+					}
+					else{
+						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1803,7 +1876,12 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					if(listsd.get_minutes() == -1){
+						sprintf(listsd.comandline2, "");
+					}
+					else{
+						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1843,7 +1921,12 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					if(listsd.get_minutes() == -1){
+						sprintf(listsd.comandline2, "");
+					}
+					else{
+						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1881,7 +1964,12 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					if(listsd.get_minutes() == -1){
+						sprintf(listsd.comandline2, "");
+					}
+					else{
+						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1918,7 +2006,12 @@ inline void ListFileListINITSD(){
 					}else{
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 					listsd.get_lineduration();
-					sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					if(listsd.get_minutes() == -1){
+						sprintf(listsd.comandline2, "");
+					}
+					else{
+						sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+					}
 					//Serial.println(listsd.comandline);
 					setfilenames(jint);
 					
@@ -1948,6 +2041,7 @@ inline void ListFileListINITSD(){
 
 }		
 inline void ListFileListENTERBACKFORLDERSD(){
+	genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,0);
 	filepointer = 0;
 	int vecto = 0;
 	int jint = 0;
@@ -1984,7 +2078,12 @@ inline void ListFileListENTERBACKFORLDERSD(){
 			}else{
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 			listsd.get_lineduration();
-			sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+			if(listsd.get_minutes() == -1){
+				sprintf(listsd.comandline2, "");
+			}
+			else{
+				sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+			}
 			//Serial.println(listsd.comandline);
 			setfilenames(jint);
 			
@@ -2021,7 +2120,12 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				if(listsd.get_minutes() == -1){
+					sprintf(listsd.comandline2, "");
+				}
+				else{
+					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				}
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -2060,7 +2164,12 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				if(listsd.get_minutes() == -1){
+					sprintf(listsd.comandline2, "");
+				}
+				else{
+					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				}
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -2100,7 +2209,12 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				if(listsd.get_minutes() == -1){
+					sprintf(listsd.comandline2, "");
+				}
+				else{
+					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				}
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -2138,7 +2252,12 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				if(listsd.get_minutes() == -1){
+					sprintf(listsd.comandline2, "");
+				}
+				else{
+					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				}
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -2175,7 +2294,12 @@ inline void ListFileListENTERBACKFORLDERSD(){
 				}else{
 				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 				listsd.get_lineduration();
-				sprintf(listsd.comandline2, "%4dh %.2d / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				if(listsd.get_minutes() == -1){
+					sprintf(listsd.comandline2, "");
+				}
+				else{
+					sprintf(listsd.comandline2, "%4d:%.2dh / %dg",listsd.get_hours(), listsd.get_minutes(),listsd.get_filgramos1());
+				}
 				//Serial.println(listsd.comandline);
 				setfilenames(jint);
 				
@@ -2410,9 +2534,7 @@ void update_screen_printing(){
 		dobloking =false;
 		//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
 		quickStop();
-		setTargetHotend0(0);
-		setTargetHotend1(0);
-		setTargetBed(0);
+		
 		enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
 		st_synchronize();
 		
@@ -2465,8 +2587,16 @@ if (surfing_utilities)
 		
 		if(is_changing_filament){
 			int percentage = 0;
+			int Tinstant;
+			if(Tref1 > (int)degHotend(which_extruder)){
+				Tinstant = Tref1;
+				}else if((int)degHotend(which_extruder) > Tfinal1){
+				Tinstant = Tfinal1;
+				}else{
+				Tinstant = (int)degHotend(which_extruder);
+			}
 			percentage = Tfinal1-Tref1;
-			percentage = 100*((int)degHotend(which_extruder)-Tref1)/percentage;
+			percentage = 100*(Tinstant-Tref1)/percentage;
 			sprintf(buffer, "%d%%", percentage);
 			genie.WriteStr(STRING_CHANGE_FILAMENT_TEMPS,buffer);
 		}
@@ -2623,67 +2753,82 @@ void update_screen_noprinting(){
 			//Serial.println(buffer);
 			genie.WriteStr(STRING_TEMP_BED,buffer);
 			
+			
+			
+			
+			
+			waitPeriodno=3000+millis(); // Every Second
+		}
+		if (millis() >= waitPeriod_p)
+		{
+			
+			int tHotend=int(degHotend(0));
+			int tHotend1=int(degHotend(1));
+			int tBed=(int)degBed();
+			
 			if ((tHotend <= target_temperature[0]-10 || tHotend >= target_temperature[0]+10) && target_temperature[0]!=0) {
 				gifhotent0_flag = true;
 				
 			}
 			else if(target_temperature[0]!=0){
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_LEXTR,FramesPreheat+1);
 				gifhotent0_flag = false;
-				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,1);//<GIFF
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,1);//<GIFF
 			}
 			else{
 				gifhotent0_flag = false;
-				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,0);//<GIFF
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_LEXTR,0);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,0);//<GIFF
 			}
 			if ((tHotend1 <= target_temperature[1]-10 || tHotend1 >= target_temperature[1]+10) && target_temperature[1]!=0)  {
 				gifhotent1_flag = true;//<GIFF
 				
 			}
 			else if(target_temperature[1]!=0){
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_REXTR,FramesPreheat+1);
 				gifhotent1_flag = false;
-				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,1); //<GIFF
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,1); //<GIFF
 			}
 			else{
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_REXTR,0);
 				gifhotent1_flag = false;
-				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,0);//<GIFF
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,0);//<GIFF
 			}
 			if (( tBed <= target_temperature_bed-10 ||  tBed >= target_temperature_bed+10) && target_temperature_bed!=0)  {
 				gifbed_flag = true;
 				
 			}
 			else if(target_temperature_bed!=0){
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_BED,FramesPreheat+2);
 				gifbed_flag = false;
-				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,1);//<GIFF
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,1);//<GIFF
 			}
 			else{
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_BED,0);
 				gifbed_flag = false;
-				//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,0);//<GIFF
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,0);//<GIFF
 			}
 			
-			
-			
-			waitPeriodno=3000+millis(); // Every Second
-		}
-		if (millis() >= waitPeriod_p && (gifhotent0_flag || gifhotent1_flag || gifbed_flag ))
-		{
-			
-			if(processing_state<44){
-				processing_state++;
+			if(gifhotent0_flag || gifhotent1_flag || gifbed_flag ){
+				
+				
+				if(processing_state<FramesPreheat){
+					processing_state++;
+				}
+				else{
+					processing_state=3;
+				}
+				
+				if(gifhotent0_flag){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_LEXTR,processing_state);
+				}
+				if(gifhotent1_flag){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_REXTR,processing_state);
+				}
+				if(gifbed_flag){
+					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_BED,processing_state);
+				}
 			}
-			else{
-				processing_state=0;
-			}
-			
-			if(gifhotent0_flag){
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_LEXTR,processing_state);
-			}
-			if(gifhotent1_flag){
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_REXTR,processing_state);
-			}
-			if(gifbed_flag){
-				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_TEMP_BED,processing_state);
-			}
-			
 			
 			
 			waitPeriod_p=90+millis();
@@ -2712,8 +2857,16 @@ void update_screen_noprinting(){
 			
 			if(is_changing_filament){
 				int percentage = 0;
+				int Tinstant;
+				if(Tref1 > (int)degHotend(which_extruder)){
+					Tinstant = Tref1;
+					}else if((int)degHotend(which_extruder) > Tfinal1){
+					Tinstant = Tfinal1;
+					}else{
+					Tinstant = (int)degHotend(which_extruder);
+				}
 				percentage = Tfinal1-Tref1;
-				percentage = 100*((int)degHotend(which_extruder)-Tref1)/percentage;
+				percentage = 100*(Tinstant-Tref1)/percentage;
 				sprintf(buffer, "%d%%", percentage);
 				genie.WriteStr(STRING_CHANGE_FILAMENT_TEMPS,buffer);
 			}
@@ -2757,7 +2910,8 @@ void update_screen_noprinting(){
 		}
 	}
 	if(z_adjust_10up && !blocks_queued()){
-		
+		processing_z_set = 0;
+		z_adjust_10up = false;
 		current_position[Z_AXIS]-=10;
 		
 		if (home_made_Z){
@@ -2769,37 +2923,42 @@ void update_screen_noprinting(){
 			quickStop();
 		}
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
-		
+		st_synchronize();
+		processing_z_set = 255;
 		z_adjust_10up = false;
 	}
 	if(z_adjust_50up && !blocks_queued()){
-		
+		processing_z_set = 0;
 		current_position[Z_AXIS]-=50;
-		
+		z_adjust_50up= false;
 		if (home_made_Z){
 			if(current_position[Z_AXIS]< Z_MIN_POS){
 				current_position[Z_AXIS]= Z_MIN_POS;
 			}
 		}
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
-		z_adjust_50up= false;
+		st_synchronize();
+		processing_z_set = 255;
+		
 	}
 	if(z_adjust_10down && !blocks_queued()){
+		processing_z_set = 1;
 		current_position[Z_AXIS]+=10;
-		
+		z_adjust_10down = false;
 		if (home_made_Z){
 			if(current_position[Z_AXIS] > Z_MAX_POS-15){
 				current_position[Z_AXIS] = Z_MAX_POS-15;
 			}
 		}
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
+		st_synchronize();
+		processing_z_set = 255;
 		
-		z_adjust_10down = false;
 	}
 	if(z_adjust_50down && !blocks_queued()){
-		
+		processing_z_set = 1;
 		current_position[Z_AXIS]+=50;
-		
+		z_adjust_50down = false;
 		if (home_made_Z){
 			
 			if(current_position[Z_AXIS] > Z_MAX_POS-15){
@@ -2807,8 +2966,9 @@ void update_screen_noprinting(){
 			}
 		}
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder); //check speed
+		st_synchronize();
+		processing_z_set = 255;
 		
-		z_adjust_50down = false;
 	}
 	if(filament_accept_ok && !home_made){
 		processing=true;
@@ -2829,13 +2989,11 @@ void update_screen_sdcard(){
 		ListFilesDown = false;
 	}*/
 	if(ListFilesUp){
-		
-		ListFilesUpfunc();
+		ListFilesDownx3func();
 		ListFilesUp = false;
 	}
 	if(ListFilesDownx3){
-		
-		ListFilesDownx3func();
+		ListFilesUpfunc();
 		ListFilesDownx3 = false;
 	}
 	if(ListFilesINITflag){
@@ -2876,16 +3034,18 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	static uint32_t waitPeriod_pbackhome = millis(); //Processing back home
 	static int8_t processing_state = 0;
 	static int count5s = 0;
-	
+	if(card.sdispaused){
+		previous_millis_cmd = millis();
+	}
 	
 	
 	if(card.sdprinting && !card.sdispaused || !card.sdprinting && card.sdispaused )
 	{
-		/*if(flag_pause){
+		if(card.sdispaused){
 		
 		previous_millis_cmd = millis();
 		
-		}*/
+		}
 		update_screen_printing();
 	}
 	else if(screen_sdcard){
@@ -2900,14 +3060,14 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			
 			
 			
-			if(processing_state<17){
+			if(processing_state<FramesProcessing){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	if (processing_change_filament_temps){
@@ -2915,33 +3075,33 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			
 			
 			
-			if(processing_state<44){
+			if(processing_state<FramesChangefilamentTemps){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_CHANGE_FILAMENT_TEMPS,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	if (processing_adjusting){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<44){
+			if(processing_state<FramesAdjustingTemps){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ADJUSTING_TEMPERATURES,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	if (processing_nylon_temps){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<44){
+			if(processing_state<FramesNylonTemps){
 				processing_state++;
 			}
 			else{
@@ -2949,66 +3109,88 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_TEMPS,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 		
 	}
 	if (processing_test){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<37){
+			if(processing_state<36){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PRINTING_TEST,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	if (processing_bed_first){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<42){
+			if(processing_state<FramesBedScrew){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_INFO_TURN_SCREWS_FIRST,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	if (processing_success){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<35){
+			if(processing_state<FramesGifSuccess){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SUCCESS_FILAMENT_OK,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
+		}
+	}
+	if (processing_z_set == 0 || processing_z_set == 1){
+		if (millis() >= waitPeriod_p){
+			if (processing_z_set == 0){
+				if(processing_state<FramesZSet){
+					processing_state++;
+				}
+				else{
+					processing_state=0;
+				}
+			}
+			else{
+				if(processing_state>0){
+					processing_state--;
+				}
+				else{
+					processing_state=FramesZSet;
+				}
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_SET,processing_state);
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	if (processing_nylon_step4){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<35){
+			if(processing_state<FramesGifSuccess){
 				processing_state++;
 			}
 			else{
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP4,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	if (processing_bed_success){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<35){
+			if(processing_state<FramesGifSuccess){
 				processing_state++;
 			}
 			else{
@@ -3021,7 +3203,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	if (processing_bed){
 		if (millis() >= waitPeriod_p){
 			
-			if(processing_state<42){
+			if(processing_state<FramesBedScrew){
 				processing_state++;
 			}
 			else{
@@ -3031,13 +3213,40 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=40+millis();
 		}
 	}
+	if (processing_calib_ZL){
+		if (millis() >= waitPeriod_p){
+			
+			if(processing_state<FramesZCalib){
+				processing_state++;
+			}
+			else{
+				processing_state=0;
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_PAPER_LEFT,processing_state);
+			waitPeriod_p=40+millis();
+		}
+	}
+	if (processing_calib_ZR){
+		if (millis() >= waitPeriod_p){
+			
+			if(processing_state<FramesZCalib){
+				processing_state++;
+			}
+			else{
+				processing_state=0;
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_PAPER_RIGHT,processing_state);
+			waitPeriod_p=40+millis();
+		}
+	}
 	
 	
 	if(back_home){
 			if(home_made == false){
-				
+			cancel_heatup = true;	
+			
 				if (millis() >= waitPeriod_pbackhome){
-					if(processing_state<17){
+					if(processing_state<FramesProcessing){
 						processing_state++;
 					}
 					else{
@@ -3045,6 +3254,9 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 					}
 					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
 					waitPeriod_p=40+millis();
+					setTargetHotend0(0);
+					setTargetHotend1(0);
+					setTargetBed(0);
 				}
 				
 			}
@@ -3052,6 +3264,10 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				back_home = false;
 				gcode_T0_T1_auto(0);
 				st_synchronize();
+				setTargetHotend0(0);
+				setTargetHotend1(0);
+				setTargetBed(0);
+				cancel_heatup = false;
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_MAIN_SCREEN,0);
 				
 				//form home
@@ -4699,8 +4915,10 @@ inline void gcode_G43(){
 	//Go to Z Calibration select screen if first time!
 	if (active_extruder==LEFT_EXTRUDER) {
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_Z_EXTRUDER1,0);
+		processing_calib_ZL = true;
 		}else{
 		genie.WriteObject(GENIE_OBJ_FORM,FORM_CALIB_Z_EXTRUDER2,0);
+		processing_calib_ZR = true;
 	}
 	processing =  false;
 	
@@ -5597,18 +5815,18 @@ inline void gcode_G69(){
 					//*********************************//
 					saved_active_extruder = active_extruder;
 					//********RETRACK
-					current_position[E_AXIS]-=4;
+					current_position[E_AXIS]-=G69_RETRACK;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);//Retrack
 					st_synchronize();
 					//*********************************//
 					feedrate=homing_feedrate[X_AXIS];
 					if (active_extruder == LEFT_EXTRUDER){															//Move X axis, controlling the current_extruder
-						current_position[X_AXIS] = current_position[X_AXIS]-5;
-						current_position[Y_AXIS] = current_position[Y_AXIS]+5;
+						current_position[X_AXIS] = current_position[X_AXIS]-G69_XYMOVE;
+						current_position[Y_AXIS] = current_position[Y_AXIS]+G69_XYMOVE;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 						}else{
-						current_position[X_AXIS] = extruder_offset[X_AXIS][1]+5;
-						current_position[Y_AXIS] = current_position[Y_AXIS]+5;
+						current_position[X_AXIS] = extruder_offset[X_AXIS][1]+G69_XYMOVE;
+						current_position[Y_AXIS] = current_position[Y_AXIS]+G69_XYMOVE;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					}
 					st_synchronize();
@@ -5667,11 +5885,12 @@ inline void gcode_G70(){
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);//Purge
 					st_synchronize();
 					
-					current_position[E_AXIS]+=10;
+					current_position[E_AXIS]+=G70_PURGE;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
 					st_synchronize();
-					current_position[E_AXIS] = saved_position[E_AXIS]-2;
-					plan_set_e_position(current_position[E_AXIS]);
+					current_position[E_AXIS]-=1;
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, active_extruder);//Purge
+					st_synchronize();
 					
 					
 					
@@ -5716,6 +5935,9 @@ inline void gcode_G70(){
 					feedrate=200*60;
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					st_synchronize();
+					
+					current_position[E_AXIS] = saved_position[E_AXIS];
+					plan_set_e_position(current_position[E_AXIS]);
 					
 					#if SETUP_G70 == 1
 					current_position[Z_AXIS] = saved_position[Z_AXIS];

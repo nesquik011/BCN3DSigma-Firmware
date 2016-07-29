@@ -26,7 +26,7 @@
 //
 //This is the version declaration for Sigma, v followed by '-' first indicate the hardware, it must have 2 ditgits. Then the '-' and then the firmware, it has to have 3 digits separets by '.'. -> This is useful to
 //get the hw and fw version to Cura-BCN3D and update the new firmware
-#define VERSION_STRING  "01-1.2.0RCa"
+#define VERSION_STRING  "01-1.2.0RCb"
 //#define DEFAULT_QUICK_GUIDE  0;
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
@@ -1127,6 +1127,31 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define CHANGE_FIL_TEMP_HYSTERESIS 10
 #define NYLON_TEMP_HYSTERESIS 5
 #define SETUP_G70 0
+
+#define G69_RETRACK 4
+#define G69_XYMOVE 5
+#define G70_PURGE 10
+
+
+//String GcodePrinting
+
+#define StringGcodeLength 20
+
+///////GIFs
+#define FramerateGifs   40   /// 40ms------> 25fps
+
+
+#define FramesGifSuccess   40 
+#define FramesBedScrew   43     
+#define FramesZCalib   49
+#define FramesZSet   49
+#define FramesTest   36
+#define FramesProcessing   15
+#define FramesChangefilamentTemps   43
+#define FramesAdjustingTemps   44
+#define FramesNylonTemps   43
+#define FramesPreheat   41
+
 //#define SCREENTEST
 
 
