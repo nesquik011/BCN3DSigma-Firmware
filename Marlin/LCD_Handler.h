@@ -2618,7 +2618,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							}
 							
 							percentage = Tfinal-Tref;
-							percentage = 100*((int)degHotend(which_extruder)-Tref)/percentage;
+							percentage = 100*(Tinstant-Tref)/percentage;
 							sprintf(buffer, "%d%%", percentage);
 							genie.WriteStr(STRING_NYLON_TEMPS,buffer);
 							waitPeriod_s=2000+millis();
@@ -2730,7 +2730,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								Tinstant = (int)degHotend(which_extruder);
 							}
 							percentage = Tfinal-Tref;
-							percentage = 100*((int)degHotend(which_extruder)-Tref)/percentage;
+							percentage = 100*(Tinstant-Tref)/percentage;
 							sprintf(buffer, "%d%%", percentage);
 							genie.WriteStr(STRING_NYLON_TEMPS,buffer);
 							waitPeriod_s=2000+millis();
@@ -3891,16 +3891,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						home_axis_from_code(true,true,true);
 						//changeTool(LEFT_EXTRUDER);
 						processing = false;
-						int Tref1 = (int)degHotend0();
-						int Tref2 = (int)degHotend1();
-						int Trefbed = (int)degBed()*4;
-						int Tfinal1 = (int)(degTargetHotend(LEFT_EXTRUDER)-5);
-						int Tfinal2 = (int)(degTargetHotend(RIGHT_EXTRUDER)-5);
-						int Tfinalbed = (int)(degTargetBed()-15)*4;
-						int percentage = 0;
+						
 						
 						if(degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5) || degBed()<(max(bed_temp_l,bed_temp_r)-15)){
-							genie.WriteStr(STRING_ADJUSTING_TEMPERATURES,"0%");
+							int Tref0 = (int)degHotend0();
+							int Tref1 = (int)degHotend1();
+							int Trefbed = (int)degBed();
+							int Tfinal0 = (int)(degTargetHotend(LEFT_EXTRUDER)-5);
+							int Tfinal1 = (int)(degTargetHotend(RIGHT_EXTRUDER)-5);
+							int Tfinalbed = (int)(degTargetBed()-15);
+							long percentage = 0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 							processing_adjusting =  true;
 							while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5) || degBed()<(max(bed_temp_l,bed_temp_r)-15)){ //Waiting to heat the extruder
@@ -3911,18 +3911,35 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								if (millis() >= waitPeriod_s){
 									char buffer[25];
 									memset(buffer, '\0', sizeof(buffer) );
-									int hot1, hot2, bed;
-									hot1 = (int)degHotend0();
-									hot2 =	(int)degHotend1();
-									bed = (int)degBed()*4;
-									if(hot1<Tfinal1)hot1 = (int)degHotend0();
-									else hot1 = Tfinal1;
-									if(hot2<Tfinal2)hot2 = (int)degHotend1();
-									else hot2 = Tfinal2;
-									if(bed<Tfinalbed)bed = (int)degBed();
-									else bed = Tfinalbed;
-									percentage = 100*(bed+hot1+hot2-(Tref1+Tref2+Trefbed))/(Tfinal1+Tfinal2+Tfinalbed-(Tref1+Tref2+Trefbed));
-									sprintf(buffer, "%d%%", percentage);
+									int Tinstanthot0, Tinstanthot1, Tinstantbed;
+									
+									if(Tref0 > (int)degHotend(LEFT_EXTRUDER)){
+										Tinstanthot0 = Tref0;
+										}else if((int)degHotend(LEFT_EXTRUDER) > Tfinal0){
+										Tinstanthot0 = Tfinal0;
+										}else{
+										Tinstanthot0 = (int)degHotend(LEFT_EXTRUDER);
+									}
+									if(Tref1 > (int)degHotend(RIGHT_EXTRUDER)){
+										Tinstanthot1 = Tref1;
+										}else if((int)degHotend(RIGHT_EXTRUDER) > Tfinal1){
+										Tinstanthot1 = Tfinal1;
+										}else{
+										Tinstanthot1 = (int)degHotend(RIGHT_EXTRUDER);
+									}
+									
+									if(Trefbed > (int)degBed()){
+										Tinstantbed = Trefbed;
+										}else if((int)degBed() > Tfinalbed){
+										Tinstantbed = Tfinalbed;
+										}else{
+										Tinstantbed = (int)degBed();
+									}
+									
+									percentage = (long)Tfinal0+(long)Tfinal1+(long)Tfinalbed-(long)Tref0-(long)Tref1-(long)Trefbed;
+									percentage= 100*((long)Tinstanthot0+(long)Tinstanthot1+(long)Tinstantbed-(long)Tref0-(long)Tref1-(long)Trefbed)/percentage;
+									
+									sprintf(buffer, "%ld%%", percentage);
 									genie.WriteStr(STRING_ADJUSTING_TEMPERATURES,buffer);
 									waitPeriod_s=2000+millis();
 								}
@@ -3970,17 +3987,17 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						home_axis_from_code(true,true,true);
 						//changeTool(LEFT_EXTRUDER);
 						processing = false;
-						int Tref1 = (int)degHotend0();
-						int Tref2 = (int)degHotend1();
-						int Trefbed = (int)degBed()*4;
-						int Tfinal1 = (int)(degTargetHotend(LEFT_EXTRUDER)-5);
-						int Tfinal2 = (int)(degTargetHotend(RIGHT_EXTRUDER)-5);
-						int Tfinalbed = (int)(degTargetBed()-15)*4;
-						int percentage = 0;
+						
 						
 						//changeTool(LEFT_EXTRUDER);
 						if(degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5) || degBed()<(max(bed_temp_l,bed_temp_r)-15)){
-							genie.WriteStr(STRING_ADJUSTING_TEMPERATURES,"0%");
+							int Tref0 = (int)degHotend0();
+							int Tref1 = (int)degHotend1();
+							int Trefbed = (int)degBed();
+							int Tfinal0 = (int)(degTargetHotend(LEFT_EXTRUDER)-5);
+							int Tfinal1 = (int)(degTargetHotend(RIGHT_EXTRUDER)-5);
+							int Tfinalbed = (int)(degTargetBed()-15);
+							long percentage = 0;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 							processing_adjusting =  true;
 							while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) || degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5) || degBed()<(max(bed_temp_l,bed_temp_r)-15)){ //Waiting to heat the extruder
@@ -3991,18 +4008,35 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 								if (millis() >= waitPeriod_s){
 									char buffer[25];
 									memset(buffer, '\0', sizeof(buffer) );
-									int hot1, hot2, bed;
-									hot1 = (int)degHotend0();
-									hot2 =	(int)degHotend1();
-									bed = (int)degBed()*4;
-									if(hot1<Tfinal1)hot1 = (int)degHotend0();
-									else hot1 = Tfinal1;
-									if(hot2<Tfinal2)hot2 = (int)degHotend1();
-									else hot2 = Tfinal2;
-									if(bed<Tfinalbed)bed = (int)degBed();
-									else bed = Tfinalbed;
-									percentage = 100*(bed+hot1+hot2-(Tref1+Tref2+Trefbed))/(Tfinal1+Tfinal2+Tfinalbed-(Tref1+Tref2+Trefbed));
-									sprintf(buffer, "%d%%", percentage);
+									int Tinstanthot0, Tinstanthot1, Tinstantbed;
+									
+									if(Tref0 > (int)degHotend(LEFT_EXTRUDER)){
+										Tinstanthot0 = Tref0;
+										}else if((int)degHotend(LEFT_EXTRUDER) > Tfinal0){
+										Tinstanthot0 = Tfinal0;
+										}else{
+										Tinstanthot0 = (int)degHotend(LEFT_EXTRUDER);
+									}
+									if(Tref1 > (int)degHotend(RIGHT_EXTRUDER)){
+										Tinstanthot1 = Tref1;
+										}else if((int)degHotend(RIGHT_EXTRUDER) > Tfinal1){
+										Tinstanthot1 = Tfinal1;
+										}else{
+										Tinstanthot1 = (int)degHotend(RIGHT_EXTRUDER);
+									}
+									
+									if(Trefbed > (int)degBed()){
+										Tinstantbed = Trefbed;
+										}else if((int)degBed() > Tfinalbed){
+										Tinstantbed = Tfinalbed;
+										}else{
+										Tinstantbed = (int)degBed();
+									}
+									
+									percentage = (long)Tfinal0+(long)Tfinal1+(long)Tfinalbed-(long)Tref0-(long)Tref1-(long)Trefbed;
+									percentage= 100*((long)Tinstanthot0+(long)Tinstanthot1+(long)Tinstantbed-(long)Tref0-(long)Tref1-(long)Trefbed)/percentage;
+									
+									sprintf(buffer, "%ld%%", percentage);
 									genie.WriteStr(STRING_ADJUSTING_TEMPERATURES,buffer);
 									waitPeriod_s=2000+millis();
 								}
@@ -4146,8 +4180,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							active_extruder = LEFT_EXTRUDER;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 							processing = true;
-							setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
-							setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
+							setTargetHotend0(print_temp_l);
+							setTargetHotend1(print_temp_r);
 							setTargetBed(max(bed_temp_l,bed_temp_r));
 							
 							

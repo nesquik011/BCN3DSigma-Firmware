@@ -2596,7 +2596,7 @@ if (surfing_utilities)
 				Tinstant = (int)degHotend(which_extruder);
 			}
 			percentage = Tfinal1-Tref1;
-			percentage = 100*((int)degHotend(which_extruder)-Tref1)/percentage;
+			percentage = 100*(Tinstant-Tref1)/percentage;
 			sprintf(buffer, "%d%%", percentage);
 			genie.WriteStr(STRING_CHANGE_FILAMENT_TEMPS,buffer);
 		}
