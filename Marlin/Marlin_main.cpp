@@ -3102,7 +3102,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
-	if (processing_change_filament_temps){
+	else if (processing_change_filament_temps){
 		if (millis() >= waitPeriod_p){
 			
 			
@@ -3117,7 +3117,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
-	if (processing_adjusting){
+	else if (processing_adjusting){
 		if (millis() >= waitPeriod_p){
 			
 			if(processing_state<FramesAdjustingTemps){
@@ -3130,7 +3130,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
-	if (processing_nylon_temps){
+	else if (processing_nylon_temps){
 		if (millis() >= waitPeriod_p){
 			
 			if(processing_state<FramesNylonTemps){
@@ -3145,7 +3145,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		}
 		
 	}
-	if (processing_test){
+	else if (processing_test){
 		if (millis() >= waitPeriod_p){
 			
 			if(processing_state<36){
@@ -3158,7 +3158,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
-	if (processing_bed_first){
+	else if (processing_bed_first){
 		if (millis() >= waitPeriod_p){
 			
 			if(processing_state<FramesBedScrew){
@@ -3171,21 +3171,23 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
-	if (processing_success){
+	else if (processing_success){
 		if (millis() >= waitPeriod_p){
 			
 			if(processing_state<FramesGifSuccess){
 				processing_state++;
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SUCCESS_FILAMENT_OK,processing_state);
 			}
 			else{
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SUCCESS_FILAMENT_OK,processing_state);
 				processing_state=0;
 				processing_success = false;
 			}
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SUCCESS_FILAMENT_OK,processing_state);
+			
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
-	if (processing_z_set == 0 || processing_z_set == 1){
+	else if (processing_z_set == 0 || processing_z_set == 1){
 		if (millis() >= waitPeriod_p){
 			if (processing_z_set == 0){
 				if(processing_state<FramesZSet){
@@ -3207,7 +3209,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
-	if (processing_nylon_step4){
+	else if (processing_nylon_step4){
 		
 		if (millis() >= waitPeriod_p){
 			
@@ -3222,7 +3224,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
-	if (processing_bed_success){
+	else if (processing_bed_success){
 		if (millis() >= waitPeriod_p){
 			
 			if(processing_state<FramesGifSuccess){
@@ -3235,7 +3237,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=40+millis();
 		}
 	}
-	if (processing_bed){
+	else if (processing_bed){
 		if (millis() >= waitPeriod_p){
 			
 			if(processing_state<FramesBedScrew){
@@ -3248,7 +3250,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=40+millis();
 		}
 	}
-	if (processing_calib_ZL){
+	else if (processing_calib_ZL){
 		if (millis() >= waitPeriod_p){
 			
 			if(processing_state<FramesZCalib){
@@ -3261,7 +3263,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=40+millis();
 		}
 	}
-	if (processing_calib_ZR){
+	else if (processing_calib_ZR){
 		if (millis() >= waitPeriod_p){
 			
 			if(processing_state<FramesZCalib){
@@ -3274,9 +3276,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=40+millis();
 		}
 	}
-	
-	
-	if(back_home){
+	else if(back_home){
 			if(home_made == false){
 			cancel_heatup = true;	
 			
@@ -3311,6 +3311,9 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				
 				
 			}
+	}
+	else{
+		processing_state = 0;
 	}
 	
 	
