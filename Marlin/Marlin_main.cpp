@@ -3221,11 +3221,6 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP4,processing_state);
 			waitPeriod_p=FramerateGifs+millis();
 		}
-		if(which_extruder == 0)digitalWrite(FAN_PIN, 1);
-		else digitalWrite(FAN2_PIN, 1);
-		manage_heater();
-		if(which_extruder == 0)digitalWrite(FAN_PIN, 1);
-		else digitalWrite(FAN2_PIN, 1);
 	}
 	if (processing_bed_success){
 		if (millis() >= waitPeriod_p){
@@ -6884,6 +6879,7 @@ inline void gcode_M105(){
 inline void gcode_M190(){
 	unsigned long codenum;
 	waiting_temps = true;
+	HeaterCooldownInactivity(false);
 	#if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
 	LCD_MESSAGEPGM(MSG_BED_HEATING);
 	if (code_seen('S')) {
@@ -6988,7 +6984,7 @@ inline void gcode_M129(){
 inline void gcode_M109(){
 	waiting_temps = true;
 	unsigned long codenum;
-
+	HeaterCooldownInactivity(false);
 	if(setTargetedHotend(109)){
 		return;
 	}

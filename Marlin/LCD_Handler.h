@@ -2676,8 +2676,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						touchscreen_update();
 					}
 					processing_nylon_temps = false;
-					if(which_extruder == 0)digitalWrite(FAN_PIN, 0);
-					else digitalWrite(FAN2_PIN, 0);
+					fanSpeed=255;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP4,0);
 					processing_nylon_step4 = true;
 				}
@@ -2715,7 +2714,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						touchscreen_update();
 												
 					}
-					Serial.println("50 grados");
+					Serial.println("60 grados");
+					fanSpeed=0;
 					if(which_extruder == 0)digitalWrite(FAN_PIN, 0);
 					else digitalWrite(FAN2_PIN, 0);
 					setTargetHotend(105.0,which_extruder);
@@ -2746,7 +2746,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						touchscreen_update();
 						
 					}
-					Serial.println("40 grados");
 					processing_nylon_temps = false;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP5,0);
 					

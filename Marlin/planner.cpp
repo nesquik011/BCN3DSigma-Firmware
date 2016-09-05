@@ -517,6 +517,7 @@ void check_axes_activity()
 		analogWrite(FAN_PIN,0);
 		analogWrite(FAN2_PIN,tail_fan_speed);
 	}
+	
 	//analogWrite(FAN_PIN,tail_fan_speed);
 	//analogWrite(FAN2_PIN,tail_fan_speed);
   #else
