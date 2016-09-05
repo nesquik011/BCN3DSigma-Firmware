@@ -1132,6 +1132,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define G69_XYMOVE 5
 #define G70_PURGE 10
 
+#define NYLON_TEMP_HEATUP_THRESHOLD 260
+#define NYLON_TEMP_COOLDOWN_THRESHOLD 60
 
 //String GcodePrinting
 
@@ -1140,6 +1142,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 ///////GIFs
 #define FramerateGifs   40   /// 40ms------> 25fps
 
+#define PURGE_DISTANCE_INSERTED 45
 
 #define FramesGifSuccess   40 
 #define FramesBedScrew   43     
@@ -1154,6 +1157,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //#define SCREENTEST
 
+#define TIMERCOOLDOWN 10*60 // 10min
 
 
 #include "Configuration_adv.h"

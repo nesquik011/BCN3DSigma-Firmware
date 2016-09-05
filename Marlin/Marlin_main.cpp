@@ -481,6 +481,7 @@ static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
 float z_restaurada;
 
 bool flag_continue_calib = false;
+bool HeaterInactivity = false;
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
@@ -533,7 +534,7 @@ boolean chdkActive = false;
 //===========================================================================
 //=============================Routines======================================
 //===========================================================================
-
+int TimerCooldownInactivity(bool restartOrRun);
 void get_arc_coordinates();
 bool setTargetedHotend(int code);
 
@@ -675,7 +676,7 @@ void setup()
 	static uint32_t waitPeriod = millis(); //Processing back home
 	setup_killpin();
 	setup_powerhold();
-	
+	st_init();    // Initialize stepper, this enables interrupts!
 	MYSERIAL.begin(BAUDRATE);
 
 	SERIAL_PROTOCOLLNPGM(VERSION_STRING);
@@ -781,7 +782,7 @@ void setup()
 	tp_init();    // Initialize temperature loop
 	plan_init();  // Initialize planner;
 	watchdog_init();
-	st_init();    // Initialize stepper, this enables interrupts!
+	
 	setup_photpin();
 	servo_init();
 	
@@ -912,9 +913,40 @@ void SD_firstPrint (){
 	enquecommand_P(PSTR("M24"));
 }
 
-int getBuflen ()
+int getBuflen()
 {
 	return buflen;
+}
+
+void HeaterCooldownInactivity(bool switchOnOff){
+	
+	HeaterInactivity = switchOnOff;
+	TimerCooldownInactivity(HeaterInactivity);
+}
+
+int TimerCooldownInactivity(bool restartOrRun){ //false Restart  true Run
+	static uint32_t waitPeriod_tc = millis();
+	static uint32_t TimerCooldownSeconds = 0;
+	if(restartOrRun){
+		if (millis() >= waitPeriod_tc){
+			
+			TimerCooldownSeconds++;
+			waitPeriod_tc=1000+millis();
+		}
+		if(TimerCooldownSeconds>TIMERCOOLDOWN){
+			setTargetHotend0(0);
+			setTargetHotend1(0);
+			setTargetBed(0);
+			TimerCooldownSeconds = 0;
+			return 1;
+			}else{
+			return 0;
+		}
+		}else{
+		TimerCooldownSeconds = 0;
+		return 0;
+	}
+	
 }
 
 inline void ListFilesUpfunc(){
@@ -3147,6 +3179,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			}
 			else{
 				processing_state=0;
+				processing_success = false;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SUCCESS_FILAMENT_OK,processing_state);
 			waitPeriod_p=FramerateGifs+millis();
@@ -3175,7 +3208,9 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		}
 	}
 	if (processing_nylon_step4){
+		
 		if (millis() >= waitPeriod_p){
+			
 			
 			if(processing_state<FramesGifSuccess){
 				processing_state++;
@@ -3186,6 +3221,11 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP4,processing_state);
 			waitPeriod_p=FramerateGifs+millis();
 		}
+		if(which_extruder == 0)digitalWrite(FAN_PIN, 1);
+		else digitalWrite(FAN2_PIN, 1);
+		manage_heater();
+		if(which_extruder == 0)digitalWrite(FAN_PIN, 1);
+		else digitalWrite(FAN2_PIN, 1);
 	}
 	if (processing_bed_success){
 		if (millis() >= waitPeriod_p){
@@ -4192,7 +4232,7 @@ inline void gcode_G28(){
 	saved_feedmultiply = feedmultiply;
 	feedmultiply = 100;
 	previous_millis_cmd = millis();
-
+	HeaterCooldownInactivity(false);
 	enable_endstops(true); //Activate endstops
 
 	for(int8_t i=0; i < NUM_AXIS; i++) {
@@ -9651,6 +9691,15 @@ void manage_inactivity()
 	handle_status_leds();
 	#endif
 	check_axes_activity();
+	
+	
+	if(HeaterInactivity){
+		if(TimerCooldownInactivity(true)==1){
+			HeaterCooldownInactivity(false);
+			Serial.println("Cooling Down Heater");
+		}
+	}
+	
 }
 
 void kill()
@@ -10020,7 +10069,7 @@ void home_axis_from_code(bool x_c, bool y_c, bool z_c)
 	saved_feedmultiply = feedmultiply;
 	feedmultiply = 100;
 	previous_millis_cmd = millis();
-
+	HeaterCooldownInactivity(false);
 	enable_endstops(true); //Activate endstops
 
 	for(int8_t i=0; i < NUM_AXIS; i++) {
