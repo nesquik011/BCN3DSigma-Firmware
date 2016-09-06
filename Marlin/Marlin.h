@@ -303,6 +303,7 @@ extern void wake_RELAY();
 extern void home_axis_from_code(bool x_c, bool y_c, bool z_c);
 extern float saved_position[NUM_AXIS];
 extern bool flag_continue_calib;
+extern int purge_extruder_selected;
 //extern bool quick_guide;
 //extern int language;
 //extern const char idiom[50][50]; 

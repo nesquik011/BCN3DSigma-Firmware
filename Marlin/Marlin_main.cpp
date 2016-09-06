@@ -349,7 +349,7 @@ int dateresetday;
 int dateresetmonth;
 int dateresetyear;
 int bed_calibration_times = 0; //To control the number of bed calibration to available the skip option
-
+int  purge_extruder_selected = -1;
 int log_prints;
 int log_hours_print;
 int log_prints_finished;
@@ -2786,9 +2786,7 @@ void update_screen_noprinting(){
 			genie.WriteStr(STRING_TEMP_BED,buffer);
 			
 			
-			
-			
-			
+						
 			waitPeriodno=3000+millis(); // Every Second
 		}
 		if (millis() >= waitPeriod_p)
@@ -2885,6 +2883,25 @@ void update_screen_noprinting(){
 				sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
 				//Serial.println(buffer);
 				genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
+				
+				if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS && purge_extruder_selected != -1){
+					
+					if(purge_extruder_selected == 0){
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_INSERT,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK,1);
+					}else if (purge_extruder_selected == 1){
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_INSERT,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK,1);
+					}
+					
+					
+				}else{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_INSERT, 0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK, 0);
+				}
+				
+				
+				
 			}
 			
 			if(is_changing_filament){
@@ -3229,11 +3246,14 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			
 			if(processing_state<FramesGifSuccess){
 				processing_state++;
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_BED_CALIB_SUCCESS,processing_state);
 			}
 			else{
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_BED_CALIB_SUCCESS,processing_state);
 				processing_state=0;
+				processing_bed_success = false;
 			}
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_BED_CALIB_SUCCESS,processing_state);
+			
 			waitPeriod_p=40+millis();
 		}
 	}

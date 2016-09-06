@@ -58,7 +58,6 @@ float offset_calib_manu[4] = {0.0,0.0,0.0,0.0};
 unsigned int calib_value_selected;
 float offset_x_calib = 0;
 float offset_y_calib = 0;
-int  purge_extruder_selected = -1;
 int  previous_state = FORM_MAIN_SCREEN;
 int custom_insert_temp = 210;
 int custom_remove_temp = 210;
@@ -1797,8 +1796,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				#pragma region PURGE
 				//****************PURGE BUTTONS******
 				else if (Event.reportObject.index == BUTTON_PURGE_LEFT ){
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_INSERT,1);
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK,1);
+					//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_INSERT,1);
+					//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_UP,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_DOWN,1);
 					if (purge_extruder_selected == 1){
@@ -1830,8 +1829,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				else if (Event.reportObject.index == BUTTON_PURGE_RIGHT ){
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_INSERT,1);
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK,1);
+					//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_INSERT,1);
+					//genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_UP,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_DOWN,1);
 					if (purge_extruder_selected == 0){
@@ -2783,7 +2782,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				else if (Event.reportObject.index == BUTTON_NYLON_SUCCESS)
 				{
-					setTargetHotend(0.0,which_extruder);
+					setTargetHotend0(0);
+					setTargetHotend1(0);
+					HeaterCooldownInactivity(true);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
 					processing = true;
 					home_axis_from_code(true, true, false);
@@ -3126,6 +3127,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							HeaterCooldownInactivity(true);
 						}
 						else{
+							setTargetHotend0(0);
+							setTargetHotend1(0);
 							Serial.println("Filament Removed, GOING TO CLEAN THE NOZZEL");
 							setTargetHotend(NYLON_TEMP_HEATUP_THRESHOLD,which_extruder);
 							if (which_extruder == 0) changeTool(0);
@@ -3917,23 +3920,30 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 									char buffer[25];
 									memset(buffer, '\0', sizeof(buffer) );
 									int Tinstanthot0, Tinstanthot1, Tinstantbed;
-									
-									if(Tref0 > (int)degHotend(LEFT_EXTRUDER)){
+									if(Tref0 > Tfinal0){
+										Tref0 = Tfinal0;
+										Tinstanthot0 = Tfinal0;
+										}else if(Tref0 > (int)degHotend(LEFT_EXTRUDER)){
 										Tinstanthot0 = Tref0;
 										}else if((int)degHotend(LEFT_EXTRUDER) > Tfinal0){
 										Tinstanthot0 = Tfinal0;
 										}else{
 										Tinstanthot0 = (int)degHotend(LEFT_EXTRUDER);
 									}
-									if(Tref1 > (int)degHotend(RIGHT_EXTRUDER)){
+									if(Tref1 > Tfinal1){
+										Tref1 = Tfinal1;
+										Tinstanthot1 = Tfinal1;
+										}else if(Tref1 > (int)degHotend(RIGHT_EXTRUDER)){
 										Tinstanthot1 = Tref1;
 										}else if((int)degHotend(RIGHT_EXTRUDER) > Tfinal1){
 										Tinstanthot1 = Tfinal1;
 										}else{
 										Tinstanthot1 = (int)degHotend(RIGHT_EXTRUDER);
 									}
-									
-									if(Trefbed > (int)degBed()){
+									if(Trefbed > Tfinalbed){
+										Trefbed = Tfinalbed;
+										Tinstantbed = Tfinalbed;
+										}else if(Trefbed > (int)degBed()){
 										Tinstantbed = Trefbed;
 										}else if((int)degBed() > Tfinalbed){
 										Tinstantbed = Tfinalbed;
@@ -4015,22 +4025,30 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 									memset(buffer, '\0', sizeof(buffer) );
 									int Tinstanthot0, Tinstanthot1, Tinstantbed;
 									
-									if(Tref0 > (int)degHotend(LEFT_EXTRUDER)){
+									if(Tref0 > Tfinal0){
+										Tref0 = Tfinal0;
+										Tinstanthot0 = Tfinal0;
+										}else if(Tref0 > (int)degHotend(LEFT_EXTRUDER)){
 										Tinstanthot0 = Tref0;
 										}else if((int)degHotend(LEFT_EXTRUDER) > Tfinal0){
 										Tinstanthot0 = Tfinal0;
 										}else{
 										Tinstanthot0 = (int)degHotend(LEFT_EXTRUDER);
 									}
-									if(Tref1 > (int)degHotend(RIGHT_EXTRUDER)){
+									if(Tref1 > Tfinal1){
+										Tref1 = Tfinal1;
+										Tinstanthot1 = Tfinal1;
+										}else if(Tref1 > (int)degHotend(RIGHT_EXTRUDER)){
 										Tinstanthot1 = Tref1;
 										}else if((int)degHotend(RIGHT_EXTRUDER) > Tfinal1){
 										Tinstanthot1 = Tfinal1;
 										}else{
 										Tinstanthot1 = (int)degHotend(RIGHT_EXTRUDER);
 									}
-									
-									if(Trefbed > (int)degBed()){
+									if(Trefbed > Tfinalbed){
+										Trefbed = Tfinalbed;
+										Tinstantbed = Tfinalbed;
+										}else if(Trefbed > (int)degBed()){
 										Tinstantbed = Trefbed;
 										}else if((int)degBed() > Tfinalbed){
 										Tinstantbed = Tfinalbed;

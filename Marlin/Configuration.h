@@ -1142,7 +1142,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 ///////GIFs
 #define FramerateGifs   40   /// 40ms------> 25fps
 
-#define PURGE_DISTANCE_INSERTED 45
+#define PURGE_DISTANCE_INSERTED 30// in mm
 
 #define FramesGifSuccess   40 
 #define FramesBedScrew   43     
