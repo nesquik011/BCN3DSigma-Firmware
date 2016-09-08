@@ -51,6 +51,7 @@ bool z_adjust_10up = false;
 bool z_adjust_50down = false;
 bool z_adjust_10down = false;
 bool data_refresh_flag =  false;
+bool purge_select_flag = false;
 int Tref1 = 0;
 int Tfinal1 = 0;
 int  print_setting_tool = 2;
@@ -1895,13 +1896,21 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				else if(Event.reportObject.index == BUTTON_PURGE_INSERT && purge_extruder_selected != -1){
-					if (millis() >= waitPeriod_purge){
+					if(!blocks_queued()){
+						purge_select_flag = 1;
+					}else{
+						quickStop();
+					}
+					
+					
+					/*if (millis() >= waitPeriod_purge){
 						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 							current_position[E_AXIS]+=PURGE_DISTANCE_INSERTED;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
+							
 						}
 						waitPeriod_purge=millis()+PURGE_DISTANCE_INSERTED*300;
-					}
+					}*/
 				}
 				//else if(Event.reportObject.index == BUTTON_PURGE_INSERTX3 && purge_extruder_selected != -1){
 					//if (millis() >= waitPeriod_purge){

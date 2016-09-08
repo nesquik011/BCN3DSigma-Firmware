@@ -2868,6 +2868,14 @@ void update_screen_noprinting(){
 	if (surfing_utilities)
 	{
 		//static uint32_t waitPeriod = millis();
+		if(purge_select_flag){
+			purge_select_flag = false;
+			if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
+				current_position[E_AXIS]+=PURGE_DISTANCE_INSERTED;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
+				st_synchronize();
+			}
+		}
 		if (millis() >= waitPeriodno)
 		{
 			int tHotend=int(degHotend(0));
