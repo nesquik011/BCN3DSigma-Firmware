@@ -4150,55 +4150,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							changeTool(0);
 							st_synchronize();
 						}
-						else{ //Do Z clean
-							//genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-							//home_axis_from_code(true,true,true);
-							/*
-							
-							active_extruder = LEFT_EXTRUDER;
-							genie.WriteStr(STRING_AXIS,"        Z AXIS");
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
-							genie.WriteStr(STRING_AXIS,"        Z AXIS");
-							delay(1500);
-							
-							genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
-							genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
-							//genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
-							genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
-							
-							//changeToolSigma(LEFT_EXTRUDER);
-							genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDERS are heating up");
-							genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
-							
-							
-							//Wait until temperature it's okey
-							setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
-							setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
-							setTargetBed(max(bed_temp_l,bed_temp_r));
-							
-							//MOVE EXTRUDERS
-							current_position[Z_AXIS] = 60;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, LEFT_EXTRUDER);//move bed
-							st_synchronize();
-							current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, LEFT_EXTRUDER);//move first extruder
-							
-							dobloking=true;
-							
-							while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHotend(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
-								
-								manage_heater();
-							}
-							
-							//home_axis_from_code();
-							
-							
-							genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
-							genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
-							genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the left nozzle \n and press GO to move on to \n the next EXTRUDER");
-							flag_continue_calib = true;
-							*/
+						else{
 							
 							active_extruder = LEFT_EXTRUDER;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
@@ -4495,7 +4447,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if (Event.reportObject.index == BACKBUTTON_CALIBRATION)
 					{
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_UTILITIES,0);
-						flag_bed_calib_done = false;
+						
 					}
 					
 					
@@ -4506,54 +4458,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						processing_bed_first = false;
 						if (flag_full_calib){
 							bed_calibration_times = 0;
-							//genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
-							//home_axis_from_code(true,true,true);
-							/*
 							
-							active_extruder = LEFT_EXTRUDER;
-							genie.WriteStr(STRING_AXIS,"        Z AXIS");
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_FULL_CAL,0);
-							genie.WriteStr(STRING_AXIS,"        Z AXIS");
-							delay(1500);
-							
-							genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
-							genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
-							//genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDER are heating up");
-							genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,0);
-							genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
-							
-							//changeToolSigma(LEFT_EXTRUDER);
-							genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Wait until the image \n turns red, the \n EXTRUDERS are heating up");
-							genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,0);
-							
-							
-							//Wait until temperature it's okey
-							setTargetHotend0(EXTRUDER_LEFT_CLEAN_TEMP);
-							setTargetHotend1(EXTRUDER_RIGHT_CLEAN_TEMP);
-							setTargetBed(max(bed_temp_l,bed_temp_r));
-							
-							//MOVE EXTRUDERS
-							current_position[Z_AXIS] = 60;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]*2/60, LEFT_EXTRUDER);//move bed
-							st_synchronize();
-							current_position[X_AXIS] = 155; current_position[Y_AXIS] = 0;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/3, LEFT_EXTRUDER);//move first extruder
-							
-							dobloking=true;
-							
-							while (degHotend(LEFT_EXTRUDER)<(degTargetHotend(LEFT_EXTRUDER)-5) && degHotend(RIGHT_EXTRUDER)<(degTargetHoteFORM_CAL_WIZARD_DONE_GOODnd(RIGHT_EXTRUDER)-5)){ //Waiting to heat the extruder
-								
-								manage_heater();
-							}
-							
-							//home_axis_from_code();
-							
-							
-							genie.WriteObject(GENIE_OBJ_USERBUTTON,USERBUTTON_CLEAN_DONE,1);
-							genie.WriteObject(GENIE_OBJ_USERIMAGES,USERIMAGE_THERMOMETHER,1);
-							genie.WriteStr(STRING_CLEAN_INSTRUCTIONS,"Clean the left nozzle \n and press GO to move on to \n the next EXTRUDER");
-							flag_continue_calib = true;
-							*/
 							
 							active_extruder = LEFT_EXTRUDER;
 							genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
