@@ -349,7 +349,7 @@ int dateresetday;
 int dateresetmonth;
 int dateresetyear;
 int bed_calibration_times = 0; //To control the number of bed calibration to available the skip option
-
+int  purge_extruder_selected = -1;
 int log_prints;
 int log_hours_print;
 int log_prints_finished;
@@ -481,6 +481,7 @@ static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
 float z_restaurada;
 
 bool flag_continue_calib = false;
+bool HeaterInactivity = false;
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
@@ -533,7 +534,7 @@ boolean chdkActive = false;
 //===========================================================================
 //=============================Routines======================================
 //===========================================================================
-
+int TimerCooldownInactivity(bool restartOrRun);
 void get_arc_coordinates();
 bool setTargetedHotend(int code);
 
@@ -675,7 +676,7 @@ void setup()
 	static uint32_t waitPeriod = millis(); //Processing back home
 	setup_killpin();
 	setup_powerhold();
-	
+	st_init();    // Initialize stepper, this enables interrupts!
 	MYSERIAL.begin(BAUDRATE);
 
 	SERIAL_PROTOCOLLNPGM(VERSION_STRING);
@@ -781,7 +782,7 @@ void setup()
 	tp_init();    // Initialize temperature loop
 	plan_init();  // Initialize planner;
 	watchdog_init();
-	st_init();    // Initialize stepper, this enables interrupts!
+	
 	setup_photpin();
 	servo_init();
 	
@@ -912,9 +913,40 @@ void SD_firstPrint (){
 	enquecommand_P(PSTR("M24"));
 }
 
-int getBuflen ()
+int getBuflen()
 {
 	return buflen;
+}
+
+void HeaterCooldownInactivity(bool switchOnOff){
+	
+	HeaterInactivity = switchOnOff;
+	TimerCooldownInactivity(HeaterInactivity);
+}
+
+int TimerCooldownInactivity(bool restartOrRun){ //false Restart  true Run
+	static uint32_t waitPeriod_tc = millis();
+	static uint32_t TimerCooldownSeconds = 0;
+	if(restartOrRun){
+		if (millis() >= waitPeriod_tc){
+			
+			TimerCooldownSeconds++;
+			waitPeriod_tc=1000+millis();
+		}
+		if(TimerCooldownSeconds>TIMERCOOLDOWN){
+			setTargetHotend0(0);
+			setTargetHotend1(0);
+			setTargetBed(0);
+			TimerCooldownSeconds = 0;
+			return 1;
+			}else{
+			return 0;
+		}
+		}else{
+		TimerCooldownSeconds = 0;
+		return 0;
+	}
+	
 }
 
 inline void ListFilesUpfunc(){
@@ -2754,9 +2786,7 @@ void update_screen_noprinting(){
 			genie.WriteStr(STRING_TEMP_BED,buffer);
 			
 			
-			
-			
-			
+						
 			waitPeriodno=3000+millis(); // Every Second
 		}
 		if (millis() >= waitPeriod_p)
@@ -2838,6 +2868,14 @@ void update_screen_noprinting(){
 	if (surfing_utilities)
 	{
 		//static uint32_t waitPeriod = millis();
+		if(purge_select_flag){
+			purge_select_flag = false;
+			if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
+				current_position[E_AXIS]+=PURGE_DISTANCE_INSERTED;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
+				st_synchronize();
+			}
+		}
 		if (millis() >= waitPeriodno)
 		{
 			int tHotend=int(degHotend(0));
@@ -2853,6 +2891,25 @@ void update_screen_noprinting(){
 				sprintf(buffer, "%3d %cC",tHotend1,0x00B0);
 				//Serial.println(buffer);
 				genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
+				
+				if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS && purge_extruder_selected != -1){
+					
+					if(purge_extruder_selected == 0){
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_INSERT,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK,1);
+					}else if (purge_extruder_selected == 1){
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_INSERT,1);
+						genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK,1);
+					}
+					
+					
+				}else{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_INSERT, 0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK, 0);
+				}
+				
+				
+				
 			}
 			
 			if(is_changing_filament){
@@ -3070,7 +3127,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
-	if (processing_change_filament_temps){
+	else if (processing_change_filament_temps){
 		if (millis() >= waitPeriod_p){
 			
 			
@@ -3085,7 +3142,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
-	if (processing_adjusting){
+	else if (processing_adjusting){
 		if (millis() >= waitPeriod_p){
 			
 			if(processing_state<FramesAdjustingTemps){
@@ -3098,7 +3155,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
-	if (processing_nylon_temps){
+	else if (processing_nylon_temps){
 		if (millis() >= waitPeriod_p){
 			
 			if(processing_state<FramesNylonTemps){
@@ -3113,7 +3170,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		}
 		
 	}
-	if (processing_test){
+	else if (processing_test){
 		if (millis() >= waitPeriod_p){
 			
 			if(processing_state<36){
@@ -3126,7 +3183,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
-	if (processing_bed_first){
+	else if (processing_bed_first){
 		if (millis() >= waitPeriod_p){
 			
 			if(processing_state<FramesBedScrew){
@@ -3139,20 +3196,23 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
-	if (processing_success){
+	else if (processing_success){
 		if (millis() >= waitPeriod_p){
 			
 			if(processing_state<FramesGifSuccess){
 				processing_state++;
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SUCCESS_FILAMENT_OK,processing_state);
 			}
 			else{
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SUCCESS_FILAMENT_OK,processing_state);
 				processing_state=0;
+				processing_success = false;
 			}
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_SUCCESS_FILAMENT_OK,processing_state);
+			
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
-	if (processing_z_set == 0 || processing_z_set == 1){
+	else if (processing_z_set == 0 || processing_z_set == 1){
 		if (millis() >= waitPeriod_p){
 			if (processing_z_set == 0){
 				if(processing_state<FramesZSet){
@@ -3174,8 +3234,10 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
-	if (processing_nylon_step4){
+	else if (processing_nylon_step4){
+		
 		if (millis() >= waitPeriod_p){
+			
 			
 			if(processing_state<FramesGifSuccess){
 				processing_state++;
@@ -3187,20 +3249,23 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
-	if (processing_bed_success){
+	else if (processing_bed_success){
 		if (millis() >= waitPeriod_p){
 			
 			if(processing_state<FramesGifSuccess){
 				processing_state++;
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_BED_CALIB_SUCCESS,processing_state);
 			}
 			else{
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_BED_CALIB_SUCCESS,processing_state);
 				processing_state=0;
+				processing_bed_success = false;
 			}
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_BED_CALIB_SUCCESS,processing_state);
+			
 			waitPeriod_p=40+millis();
 		}
 	}
-	if (processing_bed){
+	else if (processing_bed){
 		if (millis() >= waitPeriod_p){
 			
 			if(processing_state<FramesBedScrew){
@@ -3213,7 +3278,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=40+millis();
 		}
 	}
-	if (processing_calib_ZL){
+	else if (processing_calib_ZL){
 		if (millis() >= waitPeriod_p){
 			
 			if(processing_state<FramesZCalib){
@@ -3226,7 +3291,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=40+millis();
 		}
 	}
-	if (processing_calib_ZR){
+	else if (processing_calib_ZR){
 		if (millis() >= waitPeriod_p){
 			
 			if(processing_state<FramesZCalib){
@@ -3239,9 +3304,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 			waitPeriod_p=40+millis();
 		}
 	}
-	
-	
-	if(back_home){
+	else if(back_home){
 			if(home_made == false){
 			cancel_heatup = true;	
 			
@@ -3276,6 +3339,9 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				
 				
 			}
+	}
+	else{
+		processing_state = 0;
 	}
 	
 	
@@ -4192,7 +4258,7 @@ inline void gcode_G28(){
 	saved_feedmultiply = feedmultiply;
 	feedmultiply = 100;
 	previous_millis_cmd = millis();
-
+	HeaterCooldownInactivity(false);
 	enable_endstops(true); //Activate endstops
 
 	for(int8_t i=0; i < NUM_AXIS; i++) {
@@ -6844,6 +6910,7 @@ inline void gcode_M105(){
 inline void gcode_M190(){
 	unsigned long codenum;
 	waiting_temps = true;
+	HeaterCooldownInactivity(false);
 	#if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
 	LCD_MESSAGEPGM(MSG_BED_HEATING);
 	if (code_seen('S')) {
@@ -6948,7 +7015,7 @@ inline void gcode_M129(){
 inline void gcode_M109(){
 	waiting_temps = true;
 	unsigned long codenum;
-
+	HeaterCooldownInactivity(false);
 	if(setTargetedHotend(109)){
 		return;
 	}
@@ -9651,6 +9718,15 @@ void manage_inactivity()
 	handle_status_leds();
 	#endif
 	check_axes_activity();
+	
+	
+	if(HeaterInactivity){
+		if(TimerCooldownInactivity(true)==1){
+			HeaterCooldownInactivity(false);
+			Serial.println("Cooling Down Heater");
+		}
+	}
+	
 }
 
 void kill()
@@ -10020,7 +10096,7 @@ void home_axis_from_code(bool x_c, bool y_c, bool z_c)
 	saved_feedmultiply = feedmultiply;
 	feedmultiply = 100;
 	previous_millis_cmd = millis();
-
+	HeaterCooldownInactivity(false);
 	enable_endstops(true); //Activate endstops
 
 	for(int8_t i=0; i < NUM_AXIS; i++) {
