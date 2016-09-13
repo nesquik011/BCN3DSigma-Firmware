@@ -1423,6 +1423,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					
 				}
+				else if (Event.reportObject.index == BUTTON_INSERT_SD_CARD)
+				{
+					screen_sdcard = false;
+					surfing_utilities=false;
+					Serial.println("Surfing 0");
+					surfing_temps = false;
+					HeaterCooldownInactivity(true);
+					genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
+					
+				}
 				else if (Event.reportObject.index == BUTTON_SDCONFIRMATION_YES)
 				{
 					
@@ -2641,11 +2651,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					processing_nylon_temps = false;
 					
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP1,0);
-					
-				}
-				else if (Event.reportObject.index == BUTTON_NYLON_STEP1)
-				{
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP2,0);
 					
 				}
@@ -2787,7 +2792,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 					processing_nylon_temps = false;
 					
-					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP1,0);
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP2,0);
 				}
 				else if (Event.reportObject.index == BUTTON_NYLON_SUCCESS)
 				{
