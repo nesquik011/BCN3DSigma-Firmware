@@ -2066,7 +2066,8 @@ inline void ListFileListINITSD(){
 		
 	}
 	else{
-		genie.WriteStr(stringfilename[1],"                  Insert SD Card");//Printing form
+		
+		genie.WriteObject(GENIE_OBJ_FORM, FORM_INSERT_SD_CARD, 0);
 		screen_sdcard = true;
 	}
 	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
@@ -2535,8 +2536,8 @@ void update_screen_printing(){
 			/*genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,1);
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,1);
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PRINT_SETTINGS,1);*/
-		
-			}
+			
+		}
 		print_print_pause = false;
 		
 	}
@@ -3061,14 +3062,7 @@ void update_screen_sdcard(){
 		ListFileListENTERBACKFORLDERSD();
 		ListFileListENTERBACKFORLDERSDflag = false;
 	}
-	if(!card.cardOK){
-		static uint32_t waitPeriod = millis();
-		if (millis() >= waitPeriod){
-			ListFileListINITSD();
-			
-		}
-		waitPeriod = 750 + millis();
-	}
+	
 }
 	
 
@@ -6032,7 +6026,7 @@ inline void gcode_G70(){
 					processing = false;
 					screen_printing_pause_form = screen_printing_pause_form0;
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_STOP_SCREEN,0);
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PRINT_SETTINGS,0);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
 					genie.WriteStr(STRINGS_PRINTING_GCODE,namefilegcode);
@@ -6373,6 +6367,7 @@ inline void gcode_M24(){
 	starttime=millis();
 	//Rapduch
 	#ifdef SIGMA_TOUCH_SCREEN
+	genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,0);
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING,0);
 	data_refresh_flag = true;
 	//char buffer[13];
@@ -6910,6 +6905,7 @@ inline void gcode_M105(){
 inline void gcode_M190(){
 	unsigned long codenum;
 	waiting_temps = true;
+	genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PAUSE_RESUME,1);
 	HeaterCooldownInactivity(false);
 	#if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
 	LCD_MESSAGEPGM(MSG_BED_HEATING);
