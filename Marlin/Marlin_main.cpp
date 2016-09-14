@@ -2799,6 +2799,7 @@ void update_screen_noprinting(){
 			
 			if ((tHotend <= target_temperature[0]-10 || tHotend >= target_temperature[0]+10) && target_temperature[0]!=0) {
 				gifhotent0_flag = true;
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,0);//<GIFF
 				
 			}
 			else if(target_temperature[0]!=0){
@@ -2813,6 +2814,7 @@ void update_screen_noprinting(){
 			}
 			if ((tHotend1 <= target_temperature[1]-10 || tHotend1 >= target_temperature[1]+10) && target_temperature[1]!=0)  {
 				gifhotent1_flag = true;//<GIFF
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,0);//<GIFF
 				
 			}
 			else if(target_temperature[1]!=0){
@@ -2827,6 +2829,7 @@ void update_screen_noprinting(){
 			}
 			if (( tBed <= target_temperature_bed-10 ||  tBed >= target_temperature_bed+10) && target_temperature_bed!=0)  {
 				gifbed_flag = true;
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,0);//<GIFF
 				
 			}
 			else if(target_temperature_bed!=0){
@@ -3084,6 +3087,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	
 	static uint32_t waitPeriod_pbackhome = millis(); //Processing back home
 	static int8_t processing_state = 0;
+	static int8_t processing_state_z = 0;
 	static int count5s = 0;
 	if(card.sdispaused){
 		previous_millis_cmd = millis();
@@ -3210,18 +3214,18 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		if (millis() >= waitPeriod_p){
 			if (processing_z_set == 0){
 				if(processing_state<FramesZSet){
-					processing_state++;
+					processing_state_z++;
 				}
 				else{
-					processing_state=0;
+					processing_state_z=0;
 				}
 			}
 			else{
-				if(processing_state>0){
-					processing_state--;
+				if(processing_state_z>0){
+					processing_state_z--;
 				}
 				else{
-					processing_state=FramesZSet;
+					processing_state_z=FramesZSet;
 				}
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_SET,processing_state);

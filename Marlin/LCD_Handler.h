@@ -1504,12 +1504,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					int tHotend1=target_temperature[1];
 					int tBed=target_temperature_bed;
 					genie.WriteObject(GENIE_OBJ_FORM, FORM_TEMP_MENU, 0);
-					if(tHotend != 0)genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,1);
-					else genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,0);
-					if(tHotend1 != 0)genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,1);
-					else genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,0);
-					if(tBed != 0)genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,1);
-					else genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,0);
+					
 					gifhotent0_flag=false;
 					gifhotent1_flag = false;
 					gifbed_flag = false;
