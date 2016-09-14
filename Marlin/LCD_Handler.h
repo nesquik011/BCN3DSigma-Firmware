@@ -1158,7 +1158,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{
 						updownsdfilesflag = false;
 						uint16_t fileCnt = card.getnrfilenames();
-						if(fileCnt > 1){
+						if(fileCnt > filepointer +  1){
 						if (filepointer == card.getnrfilenames()-1)
 						{
 							filepointer=0; //First SD file
@@ -1201,7 +1201,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{
 						updownsdfilesflag = false;
 						uint16_t fileCnt = card.getnrfilenames();
-						if(fileCnt > 2){
+						if(fileCnt >filepointer +   2){
 						if (filepointer == card.getnrfilenames()-1)
 						{
 							filepointer=1; //First SD file
@@ -1248,7 +1248,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{	
 						updownsdfilesflag = false;
 						uint16_t fileCnt = card.getnrfilenames();
-						if(fileCnt > 3){
+						if(fileCnt >filepointer +   3){
 						if (filepointer == card.getnrfilenames()-1)
 						{
 							filepointer=2; //First SD file
@@ -1301,7 +1301,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{
 						updownsdfilesflag = false;
 						uint16_t fileCnt = card.getnrfilenames();
-						if(fileCnt > 4){
+						if(fileCnt >filepointer +   4){
 						if (filepointer == card.getnrfilenames()-1)
 						{
 							filepointer=3; //First SD file
@@ -1357,7 +1357,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					{
 						updownsdfilesflag = false;
 						uint16_t fileCnt = card.getnrfilenames();
-						if(fileCnt > 5){
+						if(fileCnt > filepointer + 5){
 							if (filepointer == card.getnrfilenames()-1)
 							{
 								filepointer=4; //First SD file
