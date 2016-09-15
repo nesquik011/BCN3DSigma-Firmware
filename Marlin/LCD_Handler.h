@@ -936,7 +936,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
 					}
 				}
-				else if(Event.reportObject.index == BUTTON_PURGE_TEMP_UP){
+				else if(Event.reportObject.index == BUTTON_PURGE_TEMP_UP && purge_extruder_selected != -1){
 					
 					if (target_temperature[purge_extruder_selected] < HEATER_0_MAXTEMP){
 						target_temperature[purge_extruder_selected] += 5;
@@ -947,7 +947,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteStr(STRING_PURGE_SELECTED,buffer);
 					}
 				}
-				else if(Event.reportObject.index == BUTTON_PURGE_TEMP_DOWN){
+				else if(Event.reportObject.index == BUTTON_PURGE_TEMP_DOWN && purge_extruder_selected != -1){
 					if (target_temperature[purge_extruder_selected] > 0){
 						target_temperature[purge_extruder_selected] -= 5;
 						setTargetHotend0(target_temperature[0]);
@@ -1869,7 +1869,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteStr(STRING_PURGE_RIGHT_TEMP,buffer);
 					}
 				}
-				else if(Event.reportObject.index == BUTTON_PURGE_TEMP_UP){
+				else if(Event.reportObject.index == BUTTON_PURGE_TEMP_UP && purge_extruder_selected != -1){
 					
 					if (target_temperature[purge_extruder_selected] < HEATER_0_MAXTEMP){
 						target_temperature[purge_extruder_selected] += 5;
@@ -1880,7 +1880,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteStr(STRING_PURGE_SELECTED,buffer);
 					}
 				}
-				else if(Event.reportObject.index == BUTTON_PURGE_TEMP_DOWN){
+				else if(Event.reportObject.index == BUTTON_PURGE_TEMP_DOWN && purge_extruder_selected != -1){
 					if (target_temperature[purge_extruder_selected] > 0){
 						target_temperature[purge_extruder_selected] -= 5;
 						setTargetHotend0(target_temperature[0]);
@@ -2655,7 +2655,8 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					if(which_extruder == 0)digitalWrite(FAN_PIN, 1);
 					else digitalWrite(FAN2_PIN, 1);
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP3,0);
-					processing_nylon_temps = true;
+					//processing_nylon_temps = true;
+					processing_nylon_step3 = true;
 					int Tref = (int)degHotend(which_extruder);
 					int Tfinal = 160;
 					int percentage = 0;
@@ -2683,7 +2684,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						manage_heater();
 						touchscreen_update();
 					}
-					processing_nylon_temps = false;
+					processing_nylon_step3 = false;
 					fanSpeed=255;
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_STEP4,0);
 					processing_nylon_step4 = true;
@@ -4494,7 +4495,16 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							processing_bed_success=true;
 						}
 					}
-					
+					else if (Event.reportObject.index == BUTTON_ERROR_OK)
+					{
+						processing_error = false;
+						screen_sdcard = false;
+						surfing_utilities=false;
+						Serial.println("Surfing 0");
+						surfing_temps = false;
+						HeaterCooldownInactivity(true);
+						genie.WriteObject(GENIE_OBJ_FORM, FORM_MAIN_SCREEN, 0);
+					}
 					
 					#pragma endregion Info Screens
 					
@@ -4583,7 +4593,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					genie.WriteStr(STRING_PREHEAT_SET_BED,buffer);
 					
 				}
-				else if (Event.reportObject.index == FORM_INFO_PRINTINGTIME)
+				else if (Event.reportObject.index == FORM_INFO_SIGMA)
 				{
 					
 					char buffer[256];

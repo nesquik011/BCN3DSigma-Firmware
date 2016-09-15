@@ -334,12 +334,14 @@ uint8_t processing_z_set = 255;
 bool processing_success = false;
 bool processing_bed_success = false;
 bool processing_nylon_step4 = false;
+bool processing_nylon_step3 = false;
 bool processing_change_filament_temps = false;
 bool processing_adjusting = false;
 bool processing_nylon_temps = false;
 bool processing_bed = false;
 bool processing_calib_ZL = false;
 bool processing_calib_ZR = false;
+bool processing_error = false;
 bool processing_bed_first = false;
 bool processing_test = false;
 bool heatting = false;
@@ -734,12 +736,12 @@ void setup()
 			
 			} else {*/
 			int i =0;
-			while ( i<70){
+			while ( i<83){
 				if (millis() >= waitPeriod){
 					
 					genie.WriteObject(GENIE_OBJ_VIDEO,0,i);
-					i+=4;
-					waitPeriod = 120+millis();	//Every 5s
+					i+=1;
+					waitPeriod = 40+millis();	//Every 5s
 				}
 				
 				
@@ -2025,8 +2027,12 @@ inline void ListFileListINITSD(){
 		
 	}
 	else{
-		
+		/*
 		genie.WriteObject(GENIE_OBJ_FORM, FORM_INSERT_SD_CARD, 0);
+		screen_sdcard = true;*/
+		genie.WriteObject(GENIE_OBJ_FORM, FORM_ERROR_SCREEN, 0);
+		genie.WriteStr(STRING_ERROR_MESSAGE,"ERROR: INSERT SDCARD");//Printing form
+		processing_error =  true;
 		screen_sdcard = true;
 	}
 	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
@@ -2829,7 +2835,7 @@ void update_screen_noprinting(){
 			}
 			
 			
-			waitPeriod_p=90+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	
@@ -3177,7 +3183,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	else if (processing_z_set == 0 || processing_z_set == 1){
 		if (millis() >= waitPeriod_p){
 			if (processing_z_set == 0){
-				if(processing_state<FramesZSet){
+				if(processing_state_z<FramesZSet){
 					processing_state_z++;
 				}
 				else{
@@ -3189,10 +3195,25 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 					processing_state_z--;
 				}
 				else{
-					processing_state_z=FramesZSet;
+					processing_state_z=FramesZSet-1;
 				}
 			}
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_SET,processing_state);
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_SET,processing_state_z);
+			waitPeriod_p=FramerateGifs+millis();
+		}
+	}
+	else if (processing_nylon_step3){
+		
+		if (millis() >= waitPeriod_p){
+			
+			
+			if(processing_state<FramesGifNylonStep3){
+				processing_state++;
+			}
+			else{
+				processing_state=0;
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP3,processing_state);
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
@@ -3224,7 +3245,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				processing_bed_success = false;
 			}
 			
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	else if (processing_bed){
@@ -3237,7 +3258,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_INFO_TURN_SCREWS,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	else if (processing_calib_ZL){
@@ -3250,7 +3271,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_PAPER_LEFT,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	else if (processing_calib_ZR){
@@ -3263,8 +3284,22 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_PAPER_RIGHT,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
+	}
+	else if (processing_error){
+		if (millis() >= waitPeriod_p){
+			
+			if(processing_state<FramesError){
+				processing_state++;
+			}
+			else{
+				processing_state=0;
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ERROR,processing_state);
+			waitPeriod_p=FramerateGifs+millis();
+		}
+		
 	}
 	else if(back_home){
 			if(home_made == false){
@@ -3278,7 +3313,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 						processing_state=0;
 					}
 					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
-					waitPeriod_p=40+millis();
+					waitPeriod_pbackhome=FramerateGifs+millis();
 					setTargetHotend0(0);
 					setTargetHotend1(0);
 					setTargetBed(0);
