@@ -1162,7 +1162,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #define TIMERCOOLDOWN 10*60 // 10min
 
-#define ErroWindowEnable
+//#define ErroWindowEnable
 
 
 
