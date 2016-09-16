@@ -334,12 +334,15 @@ uint8_t processing_z_set = 255;
 bool processing_success = false;
 bool processing_bed_success = false;
 bool processing_nylon_step4 = false;
+bool processing_purge_load = false;
+bool processing_nylon_step3 = false;
 bool processing_change_filament_temps = false;
 bool processing_adjusting = false;
 bool processing_nylon_temps = false;
 bool processing_bed = false;
 bool processing_calib_ZL = false;
 bool processing_calib_ZR = false;
+bool processing_error = false;
 bool processing_bed_first = false;
 bool processing_test = false;
 bool heatting = false;
@@ -734,12 +737,12 @@ void setup()
 			
 			} else {*/
 			int i =0;
-			while ( i<70){
+			while ( i<83){
 				if (millis() >= waitPeriod){
 					
 					genie.WriteObject(GENIE_OBJ_VIDEO,0,i);
-					i+=4;
-					waitPeriod = 120+millis();	//Every 5s
+					i+=1;
+					waitPeriod = 40+millis();	//Every 5s
 				}
 				
 				
@@ -953,45 +956,15 @@ inline void ListFilesUpfunc(){
 	if (card.cardOK){
 		uint16_t fileCnt = card.getnrfilenames();
 		if(fileCnt > LISTNUMSDFILES){
-			if (filepointer == card.getnrfilenames()-LISTNUMSDFILES)
+			if (filepointer == (fileCnt/LISTNUMSDFILES)*LISTNUMSDFILES)
 			{
-				filepointer=LISTNUMSDFILES -LISTNUMSDFILES; //First SD file
+				filepointer=0; //First SD file
 			}
-			#if LISTNUMSDFILES > 1
-			else if (filepointer == card.getnrfilenames()-LISTNUMSDFILES+1)
-			{
-				filepointer=LISTNUMSDFILES -LISTNUMSDFILES+1; //First SD file
-			}
-			#endif
-			#if LISTNUMSDFILES > 2
-			else if (filepointer == card.getnrfilenames()-LISTNUMSDFILES+2)
-			{
-				filepointer=LISTNUMSDFILES -LISTNUMSDFILES+2; //First SD file
-			}
-			#endif
-			#if LISTNUMSDFILES > 3
-			else if (filepointer == card.getnrfilenames()-LISTNUMSDFILES+3)
-			{
-				filepointer=LISTNUMSDFILES -LISTNUMSDFILES+3; //First SD file
-			}
-			#endif
-			#if LISTNUMSDFILES > 4
-			else if (filepointer == card.getnrfilenames()-LISTNUMSDFILES+4)
-			{
-				filepointer=LISTNUMSDFILES -LISTNUMSDFILES+4; //First SD file
-			}
-			#endif
-			#if LISTNUMSDFILES > 5
-			else if (filepointer == card.getnrfilenames()-LISTNUMSDFILES+5)
-			{
-				filepointer=LISTNUMSDFILES -LISTNUMSDFILES+5; //First SD file
-			}
-			#endif
 			else
 			{
 				filepointer+=LISTNUMSDFILES;
 			}
-			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/fileCnt);
+			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/((fileCnt/LISTNUMSDFILES)*LISTNUMSDFILES));
 			
 			
 			int vecto = 0;
@@ -1047,7 +1020,7 @@ inline void ListFilesUpfunc(){
 				
 				jint++;
 				
-				if(fileCnt > 1){
+				if(fileCnt >filepointer +  1){
 					
 					if(filepointer == (fileCnt - 1)){
 						vecto = 0;
@@ -1091,6 +1064,7 @@ inline void ListFilesUpfunc(){
 					}
 				}
 				else{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 					genie.WriteStr(stringfilename[jint],"        ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"           ");//Printing form
 					
@@ -1099,7 +1073,7 @@ inline void ListFilesUpfunc(){
 				#if LISTNUMSDFILES > 2
 				jint++;
 				
-				if(fileCnt > 2){
+				if(fileCnt >filepointer +  2){
 					
 					
 					if(filepointer == (fileCnt - 2)){
@@ -1148,6 +1122,7 @@ inline void ListFilesUpfunc(){
 					
 				}
 				else{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 					genie.WriteStr(stringfilename[jint],"            ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 					
@@ -1156,7 +1131,7 @@ inline void ListFilesUpfunc(){
 				#if LISTNUMSDFILES > 3
 				jint++;
 				
-				if(fileCnt > 3){
+				if(fileCnt > filepointer + 3){
 					
 					if(filepointer == (fileCnt - 3)){
 						vecto = 0;
@@ -1206,6 +1181,7 @@ inline void ListFilesUpfunc(){
 					}
 					
 					}else{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 					genie.WriteStr(stringfilename[jint],"          ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 				}
@@ -1214,7 +1190,7 @@ inline void ListFilesUpfunc(){
 				#if LISTNUMSDFILES > 4
 				jint++;
 				
-				if(fileCnt > 4){
+				if(fileCnt >filepointer +  4){
 					
 					
 					if(filepointer == (fileCnt - 4)){
@@ -1267,6 +1243,7 @@ inline void ListFilesUpfunc(){
 					}
 					
 					}else{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 					genie.WriteStr(stringfilename[jint],"            ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 				}
@@ -1274,7 +1251,7 @@ inline void ListFilesUpfunc(){
 				#if LISTNUMSDFILES > 5
 				jint++;
 				
-				if(fileCnt > 5){
+				if(fileCnt > filepointer + 5){
 					if(filepointer == (fileCnt - 5)){
 						vecto = 0;
 					}
@@ -1328,6 +1305,7 @@ inline void ListFilesUpfunc(){
 					}
 					
 					}else{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 					genie.WriteStr(stringfilename[jint],"                  ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 				}
@@ -1374,38 +1352,12 @@ inline void ListFilesDownx3func(){
 		if(fileCnt > LISTNUMSDFILES){
 			if (filepointer == 0)
 			{
-				filepointer=card.getnrfilenames()-LISTNUMSDFILES; 
+				filepointer=(fileCnt/LISTNUMSDFILES)*LISTNUMSDFILES; 
 			}
-			#if LISTNUMSDFILES > 5
-			else if(filepointer == LISTNUMSDFILES-5){
-				filepointer=card.getnrfilenames()-5; 
-			}
-			#endif
-			#if LISTNUMSDFILES > 4
-			else if(filepointer == LISTNUMSDFILES-4){
-				filepointer=card.getnrfilenames()-4; 
-			}
-			#endif
-			#if LISTNUMSDFILES > 3
-			else if(filepointer == LISTNUMSDFILES-3){
-				filepointer=card.getnrfilenames()-3; 
-			}
-			#endif
-			#if LISTNUMSDFILES > 2
-			else if(filepointer == LISTNUMSDFILES-2){
-				filepointer=card.getnrfilenames()-2; 
-			}
-			#endif
-			#if LISTNUMSDFILES > 1
-		
-			else if(filepointer == LISTNUMSDFILES-1){
-				filepointer=card.getnrfilenames()-1; 
-			}
-			#endif
 			else{
 				filepointer-=LISTNUMSDFILES;
 			}
-			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/fileCnt);
+			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/((fileCnt/LISTNUMSDFILES)*LISTNUMSDFILES));
 			
 			
 			
@@ -1464,7 +1416,7 @@ inline void ListFilesDownx3func(){
 				#if LISTNUMSDFILES > 1
 				jint++;
 				
-				if(fileCnt > 1){
+				if(fileCnt > filepointer + 1){
 					
 					if(filepointer == (fileCnt - 1)){
 						vecto = 0;
@@ -1508,6 +1460,7 @@ inline void ListFilesDownx3func(){
 					}
 				}
 				else{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 					genie.WriteStr(stringfilename[jint],"        ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"           ");//Printing form
 					
@@ -1516,7 +1469,7 @@ inline void ListFilesDownx3func(){
 				#if LISTNUMSDFILES > 2
 				jint++;
 				
-				if(fileCnt > 2){
+				if(fileCnt > filepointer + 2){
 					
 					
 					if(filepointer == (fileCnt - 2)){
@@ -1565,6 +1518,7 @@ inline void ListFilesDownx3func(){
 					
 				}
 				else{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 					genie.WriteStr(stringfilename[jint],"            ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 					
@@ -1574,7 +1528,7 @@ inline void ListFilesDownx3func(){
 				#if LISTNUMSDFILES > 3
 				jint++;
 				
-				if(fileCnt > 3){
+				if(fileCnt > filepointer + 3){
 					
 					if(filepointer == (fileCnt - 3)){
 						vecto = 0;
@@ -1624,6 +1578,7 @@ inline void ListFilesDownx3func(){
 					}
 					
 					}else{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 					genie.WriteStr(stringfilename[jint],"          ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 				}
@@ -1632,7 +1587,7 @@ inline void ListFilesDownx3func(){
 				#if LISTNUMSDFILES > 4
 				jint++;
 				
-				if(fileCnt > 4){
+				if(fileCnt > filepointer +  4){
 					
 					
 					if(filepointer == (fileCnt - 4)){
@@ -1685,6 +1640,7 @@ inline void ListFilesDownx3func(){
 					}
 					
 					}else{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 					genie.WriteStr(stringfilename[jint],"            ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 				}
@@ -1693,7 +1649,7 @@ inline void ListFilesDownx3func(){
 				#if LISTNUMSDFILES > 5
 				jint++;
 				
-				if(fileCnt > 5){
+				if(fileCnt > filepointer + 5){
 					if(filepointer == (fileCnt - 5)){
 						vecto = 0;
 					}
@@ -1747,6 +1703,7 @@ inline void ListFilesDownx3func(){
 					}
 					
 					}else{
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 					genie.WriteStr(stringfilename[jint],"                  ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 				}
@@ -1876,6 +1833,7 @@ inline void ListFileListINITSD(){
 				}
 			}
 			else{
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 				genie.WriteStr(stringfilename[jint],"        ");//Printing form
 				genie.WriteStr(stringfiledur[jint],"           ");//Printing form
 				
@@ -1921,6 +1879,7 @@ inline void ListFileListINITSD(){
 				
 			}
 			else{
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 				genie.WriteStr(stringfilename[jint],"            ");//Printing form
 				genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 				
@@ -1965,6 +1924,7 @@ inline void ListFileListINITSD(){
 				}
 				
 				}else{
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 				genie.WriteStr(stringfilename[jint],"          ");//Printing form
 				genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 			}
@@ -2008,6 +1968,7 @@ inline void ListFileListINITSD(){
 				}
 				
 				}else{
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 				genie.WriteStr(stringfilename[jint],"            ");//Printing form
 				genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 			}
@@ -2050,6 +2011,7 @@ inline void ListFileListINITSD(){
 				}
 				
 				}else{
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
 				genie.WriteStr(stringfilename[jint],"                  ");//Printing form
 				genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 			}
@@ -2066,9 +2028,15 @@ inline void ListFileListINITSD(){
 		
 	}
 	else{
-		
+		#ifndef ErroWindowEnable
 		genie.WriteObject(GENIE_OBJ_FORM, FORM_INSERT_SD_CARD, 0);
 		screen_sdcard = true;
+		#else
+		genie.WriteObject(GENIE_OBJ_FORM, FORM_ERROR_SCREEN, 0);
+		genie.WriteStr(STRING_ERROR_MESSAGE,"ERROR: INSERT SDCARD");//Printing form
+		processing_error =  true;
+		screen_sdcard = true;
+		#endif
 	}
 	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
 
@@ -2165,6 +2133,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 			}
 		}
 		else{
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 			genie.WriteStr(stringfilename[jint],"        ");//Printing form
 			genie.WriteStr(stringfiledur[jint],"           ");//Printing form
 			
@@ -2210,6 +2179,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 			
 		}
 		else{
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 			genie.WriteStr(stringfilename[jint],"            ");//Printing form
 			genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 			
@@ -2254,6 +2224,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 			}
 			
 			}else{
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 			genie.WriteStr(stringfilename[jint],"          ");//Printing form
 			genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 		}
@@ -2297,6 +2268,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 			}
 			
 			}else{
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 			genie.WriteStr(stringfilename[jint],"            ");//Printing form
 			genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 		}
@@ -2339,6 +2311,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 			}
 			
 			}else{
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 			genie.WriteStr(stringfilename[jint],"                  ");//Printing form
 			genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 		}
@@ -2799,6 +2772,7 @@ void update_screen_noprinting(){
 			
 			if ((tHotend <= target_temperature[0]-10 || tHotend >= target_temperature[0]+10) && target_temperature[0]!=0) {
 				gifhotent0_flag = true;
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_LEXTR,0);//<GIFF
 				
 			}
 			else if(target_temperature[0]!=0){
@@ -2813,6 +2787,7 @@ void update_screen_noprinting(){
 			}
 			if ((tHotend1 <= target_temperature[1]-10 || tHotend1 >= target_temperature[1]+10) && target_temperature[1]!=0)  {
 				gifhotent1_flag = true;//<GIFF
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_REXTR,0);//<GIFF
 				
 			}
 			else if(target_temperature[1]!=0){
@@ -2827,6 +2802,7 @@ void update_screen_noprinting(){
 			}
 			if (( tBed <= target_temperature_bed-10 ||  tBed >= target_temperature_bed+10) && target_temperature_bed!=0)  {
 				gifbed_flag = true;
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PREHEAT_BED,0);//<GIFF
 				
 			}
 			else if(target_temperature_bed!=0){
@@ -2862,7 +2838,7 @@ void update_screen_noprinting(){
 			}
 			
 			
-			waitPeriod_p=90+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	
@@ -2872,9 +2848,23 @@ void update_screen_noprinting(){
 		if(purge_select_flag){
 			purge_select_flag = false;
 			if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
+				processing_purge_load = true;
 				current_position[E_AXIS]+=PURGE_DISTANCE_INSERTED;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
 				st_synchronize();
+				processing_purge_load = false;
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,0);
+			}
+		}
+		if(purge_select_flag1){
+			purge_select_flag1 = false;
+			if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
+				processing_purge_load = true;
+				current_position[E_AXIS]-=5;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retrack
+				st_synchronize();
+				processing_purge_load = false;
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,0);
 			}
 		}
 		if (millis() >= waitPeriodno)
@@ -3084,6 +3074,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	
 	static uint32_t waitPeriod_pbackhome = millis(); //Processing back home
 	static int8_t processing_state = 0;
+	static int8_t processing_state_z = 0;
 	static int count5s = 0;
 	if(card.sdispaused){
 		previous_millis_cmd = millis();
@@ -3209,22 +3200,52 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 	else if (processing_z_set == 0 || processing_z_set == 1){
 		if (millis() >= waitPeriod_p){
 			if (processing_z_set == 0){
-				if(processing_state<FramesZSet){
-					processing_state++;
+				if(processing_state_z<FramesZSet){
+					processing_state_z++;
 				}
 				else{
-					processing_state=0;
+					processing_state_z=0;
 				}
 			}
 			else{
-				if(processing_state>0){
-					processing_state--;
+				if(processing_state_z>0){
+					processing_state_z--;
 				}
 				else{
-					processing_state=FramesZSet;
+					processing_state_z=FramesZSet-1;
 				}
 			}
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_SET,processing_state);
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_SET,processing_state_z);
+			waitPeriod_p=FramerateGifs+millis();
+		}
+	}
+	else if (processing_nylon_step3){
+		
+		if (millis() >= waitPeriod_p){
+			
+			
+			if(processing_state<FramesGifNylonStep3){
+				processing_state++;
+			}
+			else{
+				processing_state=0;
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP3,processing_state);
+			waitPeriod_p=FramerateGifs+millis();
+		}
+	}
+	else if (processing_purge_load){
+		
+		if (millis() >= waitPeriod_p){
+			
+			
+			if(processing_state<FramesGifPurgeLoad){
+				processing_state++;
+			}
+			else{
+				processing_state=0;
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,processing_state);
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
@@ -3256,7 +3277,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				processing_bed_success = false;
 			}
 			
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	else if (processing_bed){
@@ -3269,7 +3290,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_INFO_TURN_SCREWS,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	else if (processing_calib_ZL){
@@ -3282,7 +3303,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_PAPER_LEFT,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
 	else if (processing_calib_ZR){
@@ -3295,8 +3316,22 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_Z_PAPER_RIGHT,processing_state);
-			waitPeriod_p=40+millis();
+			waitPeriod_p=FramerateGifs+millis();
 		}
+	}
+	else if (processing_error){
+		if (millis() >= waitPeriod_p){
+			
+			if(processing_state<FramesError){
+				processing_state++;
+			}
+			else{
+				processing_state=0;
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_ERROR,processing_state);
+			waitPeriod_p=FramerateGifs+millis();
+		}
+		
 	}
 	else if(back_home){
 			if(home_made == false){
@@ -3310,7 +3345,7 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 						processing_state=0;
 					}
 					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
-					waitPeriod_p=40+millis();
+					waitPeriod_pbackhome=FramerateGifs+millis();
 					setTargetHotend0(0);
 					setTargetHotend1(0);
 					setTargetBed(0);
