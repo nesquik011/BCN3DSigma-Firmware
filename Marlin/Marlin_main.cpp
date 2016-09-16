@@ -3253,14 +3253,19 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 		
 		if (millis() >= waitPeriod_p){
 			
-			
+						
 			if(processing_state<FramesGifSuccess){
 				processing_state++;
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP4,processing_state);
 			}
 			else{
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP4,processing_state);
 				processing_state=0;
+				processing_nylon_step4 = false;
 			}
-			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP4,processing_state);
+			
+			
+			
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}
