@@ -960,7 +960,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				//***MOVING
 				else if(Event.reportObject.index == BUTTON_PURGE_RETRACK && purge_extruder_selected != -1 && !blocks_queued()){
-					if (millis() >= waitPeriod_purge){
+					
 						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 							processing_purge_load = true;
 							current_position[E_AXIS]-=5;
@@ -969,11 +969,9 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							processing_purge_load = false;
 							genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,0);
 						}
-						waitPeriod_purge=millis()+2500;
-					}
 				}
 				else if(Event.reportObject.index == BUTTON_PURGE_INSERT && purge_extruder_selected != -1 && !blocks_queued()){
-					if (millis() >= waitPeriod_purge){
+					
 						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 							processing_purge_load = true;
 							current_position[E_AXIS]+=15;
@@ -982,8 +980,6 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 							processing_purge_load = false;
 							genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,0);
 						}
-						waitPeriod_purge=millis()+7500;
-					}
 				}
 				//***************************************
 				//********CHANGE NEW FILAMENT
