@@ -334,6 +334,7 @@ uint8_t processing_z_set = 255;
 bool processing_success = false;
 bool processing_bed_success = false;
 bool processing_nylon_step4 = false;
+bool processing_purge_load = false;
 bool processing_nylon_step3 = false;
 bool processing_change_filament_temps = false;
 bool processing_adjusting = false;
@@ -1063,7 +1064,7 @@ inline void ListFilesUpfunc(){
 					}
 				}
 				else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 					genie.WriteStr(stringfilename[jint],"        ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"           ");//Printing form
 					
@@ -1121,7 +1122,7 @@ inline void ListFilesUpfunc(){
 					
 				}
 				else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 					genie.WriteStr(stringfilename[jint],"            ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 					
@@ -1180,7 +1181,7 @@ inline void ListFilesUpfunc(){
 					}
 					
 					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 					genie.WriteStr(stringfilename[jint],"          ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 				}
@@ -1242,7 +1243,7 @@ inline void ListFilesUpfunc(){
 					}
 					
 					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 					genie.WriteStr(stringfilename[jint],"            ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 				}
@@ -1304,7 +1305,7 @@ inline void ListFilesUpfunc(){
 					}
 					
 					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 					genie.WriteStr(stringfilename[jint],"                  ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 				}
@@ -1459,7 +1460,7 @@ inline void ListFilesDownx3func(){
 					}
 				}
 				else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 					genie.WriteStr(stringfilename[jint],"        ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"           ");//Printing form
 					
@@ -1517,7 +1518,7 @@ inline void ListFilesDownx3func(){
 					
 				}
 				else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 					genie.WriteStr(stringfilename[jint],"            ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 					
@@ -1577,7 +1578,7 @@ inline void ListFilesDownx3func(){
 					}
 					
 					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 					genie.WriteStr(stringfilename[jint],"          ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 				}
@@ -1639,7 +1640,7 @@ inline void ListFilesDownx3func(){
 					}
 					
 					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 					genie.WriteStr(stringfilename[jint],"            ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 				}
@@ -1702,7 +1703,7 @@ inline void ListFilesDownx3func(){
 					}
 					
 					}else{
-					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 					genie.WriteStr(stringfilename[jint],"                  ");//Printing form
 					genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 				}
@@ -2027,13 +2028,15 @@ inline void ListFileListINITSD(){
 		
 	}
 	else{
-		/*
+		#ifndef ErroWindowEnable
 		genie.WriteObject(GENIE_OBJ_FORM, FORM_INSERT_SD_CARD, 0);
-		screen_sdcard = true;*/
+		screen_sdcard = true;
+		#else
 		genie.WriteObject(GENIE_OBJ_FORM, FORM_ERROR_SCREEN, 0);
 		genie.WriteStr(STRING_ERROR_MESSAGE,"ERROR: INSERT SDCARD");//Printing form
 		processing_error =  true;
 		screen_sdcard = true;
+		#endif
 	}
 	memset(listsd.comandline2, '\0', sizeof(listsd.comandline2) );
 
@@ -2130,7 +2133,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 			}
 		}
 		else{
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 			genie.WriteStr(stringfilename[jint],"        ");//Printing form
 			genie.WriteStr(stringfiledur[jint],"           ");//Printing form
 			
@@ -2176,7 +2179,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 			
 		}
 		else{
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 			genie.WriteStr(stringfilename[jint],"            ");//Printing form
 			genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 			
@@ -2221,7 +2224,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 			}
 			
 			}else{
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 			genie.WriteStr(stringfilename[jint],"          ");//Printing form
 			genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 		}
@@ -2265,7 +2268,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 			}
 			
 			}else{
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 			genie.WriteStr(stringfilename[jint],"            ");//Printing form
 			genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 		}
@@ -2308,7 +2311,7 @@ inline void ListFileListENTERBACKFORLDERSD(){
 			}
 			
 			}else{
-			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 			genie.WriteStr(stringfilename[jint],"                  ");//Printing form
 			genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 		}
@@ -2845,9 +2848,23 @@ void update_screen_noprinting(){
 		if(purge_select_flag){
 			purge_select_flag = false;
 			if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
+				processing_purge_load = true;
 				current_position[E_AXIS]+=PURGE_DISTANCE_INSERTED;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
 				st_synchronize();
+				processing_purge_load = false;
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,0);
+			}
+		}
+		if(purge_select_flag1){
+			purge_select_flag1 = false;
+			if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
+				processing_purge_load = true;
+				current_position[E_AXIS]-=5;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retrack
+				st_synchronize();
+				processing_purge_load = false;
+				genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,0);
 			}
 		}
 		if (millis() >= waitPeriodno)
@@ -3214,6 +3231,21 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				processing_state=0;
 			}
 			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_NYLON_STEP3,processing_state);
+			waitPeriod_p=FramerateGifs+millis();
+		}
+	}
+	else if (processing_purge_load){
+		
+		if (millis() >= waitPeriod_p){
+			
+			
+			if(processing_state<FramesGifPurgeLoad){
+				processing_state++;
+			}
+			else{
+				processing_state=0;
+			}
+			genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,processing_state);
 			waitPeriod_p=FramerateGifs+millis();
 		}
 	}

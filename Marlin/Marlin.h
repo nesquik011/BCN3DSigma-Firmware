@@ -315,6 +315,7 @@ extern uint8_t processing_z_set;
 extern bool processing_success;
 extern bool processing_bed_success;
 extern bool processing_nylon_step4;
+extern bool processing_purge_load;
 extern bool processing_nylon_step3;
 extern bool processing_change_filament_temps;
 extern bool processing_adjusting;

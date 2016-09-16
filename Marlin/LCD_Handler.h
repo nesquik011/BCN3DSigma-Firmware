@@ -51,7 +51,8 @@ bool z_adjust_10up = false;
 bool z_adjust_50down = false;
 bool z_adjust_10down = false;
 bool data_refresh_flag =  false;
-bool purge_select_flag = false;
+bool purge_select_flag = false;//purge
+bool purge_select_flag1 = false;//retrack
 int Tref1 = 0;
 int Tfinal1 = 0;
 int  print_setting_tool = 2;
@@ -870,7 +871,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					
 					
 				//****************PURGE BUTTONS******
-				else if (Event.reportObject.index == BUTTON_PURGE_LEFT ){
+				else if (Event.reportObject.index == BUTTON_PURGE_LEFT  && !blocks_queued()){
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_INSERT,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_UP,1);
@@ -903,7 +904,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 						genie.WriteStr(STRING_PURGE_LEFT_TEMP,buffer);
 					}
 				}
-				else if (Event.reportObject.index == BUTTON_PURGE_RIGHT ){
+				else if (Event.reportObject.index == BUTTON_PURGE_RIGHT  && !blocks_queued()){
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_INSERT,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_RETRACK,1);
 					genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_PURGE_TEMP_UP,1);
@@ -958,29 +959,28 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					}
 				}
 				//***MOVING
-				else if(Event.reportObject.index == BUTTON_PURGE_RETRACK && purge_extruder_selected != -1){
+				else if(Event.reportObject.index == BUTTON_PURGE_RETRACK && purge_extruder_selected != -1 && !blocks_queued()){
 					if (millis() >= waitPeriod_purge){
 						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
+							processing_purge_load = true;
 							current_position[E_AXIS]-=5;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retrack
+							st_synchronize();
+							processing_purge_load = false;
+							genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,0);
 						}
 						waitPeriod_purge=millis()+2500;
 					}
 				}
-				else if(Event.reportObject.index == BUTTON_PURGE_INSERT && purge_extruder_selected != -1){
+				else if(Event.reportObject.index == BUTTON_PURGE_INSERT && purge_extruder_selected != -1 && !blocks_queued()){
 					if (millis() >= waitPeriod_purge){
 						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
+							processing_purge_load = true;
 							current_position[E_AXIS]+=15;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
-						}
-						waitPeriod_purge=millis()+7500;
-					}
-				}
-				else if(Event.reportObject.index == BUTTON_PURGE_INSERTX3 && purge_extruder_selected != -1){
-					if (millis() >= waitPeriod_purge){
-						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
-							current_position[E_AXIS]+=15;
-							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Purge
+							st_synchronize();
+							processing_purge_load = false;
+							genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PURGE_LOAD,0);
 						}
 						waitPeriod_purge=millis()+7500;
 					}
@@ -1015,7 +1015,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				//****************************************
 				
 				
-				else if(Event.reportObject.index	== BUTTON_PURGE_BACK){
+				else if(Event.reportObject.index	== BUTTON_PURGE_BACK  && !blocks_queued()){
 					//quickStop();
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_PRINTING_PAUSE,0);
 					is_on_printing_screen = true;
@@ -1892,13 +1892,19 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				}
 				//***MOVING
 				else if(Event.reportObject.index == BUTTON_PURGE_RETRACK && purge_extruder_selected != -1){
-					if (millis() >= waitPeriod_purge){
+					if(!blocks_queued()){
+						purge_select_flag1 = 1;
+						}else{
+						quickStop();
+					}
+					
+					/*if (millis() >= waitPeriod_purge){
 						if(degHotend(purge_extruder_selected) >= target_temperature[purge_extruder_selected]-PURGE_TEMP_HYSTERESIS){
 							current_position[E_AXIS]-=5;
 							plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], INSERT_SLOW_SPEED/60, purge_extruder_selected);//Retrack
 						}
 						waitPeriod_purge=millis()+2500;
-					}
+					}*/
 				}
 				else if(Event.reportObject.index == BUTTON_PURGE_INSERT && purge_extruder_selected != -1){
 					if(!blocks_queued()){

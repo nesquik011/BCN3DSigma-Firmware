@@ -1145,7 +1145,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define PURGE_DISTANCE_INSERTED 30// in mm
 
 #define FramesGifSuccess   40
-#define FramesGifNylonStep3   22  
+#define FramesGifNylonStep3   22
+#define FramesGifPurgeLoad   35    
 #define FramesBedScrew   43     
 #define FramesZCalib   49
 #define FramesZSet   49
@@ -1160,6 +1161,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define SCREENTEST
 
 #define TIMERCOOLDOWN 10*60 // 10min
+
+#define ErroWindowEnable
+
+
 
 
 #include "Configuration_adv.h"
