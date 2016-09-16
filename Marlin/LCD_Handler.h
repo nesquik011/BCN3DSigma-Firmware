@@ -2699,7 +2699,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				{
 					if(which_extruder == 0)digitalWrite(FAN_PIN, 1);
 					else digitalWrite(FAN2_PIN, 1);
-					processing_nylon_step4 = false;
+					
 					genie.WriteObject(GENIE_OBJ_FORM,FORM_NYLON_TEMPS,0);
 					processing_nylon_temps = true;
 					int Tref = (int)degHotend(which_extruder);
