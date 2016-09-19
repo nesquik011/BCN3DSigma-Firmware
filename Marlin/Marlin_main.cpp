@@ -1833,7 +1833,7 @@ inline void ListFileListINITSD(){
 				}
 			}
 			else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 				genie.WriteStr(stringfilename[jint],"        ");//Printing form
 				genie.WriteStr(stringfiledur[jint],"           ");//Printing form
 				
@@ -1879,7 +1879,7 @@ inline void ListFileListINITSD(){
 				
 			}
 			else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 				genie.WriteStr(stringfilename[jint],"            ");//Printing form
 				genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 				
@@ -1924,7 +1924,7 @@ inline void ListFileListINITSD(){
 				}
 				
 				}else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 				genie.WriteStr(stringfilename[jint],"          ");//Printing form
 				genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 			}
@@ -1968,7 +1968,7 @@ inline void ListFileListINITSD(){
 				}
 				
 				}else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 				genie.WriteStr(stringfilename[jint],"            ");//Printing form
 				genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 			}
@@ -2011,12 +2011,26 @@ inline void ListFileListINITSD(){
 				}
 				
 				}else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 				genie.WriteStr(stringfilename[jint],"                  ");//Printing form
 				genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 			}
 			#endif
 			
+			
+		}
+		else{
+			
+			
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
+			for(int f = 0;f<5;f++){
+				genie.WriteStr(stringfilename[f],"        ");//Printing form
+				genie.WriteStr(stringfiledur[f],"           ");//Printing form
+			}
 			
 		}
 		
@@ -2318,7 +2332,20 @@ inline void ListFileListENTERBACKFORLDERSD(){
 		#endif
 		
 	}
-	
+	else{
+		
+		
+		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
+		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
+		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
+		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
+		for(int f = 0;f<5;f++){
+			genie.WriteStr(stringfilename[f],"        ");//Printing form
+			genie.WriteStr(stringfiledur[f],"           ");//Printing form
+		}
+		
+	}
 	
 	
 	
