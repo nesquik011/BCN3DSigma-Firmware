@@ -5030,9 +5030,13 @@ inline void gcode_G43(){
 	feedrate = homing_feedrate[X_AXIS];
 	current_position[Y_AXIS]=Y_MAX_POS/2;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
-		
-	/*current_position[X_AXIS]=X_MAX_POS/2;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);*/
+	
+	if(active_extruder = 0){
+		current_position[X_AXIS] = 150;
+	}else{
+		current_position[X_AXIS] = 170;
+	}
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
 		
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 		
@@ -5947,12 +5951,12 @@ inline void gcode_G69(){
 					st_synchronize();
 					//*********************************//
 					feedrate=homing_feedrate[X_AXIS];
-					if (active_extruder == LEFT_EXTRUDER){															//Move X axis, controlling the current_extruder
+					if (active_extruder == LEFT_EXTRUDER && current_position[X_AXIS] != 0){															//Move X axis, controlling the current_extruder
 						current_position[X_AXIS] = current_position[X_AXIS]-G69_XYMOVE;
 						current_position[Y_AXIS] = current_position[Y_AXIS]+G69_XYMOVE;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-						}else{
-						current_position[X_AXIS] = extruder_offset[X_AXIS][1]+G69_XYMOVE;
+						}else if(active_extruder == RIGHT_EXTRUDER && current_position[X_AXIS] != extruder_offset[X_AXIS][1]){
+						current_position[X_AXIS] = current_position[X_AXIS]+G69_XYMOVE;
 						current_position[Y_AXIS] = current_position[Y_AXIS]+G69_XYMOVE;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					}
