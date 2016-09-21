@@ -860,6 +860,7 @@ void loop()
 	#endif
 	if(buflen)
 	{
+		
 		#ifdef SDSUPPORT
 		if(card.saving)
 		{
@@ -2560,44 +2561,37 @@ void update_screen_printing(){
 		print_print_resume = false;
 	}
 	if(print_print_stop == true){
+		print_print_stop = false;
 		
-		card.sdprinting = false;
-		card.sdispaused = false;
-		card.closefile();
+		bufindw = (bufindr + 1)%BUFSIZE;
+		buflen = 1;
+		
+		
 		dobloking =false;
 		//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
-		quickStop();
+		//quickStop();
 		
 		enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
-		st_synchronize();
+		Serial.println("STOP PRINT");
 		
-		
-		
-		
-		if(SD_FINISHED_STEPPERRELEASE)
-		{
-			enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-	}
-	autotempShutdown();
-	setTargetHotend0(0);
-	setTargetHotend1(0);
-	setTargetBed(0);
 	
 	
-	cancel_heatup = true;
+		cancel_heatup = true;
 	
 	//sleep_RELAY();
 	
-	Serial.println("STOP PRINT");
+	
 	back_home = true;
 	home_made = false;
-	genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+	
 	screen_sdcard = false;
 	surfing_utilities=false;
 	surfing_temps = false;
 	
-	print_print_stop = false;
+	card.sdprinting = false;
+	card.sdispaused = false;
 	
+	processing = false;
 }
 if (surfing_utilities)
 {
@@ -3378,9 +3372,6 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 					}
 					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
 					waitPeriod_pbackhome=FramerateGifs+millis();
-					setTargetHotend0(0);
-					setTargetHotend1(0);
-					setTargetBed(0);
 				}
 				
 			}
@@ -3388,6 +3379,12 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				back_home = false;
 				gcode_T0_T1_auto(0);
 				st_synchronize();
+				if(SD_FINISHED_STEPPERRELEASE)
+				{
+					enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+				}
+				quickStop();
+				autotempShutdown();
 				setTargetHotend0(0);
 				setTargetHotend1(0);
 				setTargetBed(0);
@@ -8654,6 +8651,8 @@ void process_commands()
 	#ifdef ENABLE_AUTO_BED_LEVELING
 	float x_tmp, y_tmp, z_tmp, real_z;
 	#endif
+	//Serial.println(cmdbuffer[bufindr]);
+	
 	if(code_seen('G'))
 	{
 		switch((int)code_value())
@@ -9165,7 +9164,7 @@ void process_commands()
 		SERIAL_ECHO(cmdbuffer[bufindr]);
 		SERIAL_ECHOLNPGM("\"");
 		}
-
+	
 	ClearToSend();
 }
 
