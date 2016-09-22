@@ -41,6 +41,7 @@ class Listfiles
 	void extract_data(void);
 	void extract_data1(void);
 	int extract_data_Symplify(void);
+	int extract_data_fromCura(void);
 };
 	
 extern Listfiles listsd;	

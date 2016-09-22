@@ -957,7 +957,7 @@ inline void ListFilesUpfunc(){
 	if (card.cardOK){
 		uint16_t fileCnt = card.getnrfilenames();
 		if(fileCnt > LISTNUMSDFILES){
-			if (filepointer == (fileCnt/LISTNUMSDFILES)*LISTNUMSDFILES)
+			if (filepointer == ((fileCnt-1)/LISTNUMSDFILES)*LISTNUMSDFILES )
 			{
 				filepointer=0; //First SD file
 			}
@@ -965,7 +965,7 @@ inline void ListFilesUpfunc(){
 			{
 				filepointer+=LISTNUMSDFILES;
 			}
-			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/((fileCnt/LISTNUMSDFILES)*LISTNUMSDFILES));
+			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/(((fileCnt-1)/LISTNUMSDFILES)*LISTNUMSDFILES));
 			
 			
 			int vecto = 0;
@@ -1353,12 +1353,12 @@ inline void ListFilesDownx3func(){
 		if(fileCnt > LISTNUMSDFILES){
 			if (filepointer == 0)
 			{
-				filepointer=(fileCnt/LISTNUMSDFILES)*LISTNUMSDFILES; 
+				filepointer=((fileCnt-1)/LISTNUMSDFILES)*LISTNUMSDFILES; 
 			}
 			else{
 				filepointer-=LISTNUMSDFILES;
 			}
-			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/((fileCnt/LISTNUMSDFILES)*LISTNUMSDFILES));
+			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/(((fileCnt-1)/LISTNUMSDFILES)*LISTNUMSDFILES));
 			
 			
 			
