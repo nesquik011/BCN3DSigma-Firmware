@@ -3511,7 +3511,6 @@ void get_command()
 				
 				bufindw = (bufindw + 1)%BUFSIZE;
 				buflen += 1;
-				Serial.println(buflen);
 			}
 			serial_count = 0; //clear buffer
 		}
