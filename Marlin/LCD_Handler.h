@@ -136,7 +136,13 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 				else if (Event.reportObject.index == BUTTON_STOP_YES )
 				{
 					is_on_printing_screen=false;
+					
+					card.closefile();
 					print_print_stop = true;
+					cancel_heatup = true;
+					
+					genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+					processing = true;
 				}
 				else if (Event.reportObject.index == BUTTON_STOP_NO )
 				{
@@ -3763,6 +3769,7 @@ void myGenieEventHandler(void) //Handler for the do.Events() function
 					else if(Event.reportObject.index == BUTTON_RECALIBRATE_Z){
 						redo_source = 3;
 						genie.WriteObject(GENIE_OBJ_FORM,FORM_CLEAN_BED,0);
+						
 						
 					}
 					

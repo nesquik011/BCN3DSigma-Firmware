@@ -860,6 +860,7 @@ void loop()
 	#endif
 	if(buflen)
 	{
+		
 		#ifdef SDSUPPORT
 		if(card.saving)
 		{
@@ -956,7 +957,7 @@ inline void ListFilesUpfunc(){
 	if (card.cardOK){
 		uint16_t fileCnt = card.getnrfilenames();
 		if(fileCnt > LISTNUMSDFILES){
-			if (filepointer == (fileCnt/LISTNUMSDFILES)*LISTNUMSDFILES)
+			if (filepointer == ((fileCnt-1)/LISTNUMSDFILES)*LISTNUMSDFILES )
 			{
 				filepointer=0; //First SD file
 			}
@@ -964,7 +965,7 @@ inline void ListFilesUpfunc(){
 			{
 				filepointer+=LISTNUMSDFILES;
 			}
-			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/((fileCnt/LISTNUMSDFILES)*LISTNUMSDFILES));
+			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/(((fileCnt-1)/LISTNUMSDFILES)*LISTNUMSDFILES));
 			
 			
 			int vecto = 0;
@@ -1352,12 +1353,12 @@ inline void ListFilesDownx3func(){
 		if(fileCnt > LISTNUMSDFILES){
 			if (filepointer == 0)
 			{
-				filepointer=(fileCnt/LISTNUMSDFILES)*LISTNUMSDFILES; 
+				filepointer=((fileCnt-1)/LISTNUMSDFILES)*LISTNUMSDFILES; 
 			}
 			else{
 				filepointer-=LISTNUMSDFILES;
 			}
-			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/((fileCnt/LISTNUMSDFILES)*LISTNUMSDFILES));
+			genie.WriteObject(GENIE_OBJ_VIDEO, GIF_SCROLL_BAR,	filepointer*40/(((fileCnt-1)/LISTNUMSDFILES)*LISTNUMSDFILES));
 			
 			
 			
@@ -1833,7 +1834,7 @@ inline void ListFileListINITSD(){
 				}
 			}
 			else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
 				genie.WriteStr(stringfilename[jint],"        ");//Printing form
 				genie.WriteStr(stringfiledur[jint],"           ");//Printing form
 				
@@ -1879,7 +1880,7 @@ inline void ListFileListINITSD(){
 				
 			}
 			else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
 				genie.WriteStr(stringfilename[jint],"            ");//Printing form
 				genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 				
@@ -1924,7 +1925,7 @@ inline void ListFileListINITSD(){
 				}
 				
 				}else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
 				genie.WriteStr(stringfilename[jint],"          ");//Printing form
 				genie.WriteStr(stringfiledur[jint],"       ");//Printing form
 			}
@@ -1968,7 +1969,7 @@ inline void ListFileListINITSD(){
 				}
 				
 				}else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
 				genie.WriteStr(stringfilename[jint],"            ");//Printing form
 				genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 			}
@@ -2011,12 +2012,26 @@ inline void ListFileListINITSD(){
 				}
 				
 				}else{
-				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+				genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED5,0);
 				genie.WriteStr(stringfilename[jint],"                  ");//Printing form
 				genie.WriteStr(stringfiledur[jint],"        ");//Printing form
 			}
 			#endif
 			
+			
+		}
+		else{
+			
+			
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
+			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
+			for(int f = 0;f<5;f++){
+				genie.WriteStr(stringfilename[f],"        ");//Printing form
+				genie.WriteStr(stringfiledur[f],"           ");//Printing form
+			}
 			
 		}
 		
@@ -2318,7 +2333,20 @@ inline void ListFileListENTERBACKFORLDERSD(){
 		#endif
 		
 	}
-	
+	else{
+		
+		
+		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED0,0);
+		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED1,0);
+		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED2,0);
+		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED3,0);
+		genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SD_SELECTED4,0);
+		for(int f = 0;f<5;f++){
+			genie.WriteStr(stringfilename[f],"        ");//Printing form
+			genie.WriteStr(stringfiledur[f],"           ");//Printing form
+		}
+		
+	}
 	
 	
 	
@@ -2533,44 +2561,37 @@ void update_screen_printing(){
 		print_print_resume = false;
 	}
 	if(print_print_stop == true){
+		print_print_stop = false;
 		
-		card.sdprinting = false;
-		card.sdispaused = false;
-		card.closefile();
+		bufindw = (bufindr + 1)%BUFSIZE;
+		buflen = 1;
+		
+		
 		dobloking =false;
 		//plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+10,current_position[E_AXIS], 600, active_extruder);
-		quickStop();
+		//quickStop();
 		
 		enquecommand_P(PSTR("G28 X0 Y0")); //Home X and Y
-		st_synchronize();
+		Serial.println("STOP PRINT");
 		
-		
-		
-		
-		if(SD_FINISHED_STEPPERRELEASE)
-		{
-			enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-	}
-	autotempShutdown();
-	setTargetHotend0(0);
-	setTargetHotend1(0);
-	setTargetBed(0);
 	
 	
-	cancel_heatup = true;
+		cancel_heatup = true;
 	
 	//sleep_RELAY();
 	
-	Serial.println("STOP PRINT");
+	
 	back_home = true;
 	home_made = false;
-	genie.WriteObject(GENIE_OBJ_FORM,FORM_WAITING_ROOM,0);
+	
 	screen_sdcard = false;
 	surfing_utilities=false;
 	surfing_temps = false;
 	
-	print_print_stop = false;
+	card.sdprinting = false;
+	card.sdispaused = false;
 	
+	processing = false;
 }
 if (surfing_utilities)
 {
@@ -3351,9 +3372,6 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 					}
 					genie.WriteObject(GENIE_OBJ_VIDEO,GIF_PROCESSING,processing_state);
 					waitPeriod_pbackhome=FramerateGifs+millis();
-					setTargetHotend0(0);
-					setTargetHotend1(0);
-					setTargetBed(0);
 				}
 				
 			}
@@ -3361,6 +3379,12 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 				back_home = false;
 				gcode_T0_T1_auto(0);
 				st_synchronize();
+				if(SD_FINISHED_STEPPERRELEASE)
+				{
+					enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+				}
+				quickStop();
+				autotempShutdown();
 				setTargetHotend0(0);
 				setTargetHotend1(0);
 				setTargetBed(0);
@@ -4199,7 +4223,7 @@ static void dock_sled(bool dock, int offset=0) {
 #pragma region GCODES
 
 inline void gcode_G0_G1(){
-	if(Stopped == false) {
+	
 		get_coordinates(); // For X Y Z E F
 		#ifdef FWRETRACT
 		if(autoretract_enabled)
@@ -4215,26 +4239,23 @@ inline void gcode_G0_G1(){
 		#endif //FWRETRACT
 		prepare_move();
 		//ClearToSend();
-		return;
-	}
+	
 }
 
 inline void gcode_G2(){
 	#ifndef SCARA //disable arc support
-	if(Stopped == false) {
+	
 		get_arc_coordinates();
 		prepare_arc_move(true);
-		return;
-	}
+	
 	#endif
 }
 inline void gcode_G3(){
 	#ifndef SCARA //disable arc support
-	if(Stopped == false) {
+	
 		get_arc_coordinates();
 		prepare_arc_move(false);
-		return;
-	}
+		
 	#endif
 }
 inline void gcode_G4(){
@@ -5003,9 +5024,13 @@ inline void gcode_G43(){
 	feedrate = homing_feedrate[X_AXIS];
 	current_position[Y_AXIS]=Y_MAX_POS/2;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
-		
-	/*current_position[X_AXIS]=X_MAX_POS/2;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);*/
+	
+	if(active_extruder = 0){
+		current_position[X_AXIS] = 150;
+	}else{
+		current_position[X_AXIS] = 170;
+	}
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60 , active_extruder);
 		
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 		
@@ -5920,12 +5945,12 @@ inline void gcode_G69(){
 					st_synchronize();
 					//*********************************//
 					feedrate=homing_feedrate[X_AXIS];
-					if (active_extruder == LEFT_EXTRUDER){															//Move X axis, controlling the current_extruder
+					if (active_extruder == LEFT_EXTRUDER && current_position[X_AXIS] != 0){															//Move X axis, controlling the current_extruder
 						current_position[X_AXIS] = current_position[X_AXIS]-G69_XYMOVE;
 						current_position[Y_AXIS] = current_position[Y_AXIS]+G69_XYMOVE;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-						}else{
-						current_position[X_AXIS] = extruder_offset[X_AXIS][1]+G69_XYMOVE;
+						}else if(active_extruder == RIGHT_EXTRUDER && current_position[X_AXIS] != extruder_offset[X_AXIS][1]){
+						current_position[X_AXIS] = current_position[X_AXIS]+G69_XYMOVE;
 						current_position[Y_AXIS] = current_position[Y_AXIS]+G69_XYMOVE;
 						plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS],  current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 					}
@@ -8623,21 +8648,33 @@ void process_commands()
 	#ifdef ENABLE_AUTO_BED_LEVELING
 	float x_tmp, y_tmp, z_tmp, real_z;
 	#endif
+	//Serial.println(cmdbuffer[bufindr]);
+	
 	if(code_seen('G'))
 	{
 		switch((int)code_value())
 		{
 			case 0: // G0 -> G1
 			case 1: // G1
-			gcode_G0_G1();
+			if(Stopped == false) {
+				gcode_G0_G1();
+				return;
+			}
 			break;
 			
 			#ifndef SCARA //disable arc support
 			case 2: // G2  - CW ARC
-			gcode_G2();
+			if(Stopped == false) {
+				gcode_G2();
+				return;
+			}
 			break;
 			case 3: // G3  - CCW ARC
-			gcode_G3();
+			if(Stopped == false) {
+				gcode_G3();
+				return;
+			}
+			
 			break;
 			#endif
 			case 4: // G4 dwell
@@ -8804,6 +8841,7 @@ void process_commands()
 					
 			case 105 : // M105
 			gcode_M105();
+			return;
 			break;
 					
 			case 109:// M109 - Wait for extruder heater to reach target.
@@ -9134,7 +9172,7 @@ void process_commands()
 		SERIAL_ECHO(cmdbuffer[bufindr]);
 		SERIAL_ECHOLNPGM("\"");
 		}
-
+	
 	ClearToSend();
 }
 
