@@ -4223,7 +4223,7 @@ static void dock_sled(bool dock, int offset=0) {
 #pragma region GCODES
 
 inline void gcode_G0_G1(){
-	if(Stopped == false) {
+	
 		get_coordinates(); // For X Y Z E F
 		#ifdef FWRETRACT
 		if(autoretract_enabled)
@@ -4239,26 +4239,23 @@ inline void gcode_G0_G1(){
 		#endif //FWRETRACT
 		prepare_move();
 		//ClearToSend();
-		return;
-	}
+	
 }
 
 inline void gcode_G2(){
 	#ifndef SCARA //disable arc support
-	if(Stopped == false) {
+	
 		get_arc_coordinates();
 		prepare_arc_move(true);
-		return;
-	}
+	
 	#endif
 }
 inline void gcode_G3(){
 	#ifndef SCARA //disable arc support
-	if(Stopped == false) {
+	
 		get_arc_coordinates();
 		prepare_arc_move(false);
-		return;
-	}
+		
 	#endif
 }
 inline void gcode_G4(){
@@ -8659,15 +8656,25 @@ void process_commands()
 		{
 			case 0: // G0 -> G1
 			case 1: // G1
-			gcode_G0_G1();
+			if(Stopped == false) {
+				gcode_G0_G1();
+				return;
+			}
 			break;
 			
 			#ifndef SCARA //disable arc support
 			case 2: // G2  - CW ARC
-			gcode_G2();
+			if(Stopped == false) {
+				gcode_G2();
+				return;
+			}
 			break;
 			case 3: // G3  - CCW ARC
-			gcode_G3();
+			if(Stopped == false) {
+				gcode_G3();
+				return;
+			}
+			
 			break;
 			#endif
 			case 4: // G4 dwell
@@ -8834,6 +8841,7 @@ void process_commands()
 					
 			case 105 : // M105
 			gcode_M105();
+			return;
 			break;
 					
 			case 109:// M109 - Wait for extruder heater to reach target.
