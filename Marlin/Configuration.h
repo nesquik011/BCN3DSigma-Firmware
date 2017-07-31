@@ -104,16 +104,16 @@
 #define MEGATRONICS_V3	703
 
 //Defining Machines supported
-#define BCN3D_SIGMA_PRINTER	2017
-#define BCN3D_SIGMAX_PRINTER 2018
+#define BCN3D_SIGMA_PRINTER_DEFAULT	3107
+#define BCN3D_SIGMA_PRINTER_DEVMODE_1 0713
 
 #ifndef MOTHERBOARD
 //#define MOTHERBOARD MEGATRONICS_V3 //Megatronics v3
 #define MOTHERBOARD BCN3D_BOARD //Marcotronics
 #endif
 
-#ifndef BCN3D_PRINTER
-	#define BCN3D_PRINTER BCN3D_SIGMA_PRINTER
+#ifndef BCN3D_PRINTER_SETUP
+	#define BCN3D_PRINTER_SETUP BCN3D_SIGMA_PRINTER_DEFAULT
 #endif
 
 #if MOTHERBOARD == MEGATRONICS_V3
@@ -500,10 +500,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if MOTHERBOARD == BCN3D_BOARD
-	#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
+	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_DEFAULT
 		#define X_MAX_POS 305.6//312 //Distance between extruders
 	#endif
-	#if BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
+	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_DEVMODE_1
 		#define X_MAX_POS 503.9//312 //Distance between extruders
 	#endif
 	//#define X_MAX_POS 210 //Bed X
@@ -699,10 +699,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //Rapduch
 //Insert Filament parameters
-#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
+#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_DEFAULT
 	#define BOWDEN_LENGTH 875
 #endif
-#if BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
+#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_DEVMODE_1
 	#define BOWDEN_LENGTH 1025
 #endif
 #define EXTRUDER_LENGTH 50
@@ -722,10 +722,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
 #ifdef Z_SIGMA_HOME
-	#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
+	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_DEFAULT
 		#define Z_SIGMA_HOME_X_POINT 58
 	#endif
-	#if BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
+	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_DEVMODE_1
 		#define Z_SIGMA_HOME_X_POINT 51
 	#endif
 	#define Z_SIGMA_HOME_Y_POINT 150
@@ -767,7 +767,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 	#define X_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	-13.5
 	#define Y_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	24
 	#define Z_SIGMA_SECOND_PROBE_OFFSET_FROM_EXTRUDER	2.80//2.90
-	#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
+	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_DEFAULT
 		//Left extruder probe point
 		#define X_SIGMA_PROBE_1_LEFT_EXTR 55
 		#define Y_SIGMA_PROBE_1_LEFT_EXTR 265
@@ -794,7 +794,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		#define Y_SIGMA_PROBE_3_RIGHT_EXTR 15
 		//#define Y_SIGMA_PROBE_3_RIGHT_EXTR 10
 	#endif
-	#if BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
+	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_DEVMODE_1
 		//Left extruder probe point
 		#define X_SIGMA_PROBE_1_LEFT_EXTR 52
 		#define Y_SIGMA_PROBE_1_LEFT_EXTR 265
@@ -848,7 +848,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		
 	#define X_CALIB_STARTING_X 117.5
 	#define X_CALIB_STARTING_Y 99.5
-	#if BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
+	#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_DEVMODE_1
 		#define X_OFFSET_CALIB_PROCEDURES 100
 	#endif
 #endif
@@ -877,12 +877,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 		#define EXTRUDER_OFFSET_Z {0.0 , 0.0}
 #endif
 
-#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
+#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_DEFAULT
 	#define NOZZLE_PARK_DISTANCE_BED_X0	47
 	#define NOZZLE_PARK_DISTANCE_BED_Y0	-2.5
 	#define PRINTER_BED_X_SIZE	210.0
 #endif
-#if BCN3D_PRINTER == BCN3D_SIGMAX_PRINTER
+#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_DEVMODE_1
 	#define NOZZLE_PARK_DISTANCE_BED_X0	43
 	#define NOZZLE_PARK_DISTANCE_BED_Y0	-2.5
 	#define PRINTER_BED_X_SIZE	420.0
@@ -906,7 +906,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 #define NUM_LINES 10
 //#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
-#if BCN3D_PRINTER == BCN3D_SIGMA_PRINTER
+#if BCN3D_PRINTER_SETUP == BCN3D_SIGMA_PRINTER_DEFAULT
 	#define HOMING_FEEDRATE {60*60, 90*60, 15*60, 0} ///{75*60, 65*60, 6*60, 0}  // old homing speeds (mm/min)
 #else
 	#define HOMING_FEEDRATE {60*60, 90*60, 15*60, 0} ///{75*60, 65*60, 6*60, 0}  // old homing speeds (mm/min)
