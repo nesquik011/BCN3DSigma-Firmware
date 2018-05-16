@@ -571,7 +571,9 @@ static float feedrate = 1500.0, next_feedrate, saved_feedrate;
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
 static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
-
+#ifdef ENABLE_DUPLI_MIRROR
+static char buffer_comment[MAX_CMD_SIZE];
+#endif
 static char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
 static bool fromsd[BUFSIZE];
 int bufindr = 0;
@@ -1281,7 +1283,7 @@ void get_command()
 						SERIAL_ERRORPGM(MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM);
 						SERIAL_ERRORLN(gcode_LastN);
 						while(MYSERIAL.available()){  //is there anything to read?
-							char getData = MYSERIAL.read();  //if yes, read it
+							MYSERIAL.read();  //if yes, read it
 						}   // don't do anything with it.
 						serial_count = 0;
 						return;
@@ -1314,7 +1316,7 @@ void get_command()
 
 				//If command was e-stop process now
 				if(strcmp(cmdbuffer[bufindw], "M112") == 0)
-				kill();				
+				kill();
 				
 				bufindw = (bufindw + 1)%BUFSIZE;
 				buflen += 1;
@@ -1333,8 +1335,8 @@ void get_command()
 		
 
 		
-		
-		//*********PAUSE POSITION AND RESUME POSITION IN PROBES
+			
+			//*********PAUSE POSITION AND RESUME POSITION IN PROBES
 		if (flag_sdprinting_pausepause && !flag_sdprinting_pauseresume){
 			
 			enquecommand_P(((PSTR("G69"))));
@@ -1345,165 +1347,165 @@ void get_command()
 		}
 		
 		//****************************************************/
-		if(flag_sdprinting_printsavejobcommand){
-			
+		if(flag_sdprinting_printsavejobcommand){		
 			enquecommand_P(PSTR("M33")); //Home X and Y;
 			flag_sdprinting_printsavejobcommand = false;
 		}
-		#endif
-		return;
-	}
-
-	//'#' stops reading from SD to the buffer prematurely, so procedural macro calls are possible
-	// if it occurs, stop_buffering is triggered and the buffer is ran dry.
-	// this character _can_ occur in serial com, due to checksums. however, no checksums are used in SD printing
-
-	static bool stop_buffering=false;
-	if(buflen==0) stop_buffering=false;
-	#ifdef ENABLE_DUPLI_MIRROR
-	static int raft_indicator = 0;
-	static int raft_indicator_is_Gcode = 0;
-	static uint32_t fileraftstart = 0;
-	static float current_z_raft_seen = 0.0;
 	#endif
-	while( !card.eof()  && buflen < BUFSIZE && !stop_buffering) {
-		int16_t n=card.get();
-		serial_char = (char)n;
-		if(serial_char == '\n' ||
-		serial_char == '\r' ||
-		(serial_char == '#' && comment_mode == false) ||
-		(serial_char == ':' && comment_mode == false) ||
-		serial_count >= (MAX_CMD_SIZE - 1)||n==-1)
+	return;
+}
+
+//'#' stops reading from SD to the buffer prematurely, so procedural macro calls are possible
+// if it occurs, stop_buffering is triggered and the buffer is ran dry.
+// this character _can_ occur in serial com, due to checksums. however, no checksums are used in SD printing
+
+static bool stop_buffering=false;
+if(buflen==0) stop_buffering=false;
+#ifdef ENABLE_DUPLI_MIRROR
+static int raft_indicator = 0;
+static int raft_indicator_is_Gcode = 0;
+static uint32_t fileraftstart = 0;
+static float current_z_raft_seen = 0.0;
+//static char buffer_comment[BUFSIZE];
+static int comment_count = 0;
+#endif
+while( !card.eof()  && buflen < BUFSIZE && !stop_buffering) {
+	int16_t n=card.get();
+	serial_char = (char)n;
+	if(serial_char == '\n' ||
+	serial_char == '\r' ||
+	(serial_char == '#' && comment_mode == false) ||
+	(serial_char == ':' && comment_mode == false) ||
+	serial_count >= (MAX_CMD_SIZE - 1)||n==-1)
+	{
+		
+		if(card.eof()){
+			SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
+			stoptime=millis();
+			char time[30];
+			unsigned long t=(stoptime-starttime)/1000;
+			int hours, minutes;
+			minutes=(t/60)%60;
+			hours=t/60/60;
+			sprintf_P(time, PSTR("%i hours %i minutes"),hours, minutes);
+			SERIAL_ECHO_START;
+			SERIAL_ECHOLN(time);
+			lcd_setstatus(time);
+			card.printingHasFinished();
+			card.checkautostart(true);
+
+		}
+		if(serial_char=='#')
+		stop_buffering=true;
+		if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
+			if(comment_count > 0){
+				buffer_comment[comment_count]=0;
+				comment_count = 0;
+			}
+		}
+		if(!serial_count)
 		{
-			
-			if(card.eof()){
-				SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
-				stoptime=millis();
-				char time[30];
-				unsigned long t=(stoptime-starttime)/1000;
-				int hours, minutes;
-				minutes=(t/60)%60;
-				hours=t/60/60;
-				sprintf_P(time, PSTR("%i hours %i minutes"),hours, minutes);
-				SERIAL_ECHO_START;
-				SERIAL_ECHOLN(time);
-				lcd_setstatus(time);
-				card.printingHasFinished();
-				card.checkautostart(true);
-
-			}
-			if(serial_char=='#')
-			stop_buffering=true;
-
-			if(!serial_count)
-			{
-				comment_mode = false; //for new command
-				return; //if empty line
-			}
-			cmdbuffer[bufindw][serial_count] = 0; //terminate string
-			#ifdef ENABLE_DUPLI_MIRROR
-			if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
-				switch(raft_indicator){
-					
-					case 1://valor de Z <--si valor es diferente de z_init se deja proceder
-					strchr_pointer = strchr(cmdbuffer[bufindw], 'Z');//posible bug
-					if(strchr_pointer != NULL){
-						current_z_raft_seen = strtod(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL);
-						if(raft_line == 1){
-							raft_z_init = current_z_raft_seen;
-							raft_indicator = 0;
-							}else{
+			comment_mode = false; //for new command
+			return; //if empty line
+		}
+		cmdbuffer[bufindw][serial_count] = 0; //terminate string
+		
+		#ifdef ENABLE_DUPLI_MIRROR
+		if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
+			if(raft_indicator){
+				
+				//valor de Z <--si valor es diferente de z_init se deja proceder
+				strchr_pointer = strchr(cmdbuffer[bufindw], 'Z');//posible bug
+				if(strchr_pointer != NULL){
+					current_z_raft_seen = strtod(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL);
+					if(raft_line == 1){
+						raft_z_init = current_z_raft_seen;
+						
+						}else{
+						
+						if(raft_z_init==current_z_raft_seen){
 							
-							if(raft_z_init==current_z_raft_seen){
-								raft_indicator = 0;
+							}else{
+							//Serial.print("Analyze Comment: ");
+							//Serial.println(buffer_comment);
+							//Serial.print("strncmp_P(;LAYER,buffer_comment, 6): ");
+							//Serial.println(strncmp_P(buffer_comment,PSTR(";LAYER"), 6));
+							//Serial.print("strncmp_P(; layer,buffer_comment, 7): ");
+							//Serial.println(strncmp_P(buffer_comment,PSTR("; layer"), 7));
+							if(strncmp_P(buffer_comment,PSTR(";LAYER"), 6)==0 || strncmp_P(buffer_comment,PSTR("; layer"), 7)==0){
+								SERIAL_PROTOCOLLNPGM("New layer detected");
+								//Z layer
+								raft_line_counter_g++;
+								serial_count = MAX_CMD_SIZE;
+								comment_mode = true;
+								memset( cmdbuffer[bufindw], '\0', sizeof(cmdbuffer[bufindw]));
+								card.setIndex(fileraftstart);
+
+								//float z_dif = current_z_raft_seen-raft_z_init;
+								//sprintf_P(cmdbuffer[bufindw], PSTR("G92 E0 R%d Z%d.%d%d%d"), raft_line_counter_g, (int)z_dif,(int)(z_dif*10)%10,(int)(z_dif*100)%10,(int)(z_dif*1000)%10);
+								sprintf_P(cmdbuffer[bufindw], PSTR("G92 E0 Z0 R%d"), raft_line_counter_g);
+								//dtostrf((double)z_dif,6,3,&cmdbuffer[bufindw][strlen(cmdbuffer[bufindw])]);
+								cmdbuffer[bufindw][serial_count] = 0; //terminate string
+								
 							}
 						}
 					}
-					//buscando
-					break;
-					
-					case 3://only a X
-					raft_indicator = 1;
-					break;
-					
-					case 4://only a Y
-					raft_indicator = 1;
-					break;
-					
-					case 5://only a E
-					raft_indicator = 1;
-					break;
-					
-					case 6:
-					raft_indicator = 0; //Z hopping
-					SERIAL_PROTOCOLPGM("Z hopping detected");
-					break;
-					
-					case 10:
-					SERIAL_PROTOCOLPGM("New layer detected");
-					//Z layer
-					raft_line_counter_g++;
-					serial_count = MAX_CMD_SIZE;
-					comment_mode = true;
-					memset( cmdbuffer[bufindw], '\0', sizeof(cmdbuffer[bufindw]));
-					card.setIndex(fileraftstart);
-
-					//float z_dif = current_z_raft_seen-raft_z_init;
-					//sprintf_P(cmdbuffer[bufindw], PSTR("G92 E0 R%d Z%d.%d%d%d"), raft_line_counter_g, (int)z_dif,(int)(z_dif*10)%10,(int)(z_dif*100)%10,(int)(z_dif*1000)%10);
-					sprintf_P(cmdbuffer[bufindw], PSTR("G92 E0 Z0 R%d"), raft_line_counter_g);
-					//dtostrf((double)z_dif,6,3,&cmdbuffer[bufindw][strlen(cmdbuffer[bufindw])]);
-					cmdbuffer[bufindw][serial_count] = 0; //terminate string
-					raft_indicator = 0;
-					break;
-					
 				}
-				raft_indicator_is_Gcode = 0;
+				
+				raft_indicator = 0;
 			}
-			#endif
-			
-			
-			
-			//      if(!comment_mode){
-			fromsd[bufindw] = true;
-			buflen += 1;
-			bufindw = (bufindw + 1)%BUFSIZE;
-			//      }
-			comment_mode = false; //for new command
-			serial_count = 0; //clear buffer
-			//Serial.print("cmdbuffer new from sd: ");
-			//Serial.println(cmdbuffer[bufindw]);
-			
+			raft_indicator_is_Gcode = 0;
 		}
-		else
-		{
-			
-			if(serial_char == ';') comment_mode = true;
-			if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
-			#ifdef ENABLE_DUPLI_MIRROR
-			if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){//5 = dual mode raft
-				if(serial_char == 'G'&& !comment_mode) raft_indicator_is_Gcode = 1;
-				if(raft_indicator_is_Gcode){
-					if(serial_char == 'Z' && !comment_mode){
-						raft_indicator = 1;
-						raft_line++;
-						if(raft_line == 1){
-							fileraftstart = card.getIndex()-serial_count;
-							raft_line_counter_g = 1;
-							raft_line_counter = 1;
-						}
-						
-					}
-					if(raft_indicator >= 1 && !comment_mode){
-						if(serial_char == 'X')raft_indicator=raft_indicator+2;
-						if(serial_char == 'Y')raft_indicator=raft_indicator+3;
-						if(serial_char == 'E')raft_indicator=raft_indicator+4;
-					}
-				}
-			}
-			#endif
-		}
+		#endif
+		
+		
+		
+		//      if(!comment_mode){
+		fromsd[bufindw] = true;
+		buflen += 1;
+		bufindw = (bufindw + 1)%BUFSIZE;
+		//      }
+		comment_mode = false; //for new command
+		serial_count = 0; //clear buffer
+		//Serial.print("cmdbuffer new from sd: ");
+		//Serial.println(cmdbuffer[bufindw]);
+		
 	}
-	#endif //SDSUPPORT
+	else
+	{
+		
+		if(serial_char == ';'){
+			if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
+				comment_count = 0;
+			}
+			comment_mode = true;
+		}
+		if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
+		#ifdef ENABLE_DUPLI_MIRROR
+		if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){//5 = dual mode raft
+			if(serial_char == 'G'&& !comment_mode) raft_indicator_is_Gcode = 1;
+			if(raft_indicator_is_Gcode){
+				if(serial_char == 'Z' && !comment_mode){
+					raft_indicator = 1;
+					raft_line++;
+					if(raft_line == 1){
+						fileraftstart = card.getIndex()-serial_count;
+						raft_line_counter_g = 1;
+						raft_line_counter = 1;
+					}
+					
+				}
+			}
+			if(comment_mode){
+				buffer_comment[comment_count++]=serial_char;
+			}
+		}
+		
+		
+		#endif
+	}
+}
+#endif //SDSUPPORT
 
 }
 
