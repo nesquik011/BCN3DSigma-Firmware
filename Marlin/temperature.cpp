@@ -1050,6 +1050,7 @@ void check_termistors_connections()
 				genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
 				thermal_error_screen_on();
 				
+				card.closefile();
 				card.sdprinting = false;
 				card.sdispaused = false;
 				
@@ -1072,10 +1073,12 @@ void check_termistors_connections()
 				sprintf(thermal_message, MSG_LCD_ERROR_82);
 				genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
 				thermal_error_screen_on();
+				
+				card.closefile();
 				card.sdprinting = false;
 				card.sdispaused = false;
-				cancel_heatup = true;
 				
+				cancel_heatup = true;
 				doblocking = false;
 				SERIAL_PROTOCOLPGM(" STOP PRINT \n");
 				gif_processing_state = PROCESSING_ERROR;
@@ -1098,6 +1101,7 @@ void check_termistors_connections()
 				genie.WriteStr(STRING_ERROR_MESSAGE,thermal_message);
 				thermal_error_screen_on();
 				
+				card.closefile();
 				card.sdprinting = false;
 				card.sdispaused = false;
 				
