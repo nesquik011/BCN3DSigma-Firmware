@@ -75,9 +75,7 @@ extern float current_temperature_bed;
 #ifdef BABYSTEPPING
   extern volatile int babystepsTodo[3];
 #endif
-
- void setWatch();
- void setWatchbed(); 
+  
 //high level conversion routines, for use outside of temperature.cpp
 //inline so that there is no performance decrease.
 //deg=degreeCelsius
@@ -108,14 +106,12 @@ FORCE_INLINE float degTargetBed() {
   return target_temperature_bed;
 };
 
-FORCE_INLINE void setTargetHotend(const float &celsius, uint8_t extruder) {
+FORCE_INLINE void setTargetHotend(const float &celsius, uint8_t extruder) {  
   target_temperature[extruder] = celsius;
-  setWatch();
 };
 
 FORCE_INLINE void setTargetBed(const float &celsius) {  
   target_temperature_bed = celsius;
-  setWatchbed();
 };
 
 FORCE_INLINE bool isHeatingHotend(uint8_t extruder){  
@@ -165,6 +161,7 @@ FORCE_INLINE bool isCoolingBed() {
 
 int getHeaterPower(int heater);
 void disable_heater();
+void setWatch();
 void updatePID();
 
 #ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD
@@ -181,7 +178,6 @@ static unsigned long thermal_runaway_bed_timer;
 #endif
 extern bool thermal_runaway_reset_hotend_state;
 extern bool thermal_runaway_reset_bed_state;
-// Your function
 
 FORCE_INLINE void autotempShutdown(){
  #ifdef AUTOTEMP
