@@ -4337,6 +4337,17 @@ void update_screen_printing(){
 		flag_sdprinting_showdata = false;
 		
 	}
+	if(FLAG_thermal_runaway){
+		char buffer[255];
+		sprintf(buffer, "WARNING(88): Temperature not reached by Heater_ID: %d",ID_thermal_runaway);
+		if(!FLAG_thermal_runaway_screen && (screen_printing_pause_form !=screen_printing_pause_form2)){
+			genie.WriteObject(GENIE_OBJ_FORM,FORM_ERROR_SCREEN,0);
+			genie.WriteStr(STRING_ERROR_MESSAGE,buffer);
+			FLAG_thermal_runaway_screen = true;
+			gif_processing_state = PROCESSING_ERROR;
+		}
+		FLAG_thermal_runaway = false;
+	}
 	if(screen_change_nozz1up){
 		char buffer[25];
 		if (target_temperature[0] < HEATER_0_MAXTEMP)
@@ -5166,18 +5177,6 @@ void lcd_animation_handler(){//We process the animations frames
 			log_minutes_lastprint = (int)(log_min_print%60);
 			Config_StoreSettings();
 			cancel_heatup = false;
-			if(FLAG_thermal_runaway){
-				char buffer[255];
-				sprintf_P(buffer, PSTR("ERROR(88): Temperature not reached by Heater_ID: %d"),ID_thermal_runaway);
-				if(!FLAG_thermal_runaway_screen && (screen_printing_pause_form !=screen_printing_pause_form2)){
-					display_ChangeForm(FORM_ERROR_SCREEN,0);
-					genie.WriteStr(STRING_ERROR_MESSAGE,buffer);
-					FLAG_thermal_runaway_screen = true;
-					gif_processing_state = PROCESSING_ERROR;
-				}
-				FLAG_thermal_runaway = false;
-				return;
-			}
 			if(saved_print_flag == 1888){
 				genie.WriteObject(GENIE_OBJ_FORM,FORM_SDPRINTING_SAVEJOB_SUCCESS,0);
 				gif_processing_state = PROCESSING_SAVE_PRINT_SUCCESS;

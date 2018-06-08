@@ -37,7 +37,6 @@
 #include "Sd2PinMap.h"
 #include "cardreader.h"
 #include "language.h"
-#include "LCD_FSM.h"
 //===========================================================================
 //=============================public variables============================
 //===========================================================================
@@ -1555,12 +1554,6 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
 				}
 				else{
 				ID_thermal_runaway = (int)heater_id;
-				is_on_printing_screen=false;
-				card.closefile();
-				flag_sdprinting_printstop = true;
-				cancel_heatup = true;
-				display_ChangeForm(FORM_PROCESSING,0);
-				gif_processing_state = PROCESSING_DEFAULT;
 				FLAG_thermal_runaway = true;
 			}
 		}
