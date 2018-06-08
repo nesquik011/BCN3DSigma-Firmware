@@ -434,11 +434,6 @@ int long long log_E1_mmdone;
 
 //////// end PRINT STATS ////////
 
-//////// start check filament ///////
-bool Flag_checkfil = false;
-uint8_t which_extruder_needs_fil;
-//////// end check filament ////////
-
 // Extruder offset
 #if EXTRUDERS > 1
 #ifndef DUAL_X_CARRIAGE
@@ -649,45 +644,6 @@ extern "C"{
 		free_memory = ((int)&free_memory) - ((int)__brkval);
 
 		return free_memory;
-	}
-}
-
-void checkfilament(){
-	static uint32_t timer_fil = millis();
-	static uint8_t times_fail0 = 0;
-	static uint8_t times_fail1 = 0;
-	
-	if(card.sdprinting){
-		if(timer_fil < millis()){
-			if(!digitalRead(E0_STOP) && !Flag_checkfil && (active_extruder == 0 || extruder_duplication_enabled || extruder_duplication_mirror_enabled)){
-				times_fail0++;
-				if(times_fail0>3){
-					Flag_checkfil = true;
-					which_extruder_needs_fil = 10;
-					flag_sdprinting_printpause = true;
-					times_fail0 = 0;
-					SERIAL_PROTOCOLLNPGM("There is not filament on the left extruder");
-				}
-				}else{
-				times_fail0=0;
-			}
-			
-			if(!digitalRead(E1_STOP) && !Flag_checkfil && (active_extruder == 1 || extruder_duplication_enabled || extruder_duplication_mirror_enabled)){
-				times_fail1++;
-				if(times_fail1>3){
-					Flag_checkfil = true;
-					which_extruder_needs_fil = 11;
-					flag_sdprinting_printpause = true;
-					times_fail1 = 0;
-					SERIAL_PROTOCOLLNPGM("There is not filament on the right extruder");
-				}
-				
-				}else{
-				times_fail1=0;
-			}
-			timer_fil = millis() + 1000; //check every 1
-		}
-		
 	}
 }
 
@@ -939,7 +895,7 @@ void loop()
 	manage_inactivity();
 	checkHitEndstops();
 	checkMaxTemps();
-	checkfilament();
+	
 	//lcd_update();
 	#ifdef SIGMA_TOUCH_SCREEN
 	touchscreen_update();
@@ -4082,7 +4038,7 @@ inline void gcode_G69(){//Pause
 inline void gcode_G70(){//Resume
 	#ifdef ENABLE_AUTO_BED_LEVELING
 	////*******LOAD ACTUIAL POSITION
-	Flag_checkfil = false;
+	
 	//Serial.println(current_position[Z_AXIS]);
 	//*********************************//
 	doblocking = true;
