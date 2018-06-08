@@ -270,6 +270,7 @@ int raft_line_counter = 0;
 int raft_line_counter_g = 0;
 float raft_z_init = 0.0;
 bool Flag_raft_last_line = false;
+bool Flag_serial_new_layer = false;
 float raft_extrusion_adjusting = 1.0;
 float destination_X_2 = 0.0;
 float destination_Z_2 = 0.0;
@@ -1260,6 +1261,15 @@ void touchscreen_update() //Updates the Serial Communications with the screen
 
 void get_command()
 {
+	#ifdef ENABLE_DUPLI_MIRROR
+	static int raft_indicator = 0;
+	static int raft_indicator_is_Gcode = 0;
+	static uint32_t fileraftstart = 0;
+	static float current_z_raft_seen = 0.0;
+	//static char buffer_comment[BUFSIZE];
+	static int comment_count = 0;
+	#endif
+	
 	while( MYSERIAL.available() > 0  && buflen < BUFSIZE) {
 		serial_char = MYSERIAL.read();
 		if(serial_char == '\n' ||
@@ -1267,12 +1277,14 @@ void get_command()
 		(serial_char == ':' && comment_mode == false) ||
 		serial_count >= (MAX_CMD_SIZE - 1) )
 		{
-			//Serial.println(cmdbuffer[bufindw]);
+			
+			
 			if(!serial_count) { //if empty line
 				comment_mode = false; //for new command
 				return;
 			}
 			cmdbuffer[bufindw][serial_count] = 0; //terminate string
+			
 			if(!comment_mode){
 				comment_mode = false; //for new command
 				fromsd[bufindw] = false;
@@ -1329,10 +1341,49 @@ void get_command()
 						while(MYSERIAL.available()){  //is there anything to read?
 							MYSERIAL.read();  //if yes, read it
 						}   // don't do anything with it.
+						MYSERIAL.flush();
 						serial_count = 0;
 						return;
 					}
 				}
+				
+				
+				#ifdef ENABLE_DUPLI_MIRROR
+				
+				
+				if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
+					if(raft_indicator){
+						strchr_pointer = strchr(cmdbuffer[bufindw], 'Z');
+						if(strchr_pointer != NULL){
+							current_z_raft_seen = strtod(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL);
+							if(raft_line == 1){
+								raft_z_init = current_z_raft_seen;
+								
+								}else{
+								
+								if(raft_z_init==current_z_raft_seen){
+									}else{
+									if(Flag_serial_new_layer){
+										//Z layer
+										Flag_serial_new_layer = false;
+										raft_line_counter_g++;
+										serial_count = MAX_CMD_SIZE;
+										memset( cmdbuffer[bufindw], '\0', sizeof(cmdbuffer[bufindw]));
+										gcode_LastN = fileraftstart;
+										sprintf(cmdbuffer[bufindw], "G92 E0 Z0 R%d%c", raft_line_counter_g,0);
+										
+									}
+								}
+							}
+						}
+						
+						raft_indicator = 0;
+					}
+					raft_indicator_is_Gcode = 0;
+					
+				}
+				#endif
+				
 				if((strchr(cmdbuffer[bufindw], 'G') != NULL)){
 					strchr_pointer = strchr(cmdbuffer[bufindw], 'G');
 					switch((int)((strtod(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL)))){
@@ -1352,6 +1403,14 @@ void get_command()
 							LCD_MESSAGEPGM(MSG_STOPPED);
 						}
 						break;
+						
+						case 715:
+						if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
+							if(raft_line >= 1){
+								Flag_serial_new_layer = true;
+							}
+						}
+						break;
 						default:
 						break;
 					}
@@ -1362,6 +1421,11 @@ void get_command()
 				if(strcmp(cmdbuffer[bufindw], "M112") == 0)
 				kill();
 				
+				//Serial.print("ID gc: ");
+				//Serial.println(bufindw);
+				//Serial.print("get_commands: ");
+				//Serial.println(cmdbuffer[bufindw]);
+				
 				bufindw = (bufindw + 1)%BUFSIZE;
 				buflen += 1;
 			}
@@ -1369,8 +1433,26 @@ void get_command()
 		}
 		else
 		{
-			if(serial_char == ';') comment_mode = true;
+			if(serial_char == ';'){
+				comment_mode = true;
+			}
 			if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
+			if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){//5 = dual mode raft
+				if(serial_char == 'G'&& !comment_mode) raft_indicator_is_Gcode = 1;
+				if(raft_indicator_is_Gcode){
+					if(serial_char == 'Z' && !comment_mode){
+						raft_indicator = 1;
+						raft_line++;
+						if(raft_line == 1){
+							fileraftstart = gcode_N;
+							raft_line_counter_g = 1;
+							raft_line_counter = 1;
+						}
+						
+					}
+				}
+				
+			}
 		}
 	}
 	#ifdef SDSUPPORT
@@ -1405,14 +1487,6 @@ void get_command()
 
 static bool stop_buffering=false;
 if(buflen==0) stop_buffering=false;
-#ifdef ENABLE_DUPLI_MIRROR
-static int raft_indicator = 0;
-static int raft_indicator_is_Gcode = 0;
-static uint32_t fileraftstart = 0;
-static float current_z_raft_seen = 0.0;
-//static char buffer_comment[BUFSIZE];
-static int comment_count = 0;
-#endif
 while( !card.eof()  && buflen < BUFSIZE && !stop_buffering) {
 	int16_t n=card.get();
 	serial_char = (char)n;
@@ -5212,7 +5286,6 @@ inline void gcode_M104(){
 	setTargetHotend1(code_value() == 0.0 ? 0.0 : code_value() + hotend1_relative_temp + duplicate_extruder_temp_offset);
 	#endif
 	}
-	setWatch();
 	thermal_runaway_reset_hotend_state = true;
 }
 inline void gcode_M112(){
@@ -5417,7 +5490,6 @@ inline void gcode_M109(){
 	}
 	#endif
 
-	setWatch();
 	codenum = millis();
 
 	/* See if we are heating up or cooling down */
@@ -6719,13 +6791,17 @@ inline void gcode_M605(){
 	{
 		dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
 	}
-	
+	raft_line = 0;
+	raft_line_counter = 0;
+	raft_line_counter_g = 0;
+	raft_extrusion_adjusting = 1.0;
+	Flag_raft_last_line = false;
 	active_extruder_parked = false;
 	extruder_duplication_enabled = false;
 	extruder_duplication_mirror_enabled = false;
 	Flag_Raft_Dual_Mode_On = false;
 	delayed_move_time = 0;
-	
+	Flag_serial_new_layer = false;
 	switch(dual_x_carriage_mode){
 		case DXC_DUPLICATION_MODE:
 		case DXC_DUPLICATION_MODE_RAFT:
