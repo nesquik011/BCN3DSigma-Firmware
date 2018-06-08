@@ -5167,8 +5167,8 @@ void lcd_animation_handler(){//We process the animations frames
 			Config_StoreSettings();
 			cancel_heatup = false;
 			if(FLAG_thermal_runaway){
-				char buffer[255];
-				sprintf_P(buffer, PSTR("ERROR(88): Temperature not reached by Heater_ID: %d"),ID_thermal_runaway);
+				char buffer[80];
+				sprintf(buffer, "ERROR(88): Temperature not reached by Heater_ID: %d",ID_thermal_runaway);
 				if(!FLAG_thermal_runaway_screen && (screen_printing_pause_form !=screen_printing_pause_form2)){
 					display_ChangeForm(FORM_ERROR_SCREEN,0);
 					genie.WriteStr(STRING_ERROR_MESSAGE,buffer);
