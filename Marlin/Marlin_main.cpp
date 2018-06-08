@@ -652,7 +652,7 @@ extern "C"{
 		return free_memory;
 	}
 }
-
+/*
 void checkfilament(){
 	static uint32_t timer_fil = millis();
 	static uint8_t times_fail0 = 0;
@@ -691,7 +691,7 @@ void checkfilament(){
 		
 	}
 }
-
+*/
 //adds an command to the main command buffer
 //thats really done in a non-safe way.
 //needs overworking someday
@@ -940,7 +940,7 @@ void loop()
 	manage_inactivity();
 	checkHitEndstops();
 	checkMaxTemps();
-	checkfilament();
+	//checkfilament();
 	//lcd_update();
 	#ifdef SIGMA_TOUCH_SCREEN
 	touchscreen_update();
@@ -4920,8 +4920,8 @@ inline void gcode_M34(){
 			Serial.println(current_position[Y_AXIS]);
 			waiting_temps = false;
 			saved_print_smartpurge_flag = true;
-			if(degTargetHotend[0]>145)Flag_hotend0_relative_temp = true;
-			if(degTargetHotend[1]>145)Flag_hotend1_relative_temp = true;
+			if(degTargetHotend0()>145)Flag_hotend0_relative_temp = true;
+			if(degTargetHotend1()>145)Flag_hotend1_relative_temp = true;
 			genie.WriteObject(GENIE_OBJ_USERBUTTON,BUTTON_SDPRINTING_PAUSE,1);
 		}
 		#endif //SDSUPPORT
@@ -5600,8 +5600,8 @@ inline void gcode_M109(){
 		#endif //TEMP_RESIDENCY_TIME
 	}
 	#endif //TEMP_RESIDENCY_TIME
-	if(degTargetHotend[0]>145)Flag_hotend0_relative_temp = true;
-	if(degTargetHotend[1]>145)Flag_hotend1_relative_temp = true;
+	if(degTargetHotend0()>145)Flag_hotend0_relative_temp = true;
+	if(degTargetHotend1()>145)Flag_hotend1_relative_temp = true;
 	waiting_temps = false;
 	SERIAL_PROTOCOLLNPGM("Extruder Heated");
 	LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
