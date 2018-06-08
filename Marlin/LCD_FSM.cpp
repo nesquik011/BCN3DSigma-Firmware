@@ -1739,13 +1739,20 @@ void lcd_fsm_lcd_input_logic(){//We process tasks according to the lcd imputs
 			
 			break;
 			
-			case BUTTON_MAINTENANCE_ZADJUST_BACK:			
-			case BUTTON_MAINTENANCE_ZADJUST_ACCEPT:
-			if(!blocks_queued()){
+			case BUTTON_MAINTENANCE_ZADJUST_BACK:
+			
 			processing_z_set = 255;
 			touchscreen_update();
 			genie.WriteObject(GENIE_OBJ_FORM, FORM_UTILITIES_MAINTENANCE, 0);
-			}
+			
+			break;
+			
+			case BUTTON_MAINTENANCE_ZADJUST_ACCEPT:
+			
+			processing_z_set = 255;
+			touchscreen_update();
+			genie.WriteObject(GENIE_OBJ_FORM, FORM_UTILITIES_MAINTENANCE, 0);
+			
 			break;
 			
 			
@@ -6346,7 +6353,7 @@ void Z_compensation_coolingdown(void){
 	setTargetHotend0(0);
 	setTargetBed(0);
 	Config_StoreSettings();
-	which_extruder = (extruder_offset[Z_AXIS][RIGHT_EXTRUDER]<0 ? RIGHT_EXTRUDER:LEFT_EXTRUDER);
+	which_extruder = (extruder_offset[Z_AXIS][RIGHT_EXTRUDER]<0) ? 1:0;
 	if(degHotend(which_extruder)>NYLON_TEMP_COOLDOWN_THRESHOLD){
 		//genie.WriteObject(GENIE_OBJ_FORM,FORM_ADJUSTING_TEMPERATURES,0);
 		if(which_extruder == 0)digitalWrite(FAN_PIN, 1);
@@ -6409,7 +6416,7 @@ void Z_compensation_coolingdown(void){
 	#endif
 	plan_buffer_line(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS],current_position[E_AXIS],XY_TRAVEL_SPEED*1.5,which_extruder);
 	st_synchronize();
-	sprintf(offset_string, "Install %d %s on the %s hotend", offset_aprox, ((offset_aprox > 1)?"shims":"shim") , ((extruder_offset[Z_AXIS][RIGHT_EXTRUDER] < 0)?"right":"left"));
+	sprintf_P(offset_string, PSTR("Install %d %s on the %s hotend"), offset_aprox, ((offset_aprox > 1)?"shims":"shim") , ((extruder_offset[Z_AXIS][RIGHT_EXTRUDER] < 0)?"right":"left"));
 	Serial.println(offset_string);
 	genie.WriteObject(GENIE_OBJ_FORM,FORM_Z_COMPENSATION_SHUTDOWN,0);
 	genie.WriteStr(STRING_Z_COMPENSATION_SHUTDOWN,offset_string);
