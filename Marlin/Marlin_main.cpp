@@ -1404,6 +1404,7 @@ void get_command()
 						}
 						break;
 						
+						#ifdef ENABLE_DUPLI_MIRROR
 						case 715:
 						if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
 							if(raft_line >= 1){
@@ -1411,6 +1412,8 @@ void get_command()
 							}
 						}
 						break;
+						#endif
+						
 						default:
 						break;
 					}
@@ -1437,6 +1440,7 @@ void get_command()
 				comment_mode = true;
 			}
 			if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
+			#ifdef ENABLE_DUPLI_MIRROR
 			if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){//5 = dual mode raft
 				if(serial_char == 'G'&& !comment_mode) raft_indicator_is_Gcode = 1;
 				if(raft_indicator_is_Gcode){
@@ -1453,6 +1457,7 @@ void get_command()
 				}
 				
 			}
+			#endif
 		}
 	}
 	#ifdef SDSUPPORT
@@ -1515,12 +1520,14 @@ while( !card.eof()  && buflen < BUFSIZE && !stop_buffering) {
 		}
 		if(serial_char=='#')
 		stop_buffering=true;
+		#ifdef ENABLE_DUPLI_MIRROR
 		if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
 			if(comment_count > 0){
 				buffer_comment[comment_count]=0;
 				comment_count = 0;
 			}
 		}
+		#endif
 		if(!serial_count)
 		{
 			comment_mode = false; //for new command
@@ -1593,10 +1600,13 @@ while( !card.eof()  && buflen < BUFSIZE && !stop_buffering) {
 	{
 		
 		if(serial_char == ';'){
+			#ifdef ENABLE_DUPLI_MIRROR
 			if(get_dual_x_carriage_mode() == 5 || get_dual_x_carriage_mode() == 6){
 				comment_count = 0;
 			}
+			#endif
 			comment_mode = true;
+			
 		}
 		if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
 		#ifdef ENABLE_DUPLI_MIRROR
